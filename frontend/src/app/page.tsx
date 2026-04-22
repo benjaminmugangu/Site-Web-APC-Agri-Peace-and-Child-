@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
 
+// Map pilier title to domain slug
+const pilierLinks: Record<string, string> = {
+  Protection: "/domaines#protection",
+  Agriculture: "/domaines#agriculture",
+  Dignité: "/domaines#dignite",
+  Paix: "/domaines#paix",
+};
+
 const piliers = [
   {
     title: "Protection",
@@ -45,10 +53,10 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"
             alt="Communauté et agriculture"
             fill
-            className="object-cover"
+            className="object-cover scale-105 animate-[kenburns_15s_ease-in-out_infinite_alternate]"
             priority
           />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/60" />
         </div>
 
         <div className="container relative z-10 text-center text-white px-4">
@@ -63,12 +71,16 @@ export default function Home() {
               APC (Agri-Peace and Child) est une organisation non gouvernementale engagée dans la protection sociale, le développement agricole et la consolidation de l&apos;équité.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8">
-                Faire un don maintenant
-              </Button>
-              <Button size="lg" variant="white" className="text-lg px-8 gap-2">
-                Découvrir nos projets <ChevronRight className="w-4 h-4" />
-              </Button>
+              <Link href="/contact?sujet=don">
+                <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
+                  Faire un don maintenant
+                </Button>
+              </Link>
+              <Link href="/projets">
+                <Button size="lg" variant="white" className="text-lg px-8 gap-2 w-full sm:w-auto">
+                  Découvrir nos projets <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </FadeIn>
         </div>
@@ -93,7 +105,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-4">{pilier.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{pilier.desc}</p>
-                  <Link href="#" className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color: pilier.color }}>
+                  <Link href={pilierLinks[pilier.title] ?? "/domaines"} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color: pilier.color }}>
                     En savoir plus <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -169,12 +181,16 @@ export default function Home() {
               </ul>
 
               <div className="flex items-center gap-4">
-                <Button size="lg" className="shadow-lg hover:shadow-apc-green/25 text-base px-8 h-14">
-                  Soutenir le projet
-                </Button>
-                <Button variant="outline" size="lg" className="text-base h-14 px-8">
-                  Nous Rejoindre
-                </Button>
+                <Link href="/contact?sujet=don">
+                  <Button size="lg" className="shadow-lg hover:shadow-apc-green/25 text-base px-8 h-14">
+                    Soutenir le projet
+                  </Button>
+                </Link>
+                <Link href="/nous-rejoindre">
+                  <Button variant="outline" size="lg" className="text-base h-14 px-8">
+                    Nous Rejoindre
+                  </Button>
+                </Link>
               </div>
             </FadeIn>
           </div>

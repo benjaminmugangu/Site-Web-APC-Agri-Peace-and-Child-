@@ -11,7 +11,7 @@ import {
   statusColors,
   type ProjectStatus,
 } from "@/lib/data"
-import { MapPin, Users, ChevronRight, TrendingUp } from "lucide-react"
+import { MapPin, Users, ChevronRight } from "lucide-react"
 
 const tabs: { label: string; value: "all" | ProjectStatus }[] = [
   { label: "Tous les projets", value: "all" },
@@ -138,25 +138,8 @@ export default function ProjetsPage() {
                       </span>
                     </div>
 
-                    {/* Progress bar (only for active/completed) */}
-                    {project.status !== "upcoming" && (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                          <span className="text-muted-foreground flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" /> Avancement
-                          </span>
-                          <span className="font-semibold text-apc-green">
-                            {project.progress}%
-                          </span>
-                        </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-apc-green to-apc-greenLight rounded-full transition-all duration-700"
-                            style={{ width: `${project.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
+
+
 
                     {/* Budget */}
                     <div className="flex items-center justify-between pt-4 border-t border-border/50">

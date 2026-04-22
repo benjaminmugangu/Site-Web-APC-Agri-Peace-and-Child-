@@ -1,14 +1,11 @@
-import type { Metadata } from "next"
+"use client"
+
+import { Suspense } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { MapPin, Phone, Mail, Send } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Contactez-nous — APC",
-  description:
-    "Prenez contact avec Agri-Peace and Child (APC) pour toute question, proposition de partenariat ou demande d'information.",
-}
+import { MapPin, Phone, Mail, Send, Heart } from "lucide-react"
 
 // Ensure the map component does not SSR
 const MapDynamic = dynamic(() => import("@/components/ui/map"), {
@@ -20,20 +17,80 @@ const MapDynamic = dynamic(() => import("@/components/ui/map"), {
   ),
 })
 
+// ── Sous-composant qui utilise useSearchParams (doit être dans Suspense) ──
+function DonationBanner() {
+  const searchParams = useSearchParams()
+  const isDonation = searchParams.get("sujet") === "don"
+
+  if (!isDonation) return null
+
+  return (
+    <div className="bg-apc-green text-white py-6">
+      <div className="container px-4">
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <Heart className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-1">Merci pour votre générosité !</h3>
+            <p className="text-white/90 text-sm leading-relaxed">
+              Pour effectuer un don, merci de nous contacter directement par{" "}
+              <a href="tel:+243975418316" className="font-bold underline hover:no-underline">
+                téléphone au +243 975 418 316
+              </a>{" "}
+              ou par{" "}
+              <a href="mailto:agripeaceandchild@gmail.com" className="font-bold underline hover:no-underline">
+                email à agripeaceandchild@gmail.com
+              </a>
+              . Vous pouvez également passer directement à nos bureaux.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Sous-composant pour le champ Sujet (pré-rempli si ?sujet=don) ──
+function SubjectSelect() {
+  const searchParams = useSearchParams()
+  const isDonation = searchParams.get("sujet") === "don"
+
+  return (
+    <select
+      id="subject"
+      defaultValue={isDonation ? "don" : ""}
+      className="w-full px-4 py-2.5 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30 transition-all"
+    >
+      <option value="">Demande d&apos;information générale</option>
+      <option value="don">Faire un don</option>
+      <option value="partenariat">Proposition de partenariat</option>
+      <option value="presse">Presse &amp; Médias</option>
+      <option value="autre">Autre</option>
+    </select>
+  )
+}
+
+// ── Page principale ──
 export default function ContactPage() {
   return (
     <div className="flex flex-col">
       <PageHero
         title="Contactez-nous"
-        subtitle="Vous avez une question, une proposition de partenariat ou vous souhaitez en savoir plus sur nos actions ? N'hésitez pas à nous écrire."
+        subtitle="Vous avez une question, une proposition de partenariat ou vous souhaitez en savoir plus sur nos actions ? N&apos;hésitez pas à nous écrire."
         breadcrumbs={[{ label: "Contact" }]}
         tag="Prendre Contact"
       />
 
+      {/* Bannière Don — enveloppée dans Suspense (requis par Next.js 14) */}
+      <Suspense fallback={null}>
+        <DonationBanner />
+      </Suspense>
+
       <section className="py-20 bg-apc-bgLight">
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            
+
             {/* ── Formulaire ── */}
             <div className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-border/50">
               <h2 className="text-2xl font-bold text-foreground mb-6">Envoyez-nous un message</h2>
@@ -82,16 +139,14 @@ export default function ContactPage() {
                   <label htmlFor="subject" className="text-sm font-medium text-foreground">
                     Sujet
                   </label>
-                  <select
-                    id="subject"
-                    className="w-full px-4 py-2.5 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30 transition-all"
-                  >
-                    <option>Demande d'information générale</option>
-                    <option>Proposition de partenariat</option>
-                    <option>Presse & Médias</option>
-                    <option>Problème technique (site web)</option>
-                    <option>Autre</option>
-                  </select>
+                  {/* Suspense requis car SubjectSelect utilise useSearchParams */}
+                  <Suspense fallback={
+                    <select className="w-full px-4 py-2.5 rounded-xl border border-border bg-gray-50">
+                      <option>Chargement...</option>
+                    </select>
+                  }>
+                    <SubjectSelect />
+                  </Suspense>
                 </div>
 
                 <div className="space-y-1.5">
