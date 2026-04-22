@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
   Leaf, 
@@ -26,7 +26,15 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const handleLogout = () => {
+    // Effacer le cookie de session
+    document.cookie = "apc_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+    router.push("/admin/login")
+    router.refresh()
+  }
 
   return (
     <aside 
@@ -84,7 +92,10 @@ export function Sidebar() {
 
       {/* Footer Sidebar */}
       <div className="p-4 border-t border-white/10">
-        <button className="flex items-center gap-3 p-3 rounded-xl w-full text-white/70 hover:bg-red-500/10 hover:text-red-400 transition-colors group">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 p-3 rounded-xl w-full text-white/70 hover:bg-red-500/10 hover:text-red-400 transition-colors group"
+        >
           <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           {!isCollapsed && <span className="text-sm font-medium">Déconnexion</span>}
         </button>

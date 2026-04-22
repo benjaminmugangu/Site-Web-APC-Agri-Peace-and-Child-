@@ -7,6 +7,7 @@ import {
   Trash2,
   FileText
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const articles = [
@@ -44,9 +45,11 @@ export default function AdminActualites() {
           <h1 className="text-2xl font-bold">Gestion des Actualités</h1>
           <p className="text-gray-500 text-sm">Publiez des articles, des rapports et des histoires de réussite.</p>
         </div>
-        <Button className="gap-2 bg-apc-green">
-          <Plus size={18} /> Nouvel Article
-        </Button>
+        <Link href="/admin/actualites/editeur">
+          <Button className="gap-2 bg-apc-green">
+            <Plus size={18} /> Nouvel Article
+          </Button>
+        </Link>
       </div>
 
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
