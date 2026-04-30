@@ -4,16 +4,14 @@ import {
   Briefcase,
   Search,
   Handshake,
-  MessageSquare,
   Plus,
   Clock,
-  ArrowUpRight,
   LayoutDashboard,
   FileText,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { getDashboardStats, getRecentActivity, getMessagesByType } from "@/lib/data/mock-dashboard"
+import { getDashboardStats, getRecentActivity } from "@/lib/data/mock-dashboard"
 
 const activityIcons: Record<string, string> = {
   project: "📁",
@@ -26,7 +24,6 @@ const activityIcons: Record<string, string> = {
 export default function AdminDashboard() {
   const stats = getDashboardStats()
   const recentActivity = getRecentActivity()
-  const messageStats = getMessagesByType()
 
   const adminCards = [
     {
@@ -122,70 +119,39 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Activités Récentes */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+      {/* Main Grid / Notifications */}
+      <div className="grid grid-cols-1 gap-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Clock size={18} className="text-apc-green" /> Activités Récentes
+              <Clock size={18} className="text-apc-green" /> Notifications & Activités Récentes
             </h3>
-            <span className="text-xs text-gray-400">{recentActivity.length} actions</span>
+            <span className="text-xs text-gray-400 font-medium px-2 py-1 bg-gray-100 rounded-full">{recentActivity.length} nouvelles alertes</span>
           </div>
           <div className="divide-y divide-gray-50">
             {recentActivity.map((activity) => (
-              <div key={activity.id} className="px-6 py-4 hover:bg-gray-50/50 transition-colors flex items-center gap-4">
-                <div className={`w-9 h-9 rounded-full ${activity.memberColor} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+              <div key={activity.id} className="px-6 py-5 hover:bg-gray-50/80 transition-colors flex items-center gap-4 group">
+                <div className={`w-10 h-10 rounded-xl ${activity.memberColor} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
                   {activity.memberInitials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 font-medium truncate">
-                    <span className="text-gray-500">{activity.memberName}</span>{" "}
-                    {activity.action}{" "}
-                    <span className="font-semibold">&quot;{activity.target}&quot;</span>
+                  <p className="text-sm text-gray-900 font-medium">
+                    <span className="text-apc-green font-bold">{activity.memberName}</span>{" "}
+                    <span className="text-gray-500 font-normal">{activity.action}</span>{" "}
+                    <span className="font-bold text-gray-700 italic">&quot;{activity.target}&quot;</span>
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">{activity.elapsed}</p>
+                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                    <Clock size={10} /> {activity.elapsed}
+                  </p>
                 </div>
-                <span className="text-lg shrink-0">{activityIcons[activity.targetType] ?? "•"}</span>
+                <div className="text-2xl shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                  {activityIcons[activity.targetType] ?? "•"}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Messages */}
-        <div className="bg-[#1a472a] rounded-2xl p-6 text-white relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-          <div>
-            <h3 className="font-bold mb-1 flex items-center gap-2 relative z-10">
-              <MessageSquare size={16} className="text-white/70" /> Centre de Messages
-            </h3>
-            <div className="relative z-10 space-y-4 my-6">
-              <div className="flex justify-between items-center text-sm bg-white/5 p-3 rounded-xl">
-                <span className="text-white/70">Non lus</span>
-                <span className="font-bold text-2xl text-white">{messageStats.unread}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm bg-white/5 p-3 rounded-xl">
-                <span className="text-white/70">Demandes de don</span>
-                <span className="font-bold text-xl text-white">{messageStats.donation}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm bg-white/5 p-3 rounded-xl">
-                <span className="text-white/70">Partenariats</span>
-                <span className="font-bold text-xl text-white">{messageStats.partnership}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            {messageStats.unread > 0 && (
-              <div className="relative z-10 bg-apc-alert/20 rounded-xl px-3 py-2 text-xs text-white border border-apc-alert/30">
-                🔴 {messageStats.unread} message(s) en attente
-              </div>
-            )}
-            <Link href="/admin/messages" className="relative z-10 block">
-              <Button variant="secondary" size="sm" className="w-full bg-white text-apc-green hover:bg-gray-100 border-0 text-xs font-bold">
-                Accéder à la messagerie →
-              </Button>
-            </Link>
+          <div className="p-4 bg-gray-50/50 text-center border-t border-gray-50">
+            <button className="text-xs font-bold text-apc-green hover:underline">Voir l&apos;historique complet</button>
           </div>
         </div>
       </div>
