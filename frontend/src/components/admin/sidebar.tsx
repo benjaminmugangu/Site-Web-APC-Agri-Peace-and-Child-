@@ -37,7 +37,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     // Effacer le cookie de session
-    document.cookie = "admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+    document.cookie = "apc_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
     router.push("/admin/login")
     router.refresh()
   }
