@@ -13,8 +13,10 @@ import {
   FileText,
   AlertCircle,
   CheckCircle2,
-  X
+  X,
+  Eye
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const initialEmplois = [
@@ -174,16 +176,21 @@ export default function AdminEmploisPage() {
                       <span className="font-medium text-gray-700">{offre.limite}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleEdit(offre)}
-                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      >
-                        <Edit size={16} />
-                      </Button>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href="/nous-rejoindre" target="_blank">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50" title="Voir sur le site public">
+                            <Eye size={16} />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEdit(offre)}
+                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <Edit size={16} />
+                        </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 

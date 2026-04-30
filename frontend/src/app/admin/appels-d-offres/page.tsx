@@ -13,8 +13,10 @@ import {
   Save, 
   Calendar,
   AlertCircle,
-  X
+  X,
+  Eye
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const initialAppels = [
@@ -170,6 +172,11 @@ export default function AdminAppelsOffresPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Link href="/appels-d-offres" target="_blank">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50" title="Voir sur le site public">
+                            <Eye size={16} />
+                          </Button>
+                        </Link>
                         <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-apc-green hover:bg-apc-green/10 font-bold text-[11px]">
                           <Download size={14} /> VOIR DOSSIERS
                         </Button>

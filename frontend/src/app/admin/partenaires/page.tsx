@@ -11,8 +11,10 @@ import {
   Save, 
   CheckCircle2, 
   AlertCircle,
-  X
+  X,
+  FileText
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const initialPartenaires = [
@@ -164,6 +166,16 @@ export default function AdminPartenairesPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Link href={`/admin/partenaires/${p.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-gray-600 hover:text-apc-green hover:bg-gray-100"
+                          title="Fiche détaillée"
+                        >
+                          <FileText size={16} />
+                        </Button>
+                      </Link>
                       <Button 
                         variant="ghost" 
                         size="sm" 

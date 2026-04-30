@@ -212,8 +212,8 @@ export default function AdminProjects() {
                     </td>
                     <td className="px-4 py-3 text-right relative">
                       <div className="flex items-center justify-end gap-1">
-                        <Link href={`/admin/projets/${project.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" title="Voir le détail">
+                        <Link href={`/projets/${project.slug}`} target="_blank">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" title="Voir sur le site public">
                             <Eye size={15} />
                           </Button>
                         </Link>

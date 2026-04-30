@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Plus, Edit, Trash2, ArrowLeft, Save, X, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Plus, Edit, Trash2, ArrowLeft, Save, X, AlertCircle, CheckCircle2, Eye } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { mockDomaines } from "@/lib/data/mock-domaines"
 
@@ -151,6 +152,16 @@ export default function AdminServicesPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
+                      <Link href="/domaines" target="_blank">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                          title="Voir sur le site public"
+                        >
+                          <Eye size={16} />
+                        </Button>
+                      </Link>
                       <Button 
                         variant="ghost" 
                         size="sm" 

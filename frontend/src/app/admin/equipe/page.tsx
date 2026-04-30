@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Plus, Edit, Trash2, Mail, Phone, UserPlus, ArrowLeft, Save, Camera, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Plus, Edit, Trash2, Mail, Phone, UserPlus, ArrowLeft, Save, Camera, AlertCircle, CheckCircle2, FileText } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const mockTeam = [
@@ -172,6 +173,16 @@ export default function AdminEquipePage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Link href={`/admin/equipe/${member.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-gray-600 hover:text-apc-green hover:bg-gray-100"
+                          title="Voir le dossier complet"
+                        >
+                          <FileText size={16} />
+                        </Button>
+                      </Link>
                       <Button 
                         variant="ghost" 
                         size="sm" 

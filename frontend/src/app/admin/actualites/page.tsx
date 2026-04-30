@@ -14,6 +14,7 @@ const articles = [
   { 
     id: 1, 
     title: "Inauguration de la nouvelle école à Bukavu", 
+    slug: "inauguration-ecole-bukavu",
     category: "Éducation", 
     date: "14/04/2026", 
     author: "B. Mugangu",
@@ -22,6 +23,7 @@ const articles = [
   { 
     id: 2, 
     title: "Rapport trimestriel sur la sécurité alimentaire", 
+    slug: "rapport-trimestriel-securite-alimentaire",
     category: "Rapport", 
     date: "10/04/2026", 
     author: "Admin APC",
@@ -30,6 +32,7 @@ const articles = [
   { 
     id: 3, 
     title: "L'impact du micro-crédit chez les femmes de Goma", 
+    slug: "impact-micro-credit-femmes-goma",
     category: "Impact", 
     date: "05/04/2026", 
     author: "M. Louise",
@@ -98,6 +101,11 @@ export default function AdminActualites() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
+                    <Link href={`/actualites/${article.slug}`} target="_blank">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" title="Voir sur le site public">
+                        <Eye size={16} />
+                      </Button>
+                    </Link>
                     <Button variant="ghost" size="icon" className="h-8 w-8"><Edit size={16} /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600"><Trash2 size={16} /></Button>
                   </div>
