@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, ChevronDown, Heart, Handshake, Sprout, ShieldCheck, Leaf } from "lucide-react"
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Domaines", href: "/domaines" },
   { label: "Projets", href: "/projets" },
   { label: "Actualités", href: "/actualites" },
+  { label: "Appels d'Offres", href: "/appels-d-offres" },
   { label: "Contact", href: "/contact" },
 ]
 
@@ -46,15 +47,12 @@ export function Header() {
           className="flex items-center gap-2.5 group"
           onClick={() => setMobileOpen(false)}
         >
-          <div className="w-9 h-9 rounded-xl bg-apc-green flex items-center justify-center text-white font-extrabold text-base shadow-md group-hover:scale-105 transition-transform">
-            A
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-apc-green to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
+            <Leaf size={20} />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-bold text-lg text-apc-green tracking-tight">
-              APC
-            </span>
-            <span className="hidden sm:block text-[10px] text-muted-foreground tracking-widest uppercase">
-              Agri-Peace & Child
+          <div className="flex flex-col leading-tight">
+            <span className="font-bold text-base md:text-lg text-foreground tracking-tight">
+              Agri-Peace and Child
             </span>
           </div>
         </Link>

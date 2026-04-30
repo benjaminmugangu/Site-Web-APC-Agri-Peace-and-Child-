@@ -3,7 +3,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { teamMembers, apc } from "@/lib/data"
+import { FadeIn } from "@/components/ui/fade-in"
+import { apc } from "@/lib/data"
+import { mockTeam } from "@/lib/data/mock-team"
 import {
   Heart,
   ShieldCheck,
@@ -19,9 +21,9 @@ import {
 } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "À Propos — APC (Agri-Peace and Child)",
+  title: "À Propos — Agri-Peace and Child",
   description:
-    "Découvrez l'histoire, la mission, la vision et les valeurs d'APC — ONG humanitaire fondée en 2017 à Goma, RD Congo.",
+    "Découvrez l'histoire, la mission, la vision et les valeurs d'Agri-Peace and Child — ONG humanitaire fondée en 2017 à Goma, RD Congo.",
 }
 
 const objectifs = [
@@ -69,7 +71,7 @@ export default function AProposPage() {
   return (
     <div className="flex flex-col">
       <PageHero
-        title="À Propos d'APC"
+        title="À Propos"
         subtitle="Découvrez qui nous sommes, notre histoire et les valeurs qui guident chaque action que nous menons pour les communautés vulnérables."
         breadcrumbs={[{ label: "À Propos" }]}
         tag="Notre Organisation"
@@ -80,7 +82,7 @@ export default function AProposPage() {
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Text */}
-            <div>
+            <FadeIn direction="right">
               <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-4">
                 Notre Histoire
               </span>
@@ -90,19 +92,19 @@ export default function AProposPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  Fondée le <strong className="text-foreground">{apc.founded}</strong>, 
-                  <strong className="text-apc-green"> Agri-Peace and Child (APC)</strong> est 
+                  Fondée le <strong className="text-foreground">{apc.founded}</strong>,{" "}
+                  <strong className="text-apc-green">Agri-Peace and Child</strong> est
                   une Organisation Non Gouvernementale humanitaire dont le siège est établi à{" "}
                   <strong className="text-foreground">Goma, Nord-Kivu, RD Congo</strong>.
                 </p>
                 <p>
-                  Face aux crises récurrentes qui frappent l'Est de la RDC — conflits armés, 
-                  déplacements massifs, insécurité alimentaire — nos fondateurs ont décidé d'agir 
-                  localement avec une approche intégrée conjuguant agriculture, protection sociale 
+                  Face aux crises récurrentes qui frappent l&apos;Est de la RDC — conflits armés,
+                  déplacements massifs, insécurité alimentaire — nos fondateurs ont décidé d&apos;agir
+                  localement avec une approche intégrée conjuguant agriculture, protection sociale
                   et consolidation de la paix.
                 </p>
                 <p>
-                  Depuis notre création, nous avons étendu nos activités au Nord-Kivu, au 
+                  Depuis notre création, nous avons étendu nos activités au Nord-Kivu, au
                   Sud-Kivu, en Ituri et au Tanganyika, touchant plus de <strong className="text-foreground">15 000 bénéficiaires directs</strong>.
                 </p>
               </div>
@@ -124,41 +126,20 @@ export default function AProposPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </FadeIn>
 
-            {/* Image */}
-            <div className="relative h-[480px] rounded-3xl overflow-hidden shadow-2xl">
-              <Image
-                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
-                alt="Équipe APC sur le terrain"
-                fill
-                className="object-cover"
-              />
-              {/* Overlay card */}
-              <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur rounded-2xl p-5 shadow-lg">
-                <div className="flex gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-apc-green">15k+</div>
-                    <div className="text-xs text-muted-foreground">Bénéficiaires</div>
-                  </div>
-                  <div className="w-px bg-border" />
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-apc-green">32</div>
-                    <div className="text-xs text-muted-foreground">Projets</div>
-                  </div>
-                  <div className="w-px bg-border" />
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-apc-green">4</div>
-                    <div className="text-xs text-muted-foreground">Provinces</div>
-                  </div>
-                  <div className="w-px bg-border" />
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-apc-green">9</div>
-                    <div className="text-xs text-muted-foreground">Ans d'action</div>
-                  </div>
-                </div>
+            {/* Image — sans overlay statistiques */}
+            <FadeIn direction="left" delay={0.15}>
+              <div className="relative h-[480px] rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
+                  alt="Équipe Agri-Peace and Child sur le terrain"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-apc-green/10" />
               </div>
-            </div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -295,7 +276,7 @@ export default function AProposPage() {
         </div>
       </section>
 
-      {/* ── Équipe ── */}
+      {/* ── Équipe — connectée au backend via mock-team ── */}
       <section id="equipe" className="py-24 bg-white">
         <div className="container px-4">
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -304,28 +285,29 @@ export default function AProposPage() {
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Notre Équipe</h2>
             <p className="text-muted-foreground mt-4">
-              Des professionnels engagés, issus de la région, qui consacrent leur expertise 
+              Des professionnels engagés, issus de la région, qui consacrent leur expertise
               au service des communautés vulnérables.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockTeam.filter((m) => m.status === "active").map((member) => (
               <div
                 key={member.id}
                 className="group bg-apc-bgLight rounded-2xl p-6 text-center border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
-                {/* Avatar */}
+                {/* Avatar avec initiales — photo uploadable depuis l'admin */}
                 <div
-                  className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-md group-hover:scale-105 transition-transform"
-                  style={{ backgroundColor: member.color }}
+                  className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-md group-hover:scale-105 transition-transform ${member.avatarColor}`}
                 >
-                  {member.initials}
+                  {member.avatarInitials}
                 </div>
                 <h3 className="font-bold text-foreground text-sm leading-snug mb-1">
                   {member.name}
                 </h3>
                 <p className="text-apc-green text-xs font-medium mb-3">{member.role}</p>
-                <p className="text-muted-foreground text-xs leading-relaxed">{member.bio}</p>
+                {member.bio && (
+                  <p className="text-muted-foreground text-xs leading-relaxed">{member.bio}</p>
+                )}
               </div>
             ))}
           </div>
@@ -347,13 +329,13 @@ export default function AProposPage() {
             votre engagement fait la différence.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/faire-un-don">
+            <Link href="/contact?sujet=don">
               <Button
                 variant="white"
                 size="lg"
                 className="text-base px-8 w-full sm:w-auto"
               >
-                Soutenir APC
+                Nous Soutenir
               </Button>
             </Link>
             <Link href="/nous-rejoindre">

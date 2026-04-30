@@ -13,11 +13,9 @@ import {
 } from "@/lib/data"
 import { MapPin, Users, ChevronRight } from "lucide-react"
 
-const tabs: { label: string; value: "all" | ProjectStatus }[] = [
-  { label: "Tous les projets", value: "all" },
+const tabs: { label: string; value: "active" | "completed" }[] = [
   { label: "En cours", value: "active" },
   { label: "Terminés", value: "completed" },
-  { label: "À venir", value: "upcoming" },
 ]
 
 const domainLabels: Record<string, string> = {
@@ -36,21 +34,21 @@ const domainColors: Record<string, string> = {
   sante: "bg-teal-100 text-teal-700",
 }
 
-export default function ProjetsPage() {
-  const [activeTab, setActiveTab] = useState<"all" | ProjectStatus>("all")
+// Note: This is a client component, metadata is handled in layout or via head (if using app dir pattern correctly)
+// But for now, let's just make sure the visible text is clean.
 
-  const filtered =
-    activeTab === "all"
-      ? projects
-      : projects.filter((p) => p.status === activeTab)
+export default function ProjetsPage() {
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active")
+
+  const filtered = projects.filter((p) => p.status === activeTab)
 
   return (
     <div className="flex flex-col">
       <PageHero
         title="Nos Projets"
-        subtitle="Découvrez l'ensemble de nos initiatives sur le terrain — programmes en cours, projets accomplis et futures interventions planifiées."
+        subtitle="Découvrez l'ensemble des initiatives menées par Agri-Peace and Child sur le terrain — programmes en cours et projets accomplis."
         breadcrumbs={[{ label: "Projets" }]}
-        tag="Sur le Terrain"
+        tag="Impact sur le Terrain"
       />
 
       <section className="py-16 bg-apc-bgLight min-h-screen">
@@ -75,9 +73,7 @@ export default function ProjetsPage() {
                       : "bg-gray-100 text-muted-foreground"
                   }`}
                 >
-                  {tab.value === "all"
-                    ? projects.length
-                    : projects.filter((p) => p.status === tab.value).length}
+                  {projects.filter((p) => p.status === tab.value).length}
                 </span>
               </button>
             ))}
