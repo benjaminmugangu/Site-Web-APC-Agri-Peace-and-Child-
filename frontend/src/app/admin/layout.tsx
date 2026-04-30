@@ -19,13 +19,12 @@ export default async function AdminLayout({
   // Map des titres par route pour le header dynamique
   const pageTitles: Record<string, string> = {
     "/admin": "Tableau de Bord",
-    "/admin/projets": "Gestion des Projets",
-    "/admin/projets/editeur": "Nouvel / Éditeur de Projet",
-    "/admin/actualites": "Gestion des Actualités",
-    "/admin/actualites/editeur": "Nouvel / Éditeur d'Article",
-    "/admin/equipe": "Membres & Équipe",
+    "/admin/services": "Gestion des Services",
+    "/admin/projets": "Gestion des Réalisations",
+    "/admin/emplois": "Gestion des Offres d'Emploi",
+    "/admin/equipe": "Gestion de l'Équipe",
+    "/admin/partenaires": "Gestion des Partenaires",
     "/admin/messages": "Centre de Messages",
-    "/admin/galerie": "Galerie Média",
     "/admin/parametres": "Paramètres",
   }
   const currentTitle = pageTitles[pathname] ?? "Administration"
@@ -47,7 +46,7 @@ export default async function AdminLayout({
 
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold text-gray-900 leading-none">Admin APC</p>
+              <p className="text-sm font-semibold text-gray-900 leading-none">Admin Agri-Peace and Child</p>
               <p className="text-xs text-gray-500 mt-1">Directeur Technique</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#1a472a] flex items-center justify-center text-white font-bold text-sm">

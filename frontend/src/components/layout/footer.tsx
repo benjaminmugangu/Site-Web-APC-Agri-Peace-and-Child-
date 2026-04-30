@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Globe, X, Camera, Mail, Phone, MapPin } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { mockSettings } from "@/lib/data/mock-settings"
 
 export function Footer() {
@@ -40,7 +41,7 @@ export function Footer() {
         <div>
           <h4 className="font-semibold mb-4 text-apc-greenLight">S&apos;impliquer</h4>
           <ul className="space-y-2 text-sm text-apc-bgLight/80">
-            <li><Link href="/faire-un-don" className="hover:text-white transition-colors">Faire un don</Link></li>
+            <li><Link href="/contact?sujet=don" className="hover:text-white transition-colors font-medium">Faire un don</Link></li>
             <li><Link href="/nous-rejoindre" className="hover:text-white transition-colors">Devenir Bénévole</Link></li>
             <li><Link href="/contact" className="hover:text-white transition-colors">Partenariats</Link></li>
           </ul>

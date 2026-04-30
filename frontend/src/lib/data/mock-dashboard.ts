@@ -7,59 +7,56 @@ import { mockMessages } from "./mock-messages"
 
 export function getDashboardStats() {
   const publishedProjects = mockProjects.filter((p) => p.status === "published")
-  const draftProjects = mockProjects.filter((p) => p.status === "draft")
+  const activeProjects = mockProjects.filter((p) => p.status === "published" || p.status === "active").length
+  const draftProjects = mockProjects.filter((p) => p.status === "draft").length
   const totalBeneficiaries = publishedProjects.reduce((sum, p) => sum + p.beneficiaries, 0)
   const totalBudget = publishedProjects.reduce((sum, p) => sum + p.budget, 0)
-  const totalHectares = 450 // valeur fixe pour la démo
   const unreadMessages = mockMessages.filter((m) => m.status === "unread").length
 
   return {
-    beneficiaires: {
-      value: totalBeneficiaries.toLocaleString("fr-FR"),
-      raw: totalBeneficiaries,
-      change: "+12.4%",
-      trend: "up" as const,
-      label: "Bénéficiaires directs",
-      period: "vs trimestre précédent",
+    services: {
+      value: 6,
+      label: "Nos Services",
+      href: "/admin/services",
+      description: "Gérer les services →"
     },
-    projetsActifs: {
-      value: publishedProjects.length,
-      raw: publishedProjects.length,
-      change: `+${draftProjects.length} en cours`,
-      trend: "up" as const,
-      label: "Projets publiés",
-      period: `${draftProjects.length} brouillon(s)`,
+    realisations: {
+      value: mockProjects.length,
+      label: "Réalisations",
+      href: "/admin/projets",
+      subValue: `${activeProjects} en cours`,
+      description: "Voir les projets →"
     },
-    fondsLeves: {
-      value: `$${(totalBudget / 1000).toFixed(0)}K`,
-      raw: totalBudget,
-      change: "+23.7%",
-      trend: "up" as const,
-      label: "Budget total des projets",
-      period: "vs année précédente",
+    emplois: {
+      value: 2,
+      label: "Offres d'Emploi",
+      href: "/admin/emplois",
+      description: "Recrutements →"
     },
-    hectaresCultives: {
-      value: totalHectares.toLocaleString("fr-FR"),
-      raw: totalHectares,
-      change: "+5.2%",
-      trend: "up" as const,
-      label: "Hectares cultivés",
-      period: "cette saison agricole",
+    equipe: {
+      value: mockTeam.length,
+      label: "Experts / Équipe",
+      href: "/admin/equipe",
+      description: "Gérer l'équipe →"
     },
-    articlesPublies: {
-      value: mockArticles.filter((a) => a.status === "published").length,
-      raw: mockArticles.filter((a) => a.status === "published").length,
-      change: `${mockArticles.filter((a) => a.status === "draft").length} brouillon(s)`,
-      trend: "neutral" as const,
-      label: "Articles publiés",
-      period: "au total",
+    partenaires: {
+      value: 3,
+      label: "Partenaires",
+      href: "/admin/partenaires",
+      description: "Voir les partenaires →"
     },
-    messagesNonLus: {
+    appels: {
+      value: 2,
+      label: "Appels d'Offres",
+      href: "/admin/appels-d-offres",
+      description: "Marchés publics →"
+    },
+    messages: {
       value: unreadMessages,
-      raw: unreadMessages,
-      trend: unreadMessages > 0 ? ("warning" as const) : ("neutral" as const),
-      label: "Messages non lus",
-    },
+      label: "Messages",
+      href: "/admin/messages",
+      description: "Voir les messages →"
+    }
   }
 }
 

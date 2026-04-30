@@ -150,7 +150,7 @@ export default function DomainesPage() {
             notre impact et d'atteindre davantage de personnes dans le besoin.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/faire-un-don">
+            <Link href="/contact?sujet=don">
               <Button
                 size="lg"
                 variant="white"

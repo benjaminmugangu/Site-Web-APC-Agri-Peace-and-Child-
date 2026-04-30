@@ -4,13 +4,16 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
-  Leaf, 
-  Newspaper, 
+  Cog, 
+  Briefcase, 
+  Search, 
   Users, 
+  Handshake,
   Settings, 
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
@@ -18,9 +21,12 @@ import { Button } from "@/components/ui/button"
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin" },
-  { icon: Leaf, label: "Gestion Projets", href: "/admin/projets" },
-  { icon: Newspaper, label: "Actualités", href: "/admin/actualites" },
-  { icon: Users, label: "Membres & Équipe", href: "/admin/equipe" },
+  { icon: Cog, label: "Nos Services", href: "/admin/services" },
+  { icon: Briefcase, label: "Réalisations", href: "/admin/projets" },
+  { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres" },
+  { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois" },
+  { icon: Users, label: "Experts / Équipe", href: "/admin/equipe" },
+  { icon: Handshake, label: "Partenaires", href: "/admin/partenaires" },
   { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
 ]
 
@@ -31,7 +37,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     // Effacer le cookie de session
-    document.cookie = "apc_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+    document.cookie = "admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
     router.push("/admin/login")
     router.refresh()
   }
@@ -60,7 +66,7 @@ export function Sidebar() {
         </div>
         {!isCollapsed && (
           <span className="font-bold text-lg tracking-tight whitespace-nowrap">
-            APC Admin
+            Admin Agri-Peace
           </span>
         )}
       </div>

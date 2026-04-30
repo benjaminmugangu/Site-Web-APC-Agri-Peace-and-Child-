@@ -25,7 +25,7 @@ function DonationBanner() {
   if (!isDonation) return null
 
   return (
-    <div className="bg-apc-green text-white py-6">
+    <div className="bg-apc-blue text-white py-6">
       <div className="container px-4">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-sm">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">

@@ -206,7 +206,7 @@ export default function ProjetDetailPage({
                 <p className="text-white/75 text-sm mb-4">
                   Votre contribution aide directement les bénéficiaires de ce programme.
                 </p>
-                <Link href="/faire-un-don" className="block">
+                <Link href="/contact?sujet=don" className="block">
                   <Button variant="white" className="w-full">
                     Faire un Don
                   </Button>

@@ -170,8 +170,8 @@ export default function ProjetsPage() {
               Votre don, quel que soit son montant, contribue directement à 
               la réalisation de ces projets sur le terrain.
             </p>
-            <Link href="/faire-un-don">
-              <Button size="lg" className="px-8">
+            <Link href="/contact?sujet=don">
+              <Button size="lg" variant="white" className="px-10">
                 Faire un Don
               </Button>
             </Link>

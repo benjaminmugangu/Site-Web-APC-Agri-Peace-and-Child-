@@ -82,7 +82,7 @@ export function Header() {
 
         {/* ── CTA + Hamburger ── */}
         <div className="flex items-center gap-3">
-          <Link href="/faire-un-don" className="hidden sm:block">
+          <Link href="/contact?sujet=don" className="hidden sm:block">
             <Button variant="default" size="sm" className="shadow-md">
               Faire un don
             </Button>

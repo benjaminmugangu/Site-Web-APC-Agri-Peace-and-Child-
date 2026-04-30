@@ -183,7 +183,7 @@ export default function ArticleDetailPage({
                     Soutenez notre mission sur le terrain.
                   </p>
                 </div>
-                <Link href="/faire-un-don" className="shrink-0">
+                <Link href="/contact?sujet=don" className="shrink-0">
                   <Button variant="white" className="px-6">
                     Faire un Don
                   </Button>
