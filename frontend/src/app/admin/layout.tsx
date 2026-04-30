@@ -21,6 +21,7 @@ export default async function AdminLayout({
     "/admin": "Tableau de Bord",
     "/admin/services": "Gestion des Services",
     "/admin/projets": "Gestion des Réalisations",
+    "/admin/appels-d-offres": "Gestion des Appels d'Offres",
     "/admin/emplois": "Gestion des Offres d'Emploi",
     "/admin/equipe": "Gestion de l'Équipe",
     "/admin/partenaires": "Gestion des Partenaires",

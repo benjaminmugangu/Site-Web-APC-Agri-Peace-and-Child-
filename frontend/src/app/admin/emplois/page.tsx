@@ -1,27 +1,109 @@
 "use client"
 
 import React, { useState } from "react"
-import { Plus, Edit, Trash2, Calendar, MapPin, Briefcase, ArrowLeft, Save, FileText } from "lucide-react"
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Calendar, 
+  MapPin, 
+  Briefcase, 
+  ArrowLeft, 
+  Save, 
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  X
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const mockEmplois = [
+const initialEmplois = [
   { id: 1, poste: "Consultant en Stratégie Junior", type: "Stage", limite: "2026-05-05", lieu: "Goma" },
   { id: 2, poste: "Développeur Fullstack React/Laravel", type: "CDI", limite: "2026-05-20", lieu: "Goma / Remote" },
 ]
 
 export default function AdminEmploisPage() {
-  const [emplois, setEmplois] = useState(mockEmplois)
+  const [emplois, setEmplois] = useState(initialEmplois)
   const [showForm, setShowForm] = useState(false)
   const [editingJob, setEditingJob] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+
+  // Form State
+  const [formData, setFormData] = useState({
+    poste: "",
+    type: "CDI",
+    limite: "",
+    lieu: "Goma",
+    description: ""
+  })
+
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleAdd = () => {
     setEditingJob(null)
+    setFormData({ poste: "", type: "CDI", limite: "", lieu: "Goma", description: "" })
+    setErrors({})
+    setStatus(null)
     setShowForm(true)
   }
 
   const handleEdit = (job: any) => {
     setEditingJob(job)
+    setFormData({
+      poste: job.poste,
+      type: job.type,
+      limite: job.limite,
+      lieu: job.lieu,
+      description: ""
+    })
+    setErrors({})
+    setStatus(null)
     setShowForm(true)
+  }
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+    if (!formData.poste.trim()) newErrors.poste = "L'intitulé est requis"
+    if (!formData.limite) newErrors.limite = "La date limite est requise"
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validate()) return
+
+    setLoading(true)
+    setStatus(null)
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1200))
+      
+      if (editingJob) {
+        setEmplois(prev => prev.map(j => j.id === editingJob.id ? { ...j, ...formData } : j))
+        setStatus({ type: 'success', message: "Offre d'emploi mise à jour !" })
+      } else {
+        const newJob = {
+          id: Math.max(...emplois.map(j => j.id)) + 1,
+          ...formData
+        }
+        setEmplois(prev => [...prev, newJob])
+        setStatus({ type: 'success', message: "Nouvelle offre publiée !" })
+      }
+      
+      setTimeout(() => setShowForm(false), 1500)
+    } catch (err) {
+      setStatus({ type: 'error', message: "Erreur lors de la sauvegarde." })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = (id: number) => {
+    if (confirm("Supprimer cette offre d'emploi ?")) {
+      setEmplois(prev => prev.filter(j => j.id !== id))
+    }
   }
 
   const handleCancel = () => {
@@ -102,7 +184,12 @@ export default function AdminEmploisPage() {
                       >
                         <Edit size={16} />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDelete(offre.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </div>
@@ -114,23 +201,35 @@ export default function AdminEmploisPage() {
         </div>
       ) : (
         /* FORMULAIRE OFFRE D'EMPLOI */
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="p-8 space-y-8">
+            {status && (
+              <div className={`p-4 rounded-xl flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                {status.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+                <span className="text-sm font-medium">{status.message}</span>
+                <button type="button" onClick={() => setStatus(null)} className="ml-auto"><X size={16} /></button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Main Info */}
               <div className="md:col-span-2 space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Intitulé du Poste</label>
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Intitulé du Poste *</label>
                   <input 
                     type="text" 
-                    defaultValue={editingJob?.poste || ""}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green" 
+                    value={formData.poste}
+                    onChange={e => setFormData({...formData, poste: e.target.value})}
+                    className={`w-full px-4 py-3 rounded-xl border ${errors.poste ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green`} 
                     placeholder="Ex: Responsable des Opérations" 
                   />
+                  {errors.poste && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.poste}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description & Responsabilités</label>
                   <textarea 
+                    value={formData.description}
+                    onChange={e => setFormData({...formData, description: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 h-48" 
                     placeholder="Détaillez les missions du poste..."
                   />
@@ -141,28 +240,35 @@ export default function AdminEmploisPage() {
               <div className="space-y-6 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Type de Contrat</label>
-                  <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-apc-blue/20">
-                    <option selected={editingJob?.type === "CDI"}>CDI</option>
-                    <option selected={editingJob?.type === "CDD"}>CDD</option>
-                    <option selected={editingJob?.type === "Stage"}>Stage</option>
-                    <option selected={editingJob?.type === "Consultance"}>Consultance</option>
+                  <select 
+                    value={formData.type}
+                    onChange={e => setFormData({...formData, type: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-apc-blue/20"
+                  >
+                    <option value="CDI">CDI</option>
+                    <option value="CDD">CDD</option>
+                    <option value="Stage">Stage</option>
+                    <option value="Consultance">Consultance</option>
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Lieu de travail</label>
                   <input 
                     type="text" 
-                    defaultValue={editingJob?.lieu || "Goma"}
+                    value={formData.lieu}
+                    onChange={e => setFormData({...formData, lieu: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20" 
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Date Limite de dépôt</label>
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Date Limite de dépôt *</label>
                   <input 
                     type="date" 
-                    defaultValue={editingJob?.limite || ""}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20" 
+                    value={formData.limite}
+                    onChange={e => setFormData({...formData, limite: e.target.value})}
+                    className={`w-full px-4 py-3 rounded-xl border ${errors.limite ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-blue/20`} 
                   />
+                  {errors.limite && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.limite}</p>}
                 </div>
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-2 text-apc-green">
@@ -176,12 +282,20 @@ export default function AdminEmploisPage() {
 
           {/* Footer Action */}
           <div className="bg-gray-50 px-8 py-6 flex justify-end gap-3 border-t border-gray-100">
-            <Button variant="ghost" onClick={handleCancel}>Annuler</Button>
-            <Button className="bg-apc-green hover:bg-green-700 gap-2 px-8 shadow-lg shadow-apc-green/20 font-bold">
-              <Save size={18} /> {editingJob ? "Mettre à jour l'offre" : "Publier l'offre d'emploi"}
+            <Button type="button" variant="ghost" onClick={handleCancel} disabled={loading}>Annuler</Button>
+            <Button 
+              type="submit"
+              disabled={loading}
+              className="bg-apc-green hover:bg-green-700 gap-2 px-8 shadow-lg shadow-apc-green/20 font-bold min-w-[220px]"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <><Save size={18} /> {editingJob ? "Mettre à jour l'offre" : "Publier l'offre d'emploi"}</>
+              )}
             </Button>
           </div>
-        </div>
+        </form>
       )}
     </div>
   )

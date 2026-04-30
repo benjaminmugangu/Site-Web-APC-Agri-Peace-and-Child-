@@ -345,6 +345,7 @@ export const apc = {
   slogan: "Agissons Pour la Protection, l'Agriculture, la Dignité et la Paix",
   founded: "18 février 2017",
   hq: "Goma, Nord-Kivu, RD Congo",
+  address: "Quartier Le Volcan, Commune de Goma, Ville de Goma, Nord-Kivu, République Démocratique du Congo",
   email: "agripeaceandchild@gmail.com",
   phone: "+243 975 418 316",
   stats: {
