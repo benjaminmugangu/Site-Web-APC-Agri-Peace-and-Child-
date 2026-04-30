@@ -1,140 +1,108 @@
 import type { Metadata } from "next"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { Heart, MapPin, CheckCircle2, DollarSign } from "lucide-react"
+import { Heart, MapPin, Phone, Mail, MessageSquare } from "lucide-react"
+import Link from "next/link"
+import { apc } from "@/lib/data"
 
 export const metadata: Metadata = {
-  title: "Faire un Don — APC",
+  title: "Faire un Don",
   description:
-    "Soutenez les actions d'Agri-Peace and Child (APC) en RD Congo en faisant un don.",
+    "Soutenez les actions d'Agri-Peace and Child en RD Congo. Découvrez comment contribuer directement à nos projets.",
 }
-
-const impactTiers = [
-  { amount: 50, impact: "Fournit un kit de semences et d'outils pour une famille agricole." },
-  { amount: 100, impact: "Finance la scolarité et les fournitures scolaires d'un enfant vulnérable pendant un an." },
-  { amount: 250, impact: "Soutient la création d'une activité génératrice de revenus pour une femme." },
-  { amount: 500, impact: "Permet d'organiser un atelier de cohésion sociale ou une clinique mobile." },
-]
 
 export default function FaireUnDonPage() {
   return (
     <div className="flex flex-col">
       <PageHero
         title="Faire un Don"
-        subtitle="Votre soutien financier direct permet de transformer la vie de milliers de personnes vulnérables dans l'Est de la RDC. Ensemble, nous avons le pouvoir de changer les choses."
+        subtitle="Votre générosité est le moteur de notre action. Chaque contribution nous permet d'apporter un changement réel dans la vie des plus vulnérables."
         breadcrumbs={[{ label: "Faire un Don" }]}
-        tag="Soutenir APC"
+        tag="Soutenir notre Mission"
       />
 
-      <section className="py-20 bg-apc-bgLight">
+      <section className="py-20 bg-apc-bgLight min-h-[60vh] flex items-center">
         <div className="container px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-            
-            {/* ── Formulaire de don (UI purement illustrative) ── */}
-            <div className="bg-white rounded-3xl p-8 md:p-10 shadow-md border border-border/50">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-full bg-apc-green/10 flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-apc-green flex-shrink-0" fill="currentColor" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">Soutien Ponctuel ou Mensuel</h2>
-                  <p className="text-muted-foreground text-sm">Chaque don compte et est sécurisé.</p>
-                </div>
-              </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-[2rem] p-8 md:p-16 shadow-xl shadow-apc-green/5 border border-apc-green/10 text-center relative overflow-hidden">
+              {/* Éléments décoratifs */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-apc-green/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-apc-blue/5 rounded-full -ml-32 -mb-32 blur-3xl" />
 
-              <div className="space-y-8">
-                {/* Type de don */}
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-foreground">Type de don</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="py-3 px-4 border-2 border-apc-green bg-apc-green/5 text-apc-green font-bold rounded-xl transition-all">
-                      Ponctuel
-                    </button>
-                    <button className="py-3 px-4 border-2 border-border text-muted-foreground hover:border-gray-300 font-medium rounded-xl transition-all">
-                      Mensuel
-                    </button>
-                  </div>
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-apc-green/10 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-pulse">
+                  <Heart className="w-10 h-10 text-apc-green" fill="currentColor" />
                 </div>
-
-                {/* Montant */}
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-foreground">Sélectionnez un montant (USD)</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                    {impactTiers.map((tier) => (
-                      <button key={tier.amount} className="py-3 px-4 border border-border bg-gray-50 hover:bg-gray-100 hover:border-gray-300 font-semibold text-foreground rounded-xl transition-all">
-                        ${tier.amount}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="relative">
-                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="number"
-                      placeholder="Autre montant"
-                      className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30 transition-all font-semibold"
-                    />
-                  </div>
-                </div>
-
-                {/* Infos personnelles */}
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-foreground">Vos informations</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <input type="text" placeholder="Prénom" className="w-full px-4 py-3 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30" />
-                    <input type="text" placeholder="Nom" className="w-full px-4 py-3 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30" />
-                  </div>
-                  <input type="email" placeholder="Adresse E-mail" className="w-full px-4 py-3 rounded-xl border border-border bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30" />
-                </div>
-
-                <Button className="w-full text-base py-6" size="lg">
-                  Continuer vers le paiement
-                </Button>
                 
-                <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-apc-green" />
-                  Paiement 100% sécurisé via nos partenaires financiers.
-                </p>
-              </div>
-            </div>
-
-            {/* ── Impact & Informations Complémentaires ── */}
-            <div className="space-y-8 flex flex-col justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-6">Votre Impact Concret</h2>
-                <p className="text-muted-foreground leading-relaxed mb-8">
-                  Chez APC, nous mettons un point d'honneur à ce que chaque dollar donné soit 
-                  utilisé avec la plus grande transparence et efficacité pour maximiser
-                  l'impact sur le terrain. 
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                  Merci pour votre générosité !
+                </h2>
+                
+                <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
+                  Pour garantir la sécurité et la traçabilité de votre contribution, nous privilégions 
+                  actuellement les dons par contact direct. Notre équipe est à votre disposition pour 
+                  vous orienter selon votre mode de paiement préféré.
                 </p>
 
-                <div className="space-y-4">
-                  {impactTiers.map((tier) => (
-                    <div key={tier.amount} className="flex gap-4 p-4 rounded-2xl bg-white border border-border/50 shadow-sm">
-                      <div className="w-16 h-16 rounded-xl bg-apc-green/10 flex items-center justify-center text-apc-green font-bold shrink-0 text-xl">
-                        ${tier.amount}
-                      </div>
-                      <div className="flex items-center">
-                        <p className="text-sm font-medium text-foreground">{tier.impact}</p>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                  <a 
+                    href={`tel:${apc.phone.replace(/\s/g, '')}`}
+                    className="flex flex-col items-center p-6 bg-apc-bgLight rounded-2xl border border-border/50 hover:border-apc-green/30 hover:shadow-md transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Phone className="w-5 h-5 text-apc-green" />
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Par Téléphone</span>
+                    <span className="font-bold text-foreground">{apc.phone}</span>
+                  </a>
 
-              <div className="bg-[#1a472a] rounded-3xl p-8 text-white">
-                <h3 className="font-bold text-xl mb-4">Autres moyens de contribuer</h3>
-                <p className="text-white/80 text-sm leading-relaxed mb-6">
-                  Si vous préférez faire un don par virement bancaire ou legs, ou si votre 
-                  organisation souhaite établir un partenariat de financement corporatif, 
-                  rejoignez-nous directement à notre siège.
-                </p>
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-apc-greenLight shrink-0" />
-                  <span className="text-sm font-medium">Bureaux à Goma, Nord-Kivu, RDC<br />Quartier Le Volcan</span>
+                  <a 
+                    href={`mailto:${apc.email}`}
+                    className="flex flex-col items-center p-6 bg-apc-bgLight rounded-2xl border border-border/50 hover:border-apc-blue/30 hover:shadow-md transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Mail className="w-5 h-5 text-apc-blue" />
+                    </div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Par Email</span>
+                    <span className="font-bold text-foreground break-all text-sm">{apc.email}</span>
+                  </a>
+
+                  <div className="flex flex-col items-center p-6 bg-apc-bgLight rounded-2xl border border-border/50 transition-all">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center mb-4">
+                      <MapPin className="w-5 h-5 text-apc-alert" />
+                    </div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">En Personne</span>
+                    <span className="font-bold text-foreground">Bureaux à Goma</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 border-t border-border/50">
+                  <p className="text-sm text-muted-foreground italic">
+                    Vous souhaitez nous laisser un message spécifique ?
+                  </p>
+                  <Link href="/contact?sujet=don">
+                    <Button variant="outline" className="gap-2 rounded-xl border-apc-green text-apc-green hover:bg-apc-green/5">
+                      <MessageSquare className="w-4 h-4" /> Formulaire de Contact
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
 
+            {/* Note sur la transparence */}
+            <div className="mt-12 flex items-start gap-4 p-6 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                <Heart className="w-5 h-5 text-apc-blue" />
+              </div>
+              <div>
+                <h4 className="font-bold text-apc-blue text-sm mb-1">Engagement Transparence</h4>
+                <p className="text-xs text-blue-800/70 leading-relaxed">
+                  Agri-Peace and Child s'engage à fournir un reçu officiel pour chaque don reçu. 
+                  Vos fonds sont directement alloués aux projets terrain de votre choix ou à nos 
+                  programmes prioritaires en cours.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

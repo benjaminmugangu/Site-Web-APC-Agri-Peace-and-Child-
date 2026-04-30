@@ -24,7 +24,6 @@ export default async function AdminLayout({
     "/admin/emplois": "Gestion des Offres d'Emploi",
     "/admin/equipe": "Gestion de l'Équipe",
     "/admin/partenaires": "Gestion des Partenaires",
-    "/admin/messages": "Centre de Messages",
     "/admin/parametres": "Paramètres",
   }
   const currentTitle = pageTitles[pathname] ?? "Administration"

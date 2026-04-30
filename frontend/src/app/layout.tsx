@@ -8,16 +8,16 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: {
-    default: "APC — Agri-Peace and Child",
-    template: "%s | APC",
+    default: "Agri-Peace and Child — Organisation Humanitaire en RDC",
+    template: "%s | Agri-Peace and Child",
   },
   description:
-    "APC (Agri-Peace and Child) est une ONG humanitaire engagée pour la Protection, l'Agriculture, la Dignité et la Paix en RD Congo.",
-  keywords: ["APC", "ONG", "humanitaire", "Congo", "agriculture", "paix", "enfance"],
+    "Agri-Peace and Child est une ONG humanitaire engagée pour la Protection, l'Agriculture, la Dignité et la Paix en République Démocratique du Congo.",
+  keywords: ["Agri-Peace and Child", "ONG", "humanitaire", "Congo", "agriculture", "paix", "enfance"],
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    siteName: "Agri-Peace and Child (APC)",
+    siteName: "Agri-Peace and Child",
   },
 };
 

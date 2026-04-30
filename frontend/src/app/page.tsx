@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
 import { mockSettings } from "@/lib/data/mock-settings";
+import { apc } from "@/lib/data";
 
 const pilierLinks: Record<string, string> = {
   Protection: "/domaines#protection",
@@ -15,28 +16,28 @@ const pilierLinks: Record<string, string> = {
 const piliers = [
   {
     title: "Protection",
-    desc: "Contenu à venir — les informations détaillées sur ce domaine seront communiquées prochainement.",
+    desc: "Assurer un environnement sûr et protecteur pour les enfants et les personnes vulnérables.",
     icon: ShieldCheck,
     color: "#ef4444",
     lightColor: "#fee2e2"
   },
   {
     title: "Agriculture",
-    desc: "Contenu à venir — les informations détaillées sur ce domaine seront communiquées prochainement.",
+    desc: "Promouvoir des techniques durables pour garantir la sécurité alimentaire des ménages.",
     icon: Sprout,
     color: "#22c55e",
     lightColor: "#dcfce7"
   },
   {
     title: "Dignité",
-    desc: "Contenu à venir — les informations détaillées sur ce domaine seront communiquées prochainement.",
+    desc: "Restaurer l'espoir et le respect de soi à travers l'autonomisation et l'accès aux soins.",
     icon: Heart,
     color: "#3b82f6",
     lightColor: "#dbeafe"
   },
   {
     title: "Paix",
-    desc: "Contenu à venir — les informations détaillées sur ce domaine seront communiquées prochainement.",
+    desc: "Bâtir des ponts entre les communautés pour une coexistence pacifique et durable.",
     icon: Handshake,
     color: "#8b5cf6",
     lightColor: "#ede9fe"
@@ -44,7 +45,7 @@ const piliers = [
 ];
 
 export default function Home() {
-  const { hero, stats } = mockSettings;
+  const { hero } = mockSettings;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -70,10 +71,10 @@ export default function Home() {
               Agir pour la <span className="text-apc-greenLight">Dignité humaine</span><br className="hidden md:block"/> et la <span className="text-apc-greenLight">Paix</span>
             </h1>
             <p className="text-lg md:text-xl md:max-w-2xl mx-auto mb-10 text-gray-200">
-              Agri-Peace and Child est une organisation non gouvernementale engagée dans la protection sociale, le développement agricole et la consolidation de l&apos;équité en RD Congo.
+              {apc.name} est une organisation non gouvernementale engagée dans la protection sociale, le développement agricole et la consolidation de l&apos;équité en RD Congo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact?sujet=don">
+              <Link href="/faire-un-don">
                 <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
                   Faire un don maintenant
                 </Button>
@@ -106,7 +107,7 @@ export default function Home() {
                     <pilier.icon className="h-7 w-7" style={{ color: pilier.color }} strokeWidth={2} />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-4">{pilier.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1 italic">{pilier.desc}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{pilier.desc}</p>
                   <Link href={pilierLinks[pilier.title] ?? "/domaines"} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color: pilier.color }}>
                     En savoir plus <ChevronRight className="w-4 h-4" />
                   </Link>
@@ -123,17 +124,17 @@ export default function Home() {
         <div className="container relative z-10 px-4">
           <StaggerContainer className="flex flex-wrap items-center justify-center gap-12 sm:gap-24 text-white">
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.beneficiaires}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.beneficiaries.toLocaleString()}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Bénéficiaires</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.projets}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.projects}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Projets Réalisés</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.provinces}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.provinces}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Provinces RDC</div>
             </StaggerItem>
           </StaggerContainer>
@@ -189,7 +190,7 @@ export default function Home() {
               </ul>
 
               <div className="flex items-center gap-4">
-                <Link href="/contact?sujet=don">
+                <Link href="/faire-un-don">
                   <Button size="lg" className="shadow-lg text-base px-8 h-14">
                     Soutenir le projet
                   </Button>

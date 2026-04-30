@@ -227,19 +227,19 @@ export default function AProposPage() {
             <div className="relative">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-apc-green rounded-3xl p-8 text-white text-center">
-                  <div className="text-5xl font-bold mb-2">450</div>
+                  <div className="text-5xl font-bold mb-2">{apc.stats.hectares}</div>
                   <div className="text-white/80 text-sm">Hectares cultivés</div>
                 </div>
                 <div className="bg-apc-bgLight border border-border rounded-3xl p-8 text-center mt-6">
-                  <div className="text-5xl font-bold text-apc-blue mb-2">80%</div>
+                  <div className="text-5xl font-bold text-apc-blue mb-2">{apc.stats.womenPercentage}%</div>
                   <div className="text-muted-foreground text-sm">Femmes bénéficiaires</div>
                 </div>
                 <div className="bg-apc-bgLight border border-border rounded-3xl p-8 text-center -mt-6">
-                  <div className="text-5xl font-bold text-apc-alert mb-2">32</div>
+                  <div className="text-5xl font-bold text-apc-alert mb-2">{apc.stats.projects}</div>
                   <div className="text-muted-foreground text-sm">Projets réalisés</div>
                 </div>
                 <div className="bg-[#1a472a] rounded-3xl p-8 text-white text-center">
-                  <div className="text-5xl font-bold mb-2 text-apc-greenLight">4</div>
+                  <div className="text-5xl font-bold mb-2 text-apc-greenLight">{apc.stats.provinces}</div>
                   <div className="text-white/80 text-sm">Provinces couvertes</div>
                 </div>
               </div>

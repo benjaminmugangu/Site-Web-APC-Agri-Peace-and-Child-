@@ -347,4 +347,17 @@ export const apc = {
   hq: "Goma, Nord-Kivu, RD Congo",
   email: "agripeaceandchild@gmail.com",
   phone: "+243 975 418 316",
+  stats: {
+    beneficiaries: 15000,
+    hectares: 450,
+    projects: 32,
+    provinces: 4,
+    womenPercentage: 80,
+  },
+  socials: {
+    facebook: "https://facebook.com/agripeaceandchild",
+    twitter: "https://twitter.com/agripeacechild",
+    linkedin: "https://linkedin.com/company/agripeaceandchild",
+    instagram: "https://instagram.com/agripeaceandchild",
+  }
 }
