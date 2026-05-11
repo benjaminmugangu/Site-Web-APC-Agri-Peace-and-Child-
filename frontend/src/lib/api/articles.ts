@@ -1,122 +1,72 @@
-import { mockArticles, type Article, type ArticleStatus } from "@/lib/data/mock-articles"
-
-const STORAGE_KEY = "apc_articles"
-
-function getStore(): Article[] {
-  if (typeof window === "undefined") return mockArticles
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockArticles))
-    return mockArticles
-  }
-  return JSON.parse(raw) as Article[]
-}
-
-function saveStore(articles: Article[]): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(articles))
-  }
-}
+import { apiClient, type ApiResponse } from './api-client';
+import { type Article, type ArticleStatus } from "@/lib/data/mock-articles";
 
 export type ListArticlesOptions = {
-  status?: ArticleStatus | "all"
-  category?: string
-  search?: string
-  featured?: boolean
-  page?: number
-  perPage?: number
-}
+  status?: ArticleStatus | "all";
+  category?: string;
+  search?: string;
+  page?: number;
+  perPage?: number;
+};
 
 export type PaginatedResult<T> = {
-  data: T[]
-  meta: { total: number; page: number; perPage: number; totalPages: number }
+  data: T[];
+  meta: { total: number; page: number; perPage: number; totalPages: number };
+};
+
+// ── GET /api/v1/news ──
+export async function listArticles(options: ListArticlesOptions = {}): Promise<PaginatedResult<Article>> {
+  const response = await apiClient.get<ApiResponse<Article[]>>('/news', options);
+  return {
+    data: response.data || [],
+    meta: response.meta || { total: 0, page: 1, perPage: 10, totalPages: 0 }
+  };
 }
 
-export function listArticles(options: ListArticlesOptions = {}): PaginatedResult<Article> {
-  const { status = "all", category, search, featured, page = 1, perPage = 10 } = options
-  let items = getStore()
-
-  if (status !== "all") items = items.filter((a) => a.status === status)
-  if (category) items = items.filter((a) => a.category === category)
-  if (featured !== undefined) items = items.filter((a) => a.featured === featured)
-  if (search) {
-    const q = search.toLowerCase()
-    items = items.filter(
-      (a) => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q)
-    )
-  }
-
-  items = items.sort(
-    (a, b) =>
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  )
-
-  const total = items.length
-  const totalPages = Math.ceil(total / perPage)
-  const data = items.slice((page - 1) * perPage, page * perPage)
-  return { data, meta: { total, page, perPage, totalPages } }
+// ── GET /api/v1/news/:id ──
+export async function getArticle(id: string): Promise<Article | null> {
+  const response = await apiClient.get<ApiResponse<Article>>(`/news/${id}`);
+  return response.data || null;
 }
 
-export function getArticle(id: string): Article | null {
-  return getStore().find((a) => a.id === id) ?? null
+// ── POST /api/v1/news ──
+export async function createArticle(payload: any): Promise<Article> {
+  const response = await apiClient.post<ApiResponse<Article>>('/news', payload);
+  if (!response.data) throw new Error('Erreur lors de la création');
+  return response.data;
 }
 
-export function createArticle(payload: Omit<Article, "id" | "createdAt" | "updatedAt">): Article {
-  const articles = getStore()
-  const newArticle: Article = {
-    ...payload,
-    id: `art-${Date.now()}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-  saveStore([newArticle, ...articles])
-  return newArticle
+// ── PUT /api/v1/news/:id ──
+export async function updateArticle(id: string, payload: any): Promise<Article | null> {
+  const response = await apiClient.put<ApiResponse<Article>>(`/news/${id}`, payload);
+  return response.data || null;
 }
 
-export function updateArticle(id: string, payload: Partial<Article>): Article | null {
-  const articles = getStore()
-  const idx = articles.findIndex((a) => a.id === id)
-  if (idx === -1) return null
-  articles[idx] = { ...articles[idx], ...payload, updatedAt: new Date().toISOString() }
-  saveStore(articles)
-  return articles[idx]
+// ── DELETE /api/v1/news/:id ──
+export async function deleteArticle(id: string): Promise<boolean> {
+  const response = await apiClient.delete<ApiResponse<any>>(`/news/${id}`);
+  return response.success;
 }
 
-export function deleteArticle(id: string): boolean {
-  const articles = getStore()
-  const filtered = articles.filter((a) => a.id !== id)
-  if (filtered.length === articles.length) return false
-  saveStore(filtered)
-  return true
+// ── PATCH /api/v1/news/:id/publish ──
+export async function publishArticle(id: string): Promise<Article | null> {
+  const response = await apiClient.patch<ApiResponse<Article>>(`/news/${id}/publish`, {});
+  return response.data || null;
 }
 
-export function publishArticle(id: string): Article | null {
-  return updateArticle(id, { status: "published", publishDate: new Date().toISOString() })
+// ── POST /api/v1/news/:id/duplicate ──
+export async function duplicateArticle(id: string): Promise<Article | null> {
+  const response = await apiClient.post<ApiResponse<Article>>(`/news/${id}/duplicate`, {});
+  return response.data || null;
 }
 
-export function unpublishArticle(id: string): Article | null {
-  return updateArticle(id, { status: "draft", publishDate: null })
+// ── Bulk actions ──
+export async function bulkDeleteArticles(ids: string[]): Promise<boolean> {
+  const response = await apiClient.delete<ApiResponse<any>>('/news/bulk', { ids });
+  return response.success;
 }
 
-export function scheduleArticle(id: string, scheduledDate: string): Article | null {
-  return updateArticle(id, { status: "scheduled", scheduledDate })
-}
-
-export function duplicateArticle(id: string): Article | null {
-  const original = getArticle(id)
-  if (!original) return null
-  return createArticle({
-    ...original,
-    title: `${original.title} (copie)`,
-    slug: `${original.slug}-copie-${Date.now()}`,
-    status: "draft",
-    featured: false,
-    publishDate: null,
-  })
-}
-
-export function resetArticlesToMock(): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockArticles))
-  }
+export async function bulkSetStatusArticles(ids: string[], status: ArticleStatus): Promise<boolean> {
+  const response = await apiClient.patch<ApiResponse<any>>('/news/bulk-status', { ids, status });
+  return response.success;
 }

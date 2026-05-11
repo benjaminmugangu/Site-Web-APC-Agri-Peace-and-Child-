@@ -1,105 +1,54 @@
-import { mockMessages, type Message, type MessageStatus } from "@/lib/data/mock-messages"
-
-const STORAGE_KEY = "apc_messages"
-
-function getStore(): Message[] {
-  if (typeof window === "undefined") return mockMessages
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockMessages))
-    return mockMessages
-  }
-  return JSON.parse(raw) as Message[]
-}
-
-function saveStore(messages: Message[]): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
-  }
-}
+import { apiClient, type ApiResponse } from './api-client';
+import { type Message, type MessageStatus, type MessageType } from "@/lib/data/mock-messages";
 
 export type ListMessagesOptions = {
-  status?: MessageStatus | "all"
-  type?: Message["type"] | "all"
-  search?: string
-  page?: number
-  perPage?: number
-}
+  status?: MessageStatus | "all";
+  type?: MessageType | "all";
+  search?: string;
+  page?: number;
+  perPage?: number;
+};
 
 export type PaginatedResult<T> = {
-  data: T[]
-  meta: { total: number; page: number; perPage: number; totalPages: number }
+  data: T[];
+  meta: { total: number; page: number; perPage: number; totalPages: number };
+};
+
+// ── GET /api/v1/contact ──
+export async function listMessages(options: ListMessagesOptions = {}): Promise<PaginatedResult<Message>> {
+  const response = await apiClient.get<ApiResponse<Message[]>>('/contact', options);
+  return {
+    data: response.data || [],
+    meta: response.meta || { total: 0, page: 1, perPage: 20, totalPages: 0 }
+  };
 }
 
-export function listMessages(options: ListMessagesOptions = {}): PaginatedResult<Message> {
-  const { status = "all", type = "all", search, page = 1, perPage = 20 } = options
-  let items = getStore()
-
-  if (status !== "all") items = items.filter((m) => m.status === status)
-  if (type !== "all") items = items.filter((m) => m.type === type)
-  if (search) {
-    const q = search.toLowerCase()
-    items = items.filter(
-      (m) =>
-        m.sender.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.subject.toLowerCase().includes(q)
-    )
-  }
-
-  items = items.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )
-
-  const total = items.length
-  const totalPages = Math.ceil(total / perPage)
-  const data = items.slice((page - 1) * perPage, page * perPage)
-  return { data, meta: { total, page, perPage, totalPages } }
+// ── GET /api/v1/contact/:id ──
+export async function getMessage(id: string): Promise<Message | null> {
+  const response = await apiClient.get<ApiResponse<Message>>(`/contact/${id}`);
+  return response.data || null;
 }
 
-export function getMessage(id: string): Message | null {
-  return getStore().find((m) => m.id === id) ?? null
+// ── PATCH /api/v1/contact/:id/status ──
+export async function updateMessageStatus(id: string, status: MessageStatus): Promise<Message | null> {
+  const response = await apiClient.patch<ApiResponse<Message>>(`/contact/${id}/status`, { status });
+  return response.data || null;
 }
 
-export function markAsRead(id: string): Message | null {
-  const messages = getStore()
-  const idx = messages.findIndex((m) => m.id === id)
-  if (idx === -1) return null
-  if (messages[idx].status === "unread") {
-    messages[idx] = { ...messages[idx], status: "read" }
-    saveStore(messages)
-  }
-  return messages[idx]
+// ── POST /api/v1/contact/:id/reply ──
+export async function replyToMessage(id: string, content: string): Promise<Message | null> {
+  const response = await apiClient.post<ApiResponse<Message>>(`/contact/${id}/reply`, { content });
+  return response.data || null;
 }
 
-export function markAsReplied(id: string, repliedBy: string): Message | null {
-  const messages = getStore()
-  const idx = messages.findIndex((m) => m.id === id)
-  if (idx === -1) return null
-  messages[idx] = {
-    ...messages[idx],
-    status: "replied",
-    repliedAt: new Date().toISOString(),
-    repliedBy,
-  }
-  saveStore(messages)
-  return messages[idx]
+// ── DELETE /api/v1/contact/:id ──
+export async function deleteMessage(id: string): Promise<boolean> {
+  const response = await apiClient.delete<ApiResponse<any>>(`/contact/${id}`);
+  return response.success;
 }
 
-export function deleteMessage(id: string): boolean {
-  const messages = getStore()
-  const filtered = messages.filter((m) => m.id !== id)
-  if (filtered.length === messages.length) return false
-  saveStore(filtered)
-  return true
-}
-
-export function getUnreadCount(): number {
-  return getStore().filter((m) => m.status === "unread").length
-}
-
-export function resetMessagesToMock(): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockMessages))
-  }
+// ── GET /api/v1/contact/unread-count ──
+export async function getUnreadCount(): Promise<number> {
+  const response = await apiClient.get<ApiResponse<{ count: number }>>('/contact/unread-count');
+  return response.data?.count || 0;
 }

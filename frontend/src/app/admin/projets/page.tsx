@@ -37,10 +37,15 @@ export default function AdminProjects() {
   const [deleteModal, setDeleteModal] = useState<Project | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
 
-  function load(opts?: ListProjectsOptions) {
-    const result = listProjects({ status: activeTab, search, page: meta.page, perPage: 8, ...opts })
-    setProjects(result.data)
-    setMeta(result.meta)
+  async function load(opts?: ListProjectsOptions) {
+    try {
+      const result = await listProjects({ status: activeTab, search, page: meta.page, perPage: 8, ...opts })
+      setProjects(result.data)
+      setMeta(result.meta)
+    } catch (error) {
+      console.error("Erreur chargement projets:", error)
+      showToast("Erreur lors du chargement des projets", "error")
+    }
   }
 
   useEffect(() => { load({ page: 1 }) }, [activeTab, search])
@@ -50,45 +55,65 @@ export default function AdminProjects() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  function handleTogglePublish(project: Project) {
-    if (project.status === "published") {
-      unpublishProject(project.id)
-      showToast(`"${project.title}" dépublié`)
-    } else {
-      publishProject(project.id)
-      showToast(`"${project.title}" publié !`)
+  async function handleTogglePublish(project: Project) {
+    try {
+      if (project.status === "published") {
+        await unpublishProject(project.id)
+        showToast(`"${project.title}" dépublié`)
+      } else {
+        await publishProject(project.id)
+        showToast(`"${project.title}" publié !`)
+      }
+      setOpenMenuId(null)
+      load()
+    } catch (error) {
+      showToast("Erreur lors de la modification du statut", "error")
     }
-    setOpenMenuId(null)
-    load()
   }
 
-  function handleArchive(project: Project) {
-    archiveProject(project.id)
-    showToast(`"${project.title}" archivé`)
-    setOpenMenuId(null)
-    load()
+  async function handleArchive(project: Project) {
+    try {
+      await archiveProject(project.id)
+      showToast(`"${project.title}" archivé`)
+      setOpenMenuId(null)
+      load()
+    } catch (error) {
+      showToast("Erreur lors de l'archivage", "error")
+    }
   }
 
-  function handleDuplicate(project: Project) {
-    duplicateProject(project.id)
-    showToast(`"${project.title}" dupliqué`)
-    setOpenMenuId(null)
-    load()
+  async function handleDuplicate(project: Project) {
+    try {
+      await duplicateProject(project.id)
+      showToast(`"${project.title}" dupliqué`)
+      setOpenMenuId(null)
+      load()
+    } catch (error) {
+      showToast("Erreur lors de la duplication", "error")
+    }
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     if (!deleteModal) return
-    deleteProject(deleteModal.id)
-    showToast(`"${deleteModal.title}" supprimé`, "error")
-    setDeleteModal(null)
-    load()
+    try {
+      await deleteProject(deleteModal.id)
+      showToast(`"${deleteModal.title}" supprimé`, "error")
+      setDeleteModal(null)
+      load()
+    } catch (error) {
+      showToast("Erreur lors de la suppression", "error")
+    }
   }
 
-  function handleBulkDelete() {
-    const count = bulkDeleteProjects(selectedIds)
-    showToast(`${count} projet(s) supprimé(s)`, "error")
-    setSelectedIds([])
-    load()
+  async function handleBulkDelete() {
+    try {
+      await bulkDeleteProjects(selectedIds)
+      showToast(`${selectedIds.length} projet(s) supprimé(s)`, "error")
+      setSelectedIds([])
+      load()
+    } catch (error) {
+      showToast("Erreur lors de la suppression groupée", "error")
+    }
   }
 
   function toggleSelect(id: string) {

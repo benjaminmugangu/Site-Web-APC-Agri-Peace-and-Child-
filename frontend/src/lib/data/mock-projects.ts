@@ -6,6 +6,7 @@ export type Project = {
   title: string
   slug: string
   description: string
+  content?: string
   category: ProjectCategory
   status: ProjectStatus
   budget: number
@@ -15,13 +16,15 @@ export type Project = {
   beneficiaries: number
   startDate: string
   endDate?: string
-  imageUrl: string
+  mainImage: string // Aligné avec le backend
+  gallery?: string[]
   featured: boolean
   showOnHome: boolean
   needsDonation: boolean
+  isVisible?: boolean
   createdAt: string
   updatedAt: string
-  createdBy: string
+  createdBy?: string
 }
 
 export const mockProjects: Project[] = [
@@ -39,7 +42,7 @@ export const mockProjects: Project[] = [
     beneficiaries: 2400,
     startDate: "2024-01-15",
     endDate: "2024-12-31",
-    imageUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop",
     featured: true,
     showOnHome: true,
     needsDonation: false,
@@ -60,7 +63,7 @@ export const mockProjects: Project[] = [
     province: "Nord-Kivu",
     beneficiaries: 380,
     startDate: "2024-02-01",
-    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop",
     featured: false,
     showOnHome: true,
     needsDonation: true,
@@ -82,7 +85,7 @@ export const mockProjects: Project[] = [
     beneficiaries: 650,
     startDate: "2023-06-01",
     endDate: "2023-12-31",
-    imageUrl: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800&auto=format&fit=crop",
     featured: false,
     showOnHome: false,
     needsDonation: false,
@@ -103,7 +106,7 @@ export const mockProjects: Project[] = [
     province: "Nord-Kivu",
     beneficiaries: 1200,
     startDate: "2024-05-01",
-    imageUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop",
     featured: false,
     showOnHome: false,
     needsDonation: true,
@@ -124,7 +127,7 @@ export const mockProjects: Project[] = [
     province: "Nord-Kivu",
     beneficiaries: 3200,
     startDate: "2025-03-01",
-    imageUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800&auto=format&fit=crop",
     featured: false,
     showOnHome: false,
     needsDonation: true,
@@ -146,7 +149,7 @@ export const mockProjects: Project[] = [
     beneficiaries: 5000,
     startDate: "2022-09-01",
     endDate: "2023-08-31",
-    imageUrl: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?q=80&w=800&auto=format&fit=crop",
+    mainImage: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?q=80&w=800&auto=format&fit=crop",
     featured: false,
     showOnHome: false,
     needsDonation: false,

@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  FileText
+  FileText,
+  MessageSquare
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
@@ -27,6 +28,7 @@ const menuItems = [
   { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois" },
   { icon: Users, label: "Experts / Équipe", href: "/admin/equipe" },
   { icon: Handshake, label: "Partenaires", href: "/admin/partenaires" },
+  { icon: MessageSquare, label: "Messages", href: "/admin/messages" },
   { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
 ]
 

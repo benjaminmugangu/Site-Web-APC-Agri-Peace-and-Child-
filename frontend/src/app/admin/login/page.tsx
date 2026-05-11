@@ -4,11 +4,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, AlertCircle, Leaf } from "lucide-react"
 import { Suspense } from "react"
-
-const CREDENTIALS = {
-  email: "admin@apc.org",
-  password: "apc2024",
-}
+import { authService } from "@/lib/api/auth"
 
 function LoginForm() {
   const router = useRouter()
@@ -26,17 +22,12 @@ function LoginForm() {
     setError("")
     setLoading(true)
 
-    // Simulation d'un délai réseau
-    await new Promise((res) => setTimeout(res, 800))
-
-    if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
-      // Définir le cookie de session (expire dans 24h)
-      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
-      document.cookie = `apc_admin_session=authenticated; path=/; expires=${expires}; SameSite=Lax`
+    try {
+      await authService.login(email, password);
       router.push(redirectTo)
       router.refresh()
-    } else {
-      setError("Identifiants incorrects. Vérifiez votre email et mot de passe.")
+    } catch (err: any) {
+      setError(err.message || "Identifiants incorrects. Vérifiez votre email et mot de passe.")
       setLoading(false)
     }
   }
