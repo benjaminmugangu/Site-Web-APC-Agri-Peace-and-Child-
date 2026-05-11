@@ -23,7 +23,7 @@ function LoginForm() {
     setLoading(true)
 
     try {
-      await authService.login(email, password);
+      await authService.login({ email, password });
       router.push(redirectTo)
       router.refresh()
     } catch (err: any) {

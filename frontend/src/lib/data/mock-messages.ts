@@ -3,7 +3,7 @@ export type MessageStatus = "unread" | "read" | "replied"
 
 export type Message = {
   id: string
-  sender: string
+  name: string
   email: string
   phone?: string
   type: MessageType
@@ -18,7 +18,7 @@ export type Message = {
 export const mockMessages: Message[] = [
   {
     id: "msg-001",
-    sender: "Jean Maluta",
+    name: "Jean Maluta",
     email: "jmaluta@gmail.com",
     phone: "+243 812 334 556",
     type: "donation",
@@ -29,7 +29,7 @@ export const mockMessages: Message[] = [
   },
   {
     id: "msg-002",
-    sender: "Fondation Ubuntu RDC",
+    name: "Fondation Ubuntu RDC",
     email: "contact@fondationubuntu.cd",
     phone: "+243 998 221 445",
     type: "partnership",
@@ -40,7 +40,7 @@ export const mockMessages: Message[] = [
   },
   {
     id: "msg-003",
-    sender: "Amina Zawadi",
+    name: "Amina Zawadi",
     email: "aminaz@yahoo.fr",
     type: "contact",
     subject: "Demande d'information générale",
@@ -50,7 +50,7 @@ export const mockMessages: Message[] = [
   },
   {
     id: "msg-004",
-    sender: "Patrick Mwamba",
+    name: "Patrick Mwamba",
     email: "pmwamba@outlook.com",
     phone: "+243 895 667 112",
     type: "volunteer",
@@ -63,7 +63,7 @@ export const mockMessages: Message[] = [
   },
   {
     id: "msg-005",
-    sender: "Dr. Sophie Bertrand",
+    name: "Dr. Sophie Bertrand",
     email: "s.bertrand@msf.org",
     type: "partnership",
     subject: "Coordination MSF — APC",
@@ -75,7 +75,7 @@ export const mockMessages: Message[] = [
   },
   {
     id: "msg-006",
-    sender: "Christophe Hakizimana",
+    name: "Christophe Hakizimana",
     email: "chris.haki@gmail.com",
     type: "donation",
     subject: "Faire un don",

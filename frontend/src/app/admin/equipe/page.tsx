@@ -5,18 +5,17 @@ import { Plus, Edit, Trash2, Mail, Phone, UserPlus, ArrowLeft, Save, Camera, Ale
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-const mockTeam = [
-  { id: 1, name: "Benjamin Mugangu", role: "Directeur Exécutif", email: "benjamin@apc.org", phone: "+243 975 418 316", photo: null },
-  { id: 2, name: "Marie Louise", role: "Coordination Projets", email: "marie@apc.org", phone: "+243 888 000 111", photo: null },
-  { id: 3, name: "Jean Kabila", role: "Expert en Paix & Résolution", email: "jean@apc.org", phone: "+243 999 222 333", photo: null },
-]
+import { listTeam, createTeamMember, updateTeamMember, deleteTeamMember, getTeamMember } from "@/lib/api/team"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { useEffect } from "react"
 
 export default function AdminEquipePage() {
-  const [team, setTeam] = useState(mockTeam)
+  const [team, setTeam] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingMember, setEditingMember] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [fetching, setFetching] = useState(true)
 
   // Form State
   const [formData, setFormData] = useState({
@@ -24,81 +23,84 @@ export default function AdminEquipePage() {
     role: "",
     email: "",
     phone: "",
-    bio: ""
+    bio: "",
+    photo: "",
+    order: 0
   })
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  async function load() {
+    setFetching(true)
+    try {
+      const result = await listTeam()
+      setTeam(result.data)
+    } catch (error) {
+      toast.error("Erreur chargement équipe")
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
 
   const handleAdd = () => {
     setEditingMember(null)
-    setFormData({ name: "", role: "", email: "", phone: "", bio: "" })
-    setErrors({})
-    setStatus(null)
+    setFormData({ name: "", role: "", email: "", phone: "", bio: "", photo: "", order: 0 })
     setShowForm(true)
   }
 
-  const handleEdit = (member: any) => {
-    setEditingMember(member)
-    setFormData({
-      name: member.name,
-      role: member.role,
-      email: member.email,
-      phone: member.phone || "",
-      bio: member.bio || ""
-    })
-    setErrors({})
-    setStatus(null)
-    setShowForm(true)
-  }
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {}
-    if (!formData.name.trim()) newErrors.name = "Le nom est obligatoire"
-    if (!formData.role.trim()) newErrors.role = "Le rôle est obligatoire"
-    if (!formData.email.trim()) {
-      newErrors.email = "L'email est obligatoire"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Format d'email invalide"
-    }
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validate()) return
-
+  const handleEdit = async (id: string) => {
     setLoading(true)
-    setStatus(null)
-
-    // Simulate API Call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      if (editingMember) {
-        setTeam(prev => prev.map(m => m.id === editingMember.id ? { ...m, ...formData } : m))
-        setStatus({ type: 'success', message: "Profil mis à jour avec succès !" })
-      } else {
-        const newMember = {
-          id: Math.max(...team.map(t => t.id)) + 1,
-          ...formData,
-          photo: null
-        }
-        setTeam(prev => [...prev, newMember])
-        setStatus({ type: 'success', message: "Nouveau membre ajouté à l'équipe !" })
-      }
-      
-      setTimeout(() => setShowForm(false), 1500)
-    } catch (err) {
-      setStatus({ type: 'error', message: "Une erreur est survenue lors de l'enregistrement." })
+      const member = await getTeamMember(id)
+      setEditingMember(member)
+      setFormData({
+        name: member.name,
+        role: member.role,
+        email: member.email || "",
+        phone: member.phone || "",
+        bio: member.bio || "",
+        photo: member.photo || "",
+        order: member.order || 0
+      })
+      setShowForm(true)
+    } catch (error) {
+      toast.error("Erreur chargement membre")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDelete = (id: number) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
-      setTeam(prev => prev.filter(m => m.id !== id))
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      if (editingMember) {
+        await updateTeamMember(editingMember.id, formData)
+        toast.success("Profil mis à jour")
+      } else {
+        await createTeamMember(formData)
+        toast.success("Membre ajouté")
+      }
+      setShowForm(false)
+      load()
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de l'enregistrement")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Supprimer ce membre de l'équipe ?")) {
+      try {
+        await deleteTeamMember(id)
+        toast.success("Supprimé")
+        load()
+      } catch (error) {
+        toast.error("Erreur suppression")
+      }
     }
   }
 
@@ -107,12 +109,14 @@ export default function AdminEquipePage() {
     setEditingMember(null)
   }
 
+  if (fetching) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-emerald-600" size={48} /></div>
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-black">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold">
             {showForm ? (editingMember ? "Modifier le Profil" : "Nouvel Expert") : "Gestion de l'Équipe"}
           </h1>
           <p className="text-gray-500 text-sm">
@@ -122,7 +126,7 @@ export default function AdminEquipePage() {
           </p>
         </div>
         {!showForm && (
-          <Button onClick={handleAdd} className="gap-2 bg-apc-green hover:bg-green-700 shadow-lg shadow-apc-green/20">
+          <Button onClick={handleAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
             <UserPlus size={18} /> Ajouter un Expert
           </Button>
         )}
@@ -146,13 +150,21 @@ export default function AdminEquipePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {team.map((member) => (
+              {team.length === 0 ? (
+                 <tr>
+                    <td colSpan={4} className="text-center py-10 text-gray-400">Aucun membre enregistré</td>
+                 </tr>
+              ) : team.map((member) => (
                 <tr key={member.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-apc-green/10 flex items-center justify-center text-apc-green font-bold shrink-0 border border-apc-green/20">
-                        {member.name.charAt(0)}
-                      </div>
+                      {member.photo ? (
+                        <img src={member.photo} className="w-10 h-10 rounded-full object-cover border border-gray-100" alt={member.name} />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold shrink-0 border border-emerald-200">
+                          {member.name.charAt(0)}
+                        </div>
+                      )}
                       <div className="font-bold text-gray-900">{member.name}</div>
                     </div>
                   </td>
@@ -164,29 +176,19 @@ export default function AdminEquipePage() {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Mail size={12} className="text-apc-blue" /> {member.email}
+                        <Mail size={12} className="text-blue-600" /> {member.email || "-"}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Phone size={12} className="text-apc-green" /> {member.phone}
+                        <Phone size={12} className="text-emerald-600" /> {member.phone || "-"}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/admin/equipe/${member.id}`}>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 text-gray-600 hover:text-apc-green hover:bg-gray-100"
-                          title="Voir le dossier complet"
-                        >
-                          <FileText size={16} />
-                        </Button>
-                      </Link>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => handleEdit(member)}
+                        onClick={() => handleEdit(member.id)}
                         className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                       >
                         <Edit size={16} />
@@ -205,31 +207,41 @@ export default function AdminEquipePage() {
               ))}
             </tbody>
           </table>
-          {team.length === 0 && (
-            <div className="p-12 text-center text-gray-500">
-              Aucun expert enregistré.
-            </div>
-          )}
         </div>
       ) : (
         /* FORMULAIRE D'EDITION */
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="p-8">
-            {status && (
-              <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                {status.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                <span className="text-sm font-medium">{status.message}</span>
-              </div>
-            )}
-
             <div className="flex flex-col md:flex-row gap-10">
               {/* Photo Upload Simulation */}
               <div className="w-full md:w-48 space-y-4">
-                <div className="aspect-square rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-2 hover:bg-gray-100 transition-colors cursor-pointer group">
-                  <Camera size={32} className="group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-medium px-4 text-center">Cliquez pour ajouter une photo</span>
+                {formData.photo ? (
+                  <div className="aspect-square rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
+                    <img src={formData.photo} alt="Preview" className="w-full h-full object-cover" />
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setFormData({...formData, photo: ""})}
+                      className="w-full mt-2 text-red-500 text-[10px] font-bold"
+                    >SUPPRIMER PHOTO</Button>
+                  </div>
+                ) : (
+                  <div className="aspect-square rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-2">
+                    <Camera size={32} />
+                    <span className="text-xs font-medium px-4 text-center text-gray-400">Photo du profil</span>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">URL de la Photo</label>
+                  <input 
+                    type="text" 
+                    value={formData.photo}
+                    onChange={e => setFormData({...formData, photo: e.target.value})}
+                    placeholder="Lien de l'image..."
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none"
+                  />
                 </div>
-                <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest font-bold">Format: JPG, PNG (Max 2Mo)</p>
               </div>
 
               {/* Form Fields */}
@@ -239,34 +251,33 @@ export default function AdminEquipePage() {
                     <label className="text-xs font-bold text-gray-400 uppercase">Nom Complet *</label>
                     <input 
                       type="text" 
+                      required
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green`} 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
                       placeholder="Ex: Jean Mukendi" 
                     />
-                    {errors.name && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.name}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase">Poste / Fonction *</label>
                     <input 
                       type="text" 
+                      required
                       value={formData.role}
                       onChange={e => setFormData({ ...formData, role: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.role ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green`} 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
                       placeholder="Ex: Coordinateur de Terrain" 
                     />
-                    {errors.role && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.role}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase">Adresse E-mail *</label>
+                    <label className="text-xs font-bold text-gray-400 uppercase">Adresse E-mail</label>
                     <input 
                       type="email" 
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-blue/20 focus:border-apc-blue`} 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none text-sm" 
                       placeholder="jean@agripeace.org" 
                     />
-                    {errors.email && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.email}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase">Téléphone (WhatsApp)</label>
@@ -274,8 +285,17 @@ export default function AdminEquipePage() {
                       type="tel" 
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 focus:border-apc-blue" 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none text-sm" 
                       placeholder="+243..." 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase">Ordre d'affichage</label>
+                    <input 
+                      type="number" 
+                      value={formData.order}
+                      onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none text-sm" 
                     />
                   </div>
                 </div>
@@ -285,7 +305,7 @@ export default function AdminEquipePage() {
                   <textarea 
                     value={formData.bio}
                     onChange={e => setFormData({ ...formData, bio: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 h-24" 
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none h-24 text-sm" 
                     placeholder="Parcours professionnel résumé..."
                   />
                 </div>
@@ -299,10 +319,10 @@ export default function AdminEquipePage() {
             <Button 
               type="submit"
               disabled={loading}
-              className="bg-apc-green hover:bg-green-700 gap-2 px-8 min-w-[200px]"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 px-8 min-w-[200px] font-bold"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
                   <Save size={18} /> {editingMember ? "Enregistrer les modifications" : "Créer le profil"}

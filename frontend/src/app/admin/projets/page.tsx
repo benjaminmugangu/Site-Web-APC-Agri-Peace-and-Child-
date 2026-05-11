@@ -216,7 +216,7 @@ export default function AdminProjects() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <img src={project.imageUrl} alt="" className="w-12 h-9 rounded-lg object-cover bg-gray-100 shrink-0" />
+                        <img src={project.mainImage} alt="" className="w-12 h-9 rounded-lg object-cover bg-gray-100 shrink-0" />
                         <div className="min-w-0">
                           <p className="font-semibold text-gray-900 truncate max-w-[200px] text-sm">{project.title}</p>
                           <p className="text-xs text-gray-400">{project.beneficiaries.toLocaleString("fr-FR")} bénéf.</p>

@@ -1,42 +1,37 @@
-import { apiClient, type ApiResponse } from './api-client';
+import api from "./api-client";
 
-export type PartnerType = 'institutionnel' | 'technique' | 'financier' | 'local';
-
-export type Partner = {
+export interface Partner {
   id: string;
   name: string;
-  logoUrl?: string;
+  logo: string;
   websiteUrl?: string;
-  type: PartnerType;
+  type: "TECHNICAL" | "FINANCIAL" | "STRATEGIC" | "GOVERNMENTAL";
   description?: string;
-  order: number;
-  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const listPartners = async (options?: any) => {
+  const response = await api.get("/partners", { params: options });
+  return response.data;
 };
 
-export const partnerService = {
-  async list(params?: any): Promise<Partner[]> {
-    const response = await apiClient.get<ApiResponse<Partner[]>>('/partners', params);
-    return response.data || [];
-  },
+export const getPartner = async (id: string) => {
+  const response = await api.get(`/partners/${id}`);
+  return response.data;
+};
 
-  async create(payload: any): Promise<Partner> {
-    const response = await apiClient.post<ApiResponse<Partner>>('/partners', payload);
-    if (!response.data) throw new Error('Erreur de création');
-    return response.data;
-  },
+export const createPartner = async (data: any) => {
+  const response = await api.post("/partners", data);
+  return response.data;
+};
 
-  async update(id: string, payload: any): Promise<Partner | null> {
-    const response = await apiClient.put<ApiResponse<Partner>>(`/partners/${id}`, payload);
-    return response.data || null;
-  },
+export const updatePartner = async (id: string, data: any) => {
+  const response = await api.patch(`/partners/${id}`, data);
+  return response.data;
+};
 
-  async delete(id: string): Promise<boolean> {
-    const response = await apiClient.delete<ApiResponse<any>>(`/partners/${id}`);
-    return response.success;
-  },
-
-  async bulkDelete(ids: string[]): Promise<boolean> {
-    const response = await apiClient.delete<ApiResponse<any>>('/partners/bulk', { ids });
-    return response.success;
-  }
+export const deletePartner = async (id: string) => {
+  const response = await api.delete(`/partners/${id}`);
+  return response.data;
 };

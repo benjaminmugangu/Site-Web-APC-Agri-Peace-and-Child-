@@ -1,46 +1,39 @@
-import { apiClient, type ApiResponse } from './api-client';
+import api from "./api-client";
 
-export type Career = {
+export interface Career {
   id: string;
   title: string;
+  type: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP" | "VOLUNTEER";
   location: string;
-  type: string; // CDD, CDI, Internship
-  department: string;
   description: string;
-  requirements: string[];
+  content?: string;
   deadline: string;
-  isOpen: boolean;
+  status: "OPEN" | "CLOSED" | "ARCHIVED";
   createdAt: string;
+  updatedAt: string;
+}
+
+export const listCareers = async (options?: any) => {
+  const response = await api.get("/careers", { params: options });
+  return response.data;
 };
 
-export const careerService = {
-  async list(params?: any): Promise<Career[]> {
-    const response = await apiClient.get<ApiResponse<Career[]>>('/careers', params);
-    return response.data || [];
-  },
+export const getCareer = async (id: string) => {
+  const response = await api.get(`/careers/${id}`);
+  return response.data;
+};
 
-  async create(payload: any): Promise<Career> {
-    const response = await apiClient.post<ApiResponse<Career>>('/careers', payload);
-    return response.data!;
-  },
+export const createCareer = async (data: any) => {
+  const response = await api.post("/careers", data);
+  return response.data;
+};
 
-  async update(id: string, payload: any): Promise<Career | null> {
-    const response = await apiClient.put<ApiResponse<Career>>(`/careers/${id}`, payload);
-    return response.data || null;
-  },
+export const updateCareer = async (id: string, data: any) => {
+  const response = await api.patch(`/careers/${id}`, data);
+  return response.data;
+};
 
-  async delete(id: string): Promise<boolean> {
-    const response = await apiClient.delete<ApiResponse<any>>(`/careers/${id}`);
-    return response.success;
-  },
-
-  async bulkDelete(ids: string[]): Promise<boolean> {
-    const response = await apiClient.delete<ApiResponse<any>>('/careers/bulk', { ids });
-    return response.success;
-  },
-
-  async bulkSetStatus(ids: string[], isOpen: boolean): Promise<boolean> {
-    const response = await apiClient.patch<ApiResponse<any>>('/careers/bulk-status', { ids, isOpen });
-    return response.success;
-  }
+export const deleteCareer = async (id: string) => {
+  const response = await api.delete(`/careers/${id}`);
+  return response.data;
 };

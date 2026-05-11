@@ -20,13 +20,25 @@ export type Service = {
 
 export const domainService = {
   async list(params?: any): Promise<Service[]> {
-    const response = await apiClient.get<ApiResponse<Service[]>>('/services', params);
-    return response.data || [];
+    const response = await apiClient.get<ApiResponse<any[]>>('/services', params);
+    return (response.data || []).map(s => ({
+      ...s,
+      title: s.name, // Mapping backend name to frontend title
+      icon: s.iconName, // Mapping backend iconName to frontend icon
+      style: s.style || { color: 'text-emerald-700', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-100' }
+    }));
   },
 
   async get(id: string): Promise<Service | null> {
-    const response = await apiClient.get<ApiResponse<Service>>(`/services/${id}`);
-    return response.data || null;
+    const response = await apiClient.get<ApiResponse<any>>(`/services/${id}`);
+    if (!response.data) return null;
+    const s = response.data;
+    return {
+      ...s,
+      title: s.name,
+      icon: s.iconName,
+      style: s.style || { color: 'text-emerald-700', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-100' }
+    };
   },
 
   async create(payload: any): Promise<Service> {

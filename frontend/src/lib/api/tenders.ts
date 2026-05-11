@@ -1,6 +1,6 @@
 import { apiClient, type ApiResponse } from './api-client';
 
-export type TenderStatus = 'open' | 'closed' | 'awarded' | 'cancelled';
+export type TenderStatus = 'open' | 'closed' | 'archived' | 'cancelled';
 
 export type Tender = {
   id: string;
@@ -11,7 +11,7 @@ export type Tender = {
   status: TenderStatus;
   publishDate: string;
   deadline: string;
-  documents?: string[];
+  fileUrl?: string; // Aligné avec le backend
   location: string;
   organization: string;
 };

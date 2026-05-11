@@ -12,7 +12,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { listArticles } from "@/lib/api/global-services"
+import { listArticles, deleteArticle, bulkDeleteArticles } from "@/lib/api/articles"
+import { toast } from "sonner"
 
 export default function AdminActualites() {
   const [articles, setArticles] = useState<any[]>([])
@@ -22,12 +23,23 @@ export default function AdminActualites() {
   async function load() {
     setLoading(true)
     try {
-      const data = await listArticles()
-      setArticles(data)
+      const result = await listArticles()
+      setArticles(result.data)
     } catch (error) {
-      console.error("Erreur chargement articles:", error)
+      toast.error("Erreur chargement articles")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Supprimer cet article ?")) return
+    try {
+      await deleteArticle(id)
+      toast.success("Article supprimé")
+      load()
+    } catch (error) {
+      toast.error("Erreur lors de la suppression")
     }
   }
 
@@ -37,7 +49,7 @@ export default function AdminActualites() {
 
   const filteredArticles = articles.filter(a => 
     a.title.toLowerCase().includes(search.toLowerCase()) ||
-    a.category.toLowerCase().includes(search.toLowerCase())
+    (a.category && a.category.toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
@@ -94,7 +106,10 @@ export default function AdminActualites() {
                 <tr key={article.id} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-6 py-4 font-semibold text-gray-900 flex items-center gap-3">
                     <FileText size={18} className="text-gray-400" />
-                    {article.title}
+                    <div className="flex flex-col">
+                      <span className="truncate max-w-xs">{article.title}</span>
+                      {article.mainImage && <img src={article.mainImage} alt="" className="w-10 h-6 rounded mt-1 object-cover border border-gray-100" />}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md font-medium">
@@ -120,7 +135,14 @@ export default function AdminActualites() {
                         </Button>
                       </Link>
                       <Button variant="ghost" size="icon" className="h-8 w-8"><Edit size={16} /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600"><Trash2 size={16} /></Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-red-600"
+                        onClick={() => handleDelete(article.id)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
                     </div>
                   </td>
                 </tr>
