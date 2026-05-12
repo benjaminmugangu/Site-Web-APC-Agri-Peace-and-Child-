@@ -53,3 +53,9 @@ export const tenderService = {
     return response.success;
   }
 };
+
+export const listTenders = tenderService.list;
+export const getTender = tenderService.get;
+export const createTender = tenderService.create;
+export const updateTender = tenderService.update;
+export const deleteTender = tenderService.delete;
