@@ -16,7 +16,9 @@ export type PaginatedResult<T> = {
 
 // ── GET /api/v1/news ──
 export async function listArticles(options: ListArticlesOptions = {}): Promise<PaginatedResult<Article>> {
-  const response = await apiClient.get<ApiResponse<Article[]>>('/news', options);
+  const { perPage, ...rest } = options;
+  const params = { ...rest, limit: perPage };
+  const response = await apiClient.get<ApiResponse<Article[]>>('/news', params);
   return {
     data: response.data || [],
     meta: response.meta || { total: 0, page: 1, perPage: 10, totalPages: 0 }

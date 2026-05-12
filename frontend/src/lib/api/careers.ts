@@ -29,11 +29,21 @@ export const createCareer = async (data: any) => {
 };
 
 export const updateCareer = async (id: string, data: any) => {
-  const response = await api.patch(`/careers/${id}`, data);
+  const response = await api.put(`/careers/${id}`, data);
   return response.data;
 };
 
 export const deleteCareer = async (id: string) => {
   const response = await api.delete(`/careers/${id}`);
+  return response.data;
+};
+
+export const bulkDeleteCareers = async (ids: string[]) => {
+  const response = await api.delete("/careers/bulk", { data: { ids } });
+  return response.data;
+};
+
+export const bulkSetStatusCareers = async (ids: string[], status: string) => {
+  const response = await api.patch("/careers/bulk-status", { ids, status });
   return response.data;
 };

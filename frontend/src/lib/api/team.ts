@@ -30,7 +30,7 @@ export const createTeamMember = async (data: any) => {
 };
 
 export const updateTeamMember = async (id: string, data: any) => {
-  const response = await api.patch(`/team/${id}`, data);
+  const response = await api.put(`/team/${id}`, data);
   return response.data;
 };
 

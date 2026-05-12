@@ -27,7 +27,7 @@ export const createPartner = async (data: any) => {
 };
 
 export const updatePartner = async (id: string, data: any) => {
-  const response = await api.patch(`/partners/${id}`, data);
+  const response = await api.put(`/partners/${id}`, data);
   return response.data;
 };
 
