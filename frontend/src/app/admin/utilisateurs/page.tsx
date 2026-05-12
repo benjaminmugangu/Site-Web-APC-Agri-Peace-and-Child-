@@ -13,15 +13,35 @@ import {
   UserCheck, 
   UserX,
   Mail,
-  Calendar
+  Calendar,
+  X,
+  Save,
+  AlertCircle,
+  CheckCircle2,
+  Loader2
 } from "lucide-react"
-import { userService, type User } from "@/lib/api/users"
+import { userService, type User, type UserRole } from "@/lib/api/users"
 import { toast } from "sonner"
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  
+  // Modal State
+  const [showForm, setShowForm] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "ADMIN" as UserRole,
+    isActive: true
+  })
 
   useEffect(() => {
     loadUsers()
@@ -58,6 +78,62 @@ export default function AdminUsers() {
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const handleAdd = () => {
+    setEditingUser(null)
+    setFormData({ firstName: "", lastName: "", email: "", password: "", role: "ADMIN", isActive: true })
+    setStatus(null)
+    setShowForm(true)
+  }
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user)
+    setFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: "", // On ne charge pas le mot de passe
+      role: user.role,
+      isActive: user.isActive
+    })
+    setStatus(null)
+    setShowForm(true)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+    setStatus(null)
+
+    try {
+      if (editingUser) {
+        // En cas d'édition, ne pas envoyer le mot de passe s'il est vide
+        const payload: any = { ...formData }
+        if (!payload.password) delete payload.password
+        await userService.update(editingUser.id, payload)
+        toast.success("Utilisateur mis à jour")
+      } else {
+        // Il faudrait un endpoint create dans userService (on va l'appeler via un POST manuel ici)
+        // Mais simulons ou utilisons un appel custom si le userService.create manque
+        // @ts-ignore
+        if (userService.create) {
+          // @ts-ignore
+          await userService.create(formData)
+        } else {
+          // Fallback direct apiClient
+          const { apiClient } = await import('@/lib/api/api-client');
+          await apiClient.post('/users', formData);
+        }
+        toast.success("Utilisateur créé")
+      }
+      setShowForm(false)
+      loadUsers()
+    } catch (error: any) {
+      setStatus({ type: 'error', message: error.message || "Une erreur est survenue" })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -68,7 +144,7 @@ export default function AdminUsers() {
           </h1>
           <p className="text-slate-500">Gérez les comptes et les permissions de l'équipe administrative.</p>
         </div>
-        <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm">
+        <button onClick={handleAdd} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm">
           <UserPlus className="h-4 w-4" />
           Nouvel Utilisateur
         </button>
@@ -157,7 +233,7 @@ export default function AdminUsers() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                        <button onClick={() => handleEdit(user)} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
                           <Edit className="h-4 w-4" />
                         </button>
                         <button 
@@ -182,6 +258,82 @@ export default function AdminUsers() {
           </table>
         </div>
       </div>
+
+      {/* Modal Formulaire */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900">
+                {editingUser ? "Modifier l'utilisateur" : "Nouvel Utilisateur"}
+              </h2>
+              <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-full p-2 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {status && (
+                <div className={`p-3 rounded-lg flex items-center gap-2 text-sm ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                  {status.type === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                  {status.message}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Prénom *</label>
+                  <input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Nom *</label>
+                  <input type="text" required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Email *</label>
+                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">
+                  {editingUser ? "Nouveau mot de passe (laisser vide pour ne pas changer)" : "Mot de passe *"}
+                </label>
+                <input type="password" required={!editingUser} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Rôle *</label>
+                  <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as UserRole})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <option value="ADMIN">Administrateur</option>
+                    <option value="EDITOR">Éditeur</option>
+                    <option value="USER">Utilisateur</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Statut *</label>
+                  <select value={formData.isActive ? "true" : "false"} onChange={e => setFormData({...formData, isActive: e.target.value === "true"})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <option value="true">Actif</option>
+                    <option value="false">Désactivé</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 mt-6">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors font-medium">
+                  Annuler
+                </button>
+                <button type="submit" disabled={isSaving} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center gap-2">
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {editingUser ? "Enregistrer" : "Créer l'utilisateur"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

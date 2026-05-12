@@ -1,15 +1,17 @@
 "use client"
 
-import React, { useState } from "react"
-import { Plus, Edit, Trash2, ArrowLeft, Save, X, AlertCircle, CheckCircle2, Eye } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { Plus, Edit, Trash2, ArrowLeft, Save, X, AlertCircle, CheckCircle2, Eye, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { mockDomaines } from "@/lib/data/mock-domaines"
+import { domainService, type Service } from "@/lib/api/services"
+import * as LucideIcons from "lucide-react"
 
 export default function AdminServicesPage() {
-  const [services, setServices] = useState(mockDomaines)
+  const [services, setServices] = useState<Service[]>([])
+  const [fetching, setFetching] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editingService, setEditingService] = useState<any>(null)
+  const [editingService, setEditingService] = useState<Service | null>(null)
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
@@ -20,10 +22,27 @@ export default function AdminServicesPage() {
     titleEn: "",
     descriptionEn: "",
     icon: "Heart",
-    color: "bg-emerald-500"
+    color: "bg-emerald-500",
+    slug: ""
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    loadServices()
+  }, [])
+
+  const loadServices = async () => {
+    setFetching(true)
+    try {
+      const data = await domainService.list()
+      setServices(data)
+    } catch (error) {
+      setStatus({ type: 'error', message: "Erreur lors du chargement des services." })
+    } finally {
+      setFetching(false)
+    }
+  }
 
   const handleAdd = () => {
     setEditingService(null)
@@ -33,22 +52,25 @@ export default function AdminServicesPage() {
       titleEn: "",
       descriptionEn: "",
       icon: "Heart",
-      color: "bg-emerald-500"
+      icon: "Heart",
+      color: "bg-emerald-500",
+      slug: ""
     })
     setErrors({})
     setStatus(null)
     setShowForm(true)
   }
 
-  const handleEdit = (service: any) => {
+  const handleEdit = (service: Service) => {
     setEditingService(service)
     setFormData({
       title: service.title,
-      description: service.description,
-      titleEn: service.titleEn || "",
-      descriptionEn: service.descriptionEn || "",
-      icon: "Heart", // Simplifié pour le mock
-      color: service.bgClass || "bg-emerald-500"
+      description: service.description || "",
+      titleEn: "", // Ajoutez ceci si le backend gère l'anglais plus tard
+      descriptionEn: "", 
+      icon: service.icon || "Heart",
+      color: service.style?.bgColor || "bg-emerald-500",
+      slug: service.slug
     })
     setErrors({})
     setStatus(null)
@@ -71,23 +93,29 @@ export default function AdminServicesPage() {
     setStatus(null)
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      const payload = {
+        name: formData.title,
+        slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        description: formData.description,
+        iconName: formData.icon,
+        isActive: true,
+        order: editingService ? editingService.order : services.length,
+        style: {
+          color: "text-white",
+          bgColor: formData.color,
+          borderColor: "border-gray-100"
+        }
+      };
+
       if (editingService) {
-        setServices(prev => prev.map(s => s.id === editingService.id ? { ...s, ...formData, bgClass: formData.color } : s))
+        await domainService.update(editingService.id, payload)
         setStatus({ type: 'success', message: "Service mis à jour avec succès !" })
       } else {
-        const newService = {
-          id: Math.max(...services.map(s => s.id)) + 1,
-          ...formData,
-          bgClass: formData.color,
-          accentClass: "text-white",
-          icon: editingService?.icon || Plus // Fallback
-        }
-        setServices(prev => [...prev, newService])
+        await domainService.create(payload)
         setStatus({ type: 'success', message: "Nouveau service créé !" })
       }
       
+      loadServices()
       setTimeout(() => setShowForm(false), 1500)
     } catch (err) {
       setStatus({ type: 'error', message: "Erreur lors de l'enregistrement." })
@@ -96,9 +124,28 @@ export default function AdminServicesPage() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) return
+    try {
+      await domainService.delete(id)
+      setStatus({ type: 'success', message: "Service supprimé avec succès." })
+      loadServices()
+    } catch (err) {
+      setStatus({ type: 'error', message: "Erreur lors de la suppression." })
+    }
+  }
+
   const handleCancel = () => {
     setShowForm(false)
     setEditingService(null)
+  }
+
+  if (fetching && !showForm) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-apc-green" />
+      </div>
+    )
   }
 
   return (
@@ -139,11 +186,14 @@ export default function AdminServicesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {services.map((service) => (
+              {services.map((service) => {
+                // @ts-ignore
+                const IconComponent = LucideIcons[service.icon || 'Heart'] || LucideIcons.Heart;
+                return (
                 <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className={`w-10 h-10 rounded-lg ${service.bgClass} flex items-center justify-center`}>
-                      <service.icon size={20} className={service.accentClass} />
+                    <div className={`w-10 h-10 rounded-lg ${service.style?.bgColor || 'bg-emerald-500'} flex items-center justify-center text-white`}>
+                      <IconComponent size={20} />
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -170,13 +220,18 @@ export default function AdminServicesPage() {
                       >
                         <Edit size={16} />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDelete(service.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>

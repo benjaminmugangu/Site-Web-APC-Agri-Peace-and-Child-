@@ -25,6 +25,11 @@ export const userService = {
     return response.data || null;
   },
 
+  async create(payload: Omit<User, 'id' | 'createdAt' | 'updatedAt'> & { password?: string }): Promise<User | null> {
+    const response = await apiClient.post<ApiResponse<User>>('/users', payload);
+    return response.data || null;
+  },
+
   async update(id: string, payload: Partial<User>): Promise<User | null> {
     const response = await apiClient.put<ApiResponse<User>>(`/users/${id}`, payload);
     return response.data || null;
