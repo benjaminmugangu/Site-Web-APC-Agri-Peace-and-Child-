@@ -49,10 +49,12 @@ class ApiClient {
     if (!response.ok) {
       // Gestion des erreurs d'auth (401/403)
       if (response.status === 401) {
-        // Redirection vers login ou refresh token logic
         if (typeof window !== 'undefined') {
-          // localStorage.removeItem('apc_access_token');
-          // window.location.href = '/admin/login';
+          localStorage.removeItem('apc_access_token');
+          // On évite la boucle infinie si on est déjà sur la page de login
+          if (!window.location.pathname.includes('/admin/login')) {
+            window.location.href = '/admin/login';
+          }
         }
       }
       throw new Error(result.message || 'Une erreur est survenue');

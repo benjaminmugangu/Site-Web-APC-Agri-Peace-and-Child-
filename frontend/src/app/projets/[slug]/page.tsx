@@ -48,8 +48,10 @@ export default async function ProjetDetailPage({
   if (!project) notFound();
 
   // Fetch related projects (same category)
-  const relatedRes = await listProjects({ category: project.category, limit: 3 });
-  const otherProjects = relatedRes.data.filter((p: any) => p.id !== project.id).slice(0, 2);
+  const relatedRes = await listProjects({ category: project.category, limit: 3 }).catch(() => ({ data: [] }));
+  const otherProjects = Array.isArray(relatedRes?.data)
+    ? relatedRes.data.filter((p: any) => p.id !== project.id).slice(0, 2)
+    : [];
 
   return (
     <div className="flex flex-col">

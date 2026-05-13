@@ -56,8 +56,10 @@ export default async function ArticleDetailPage({
   if (!article) notFound();
 
   // Fetch recent articles for sidebar
-  const recentRes = await listArticles({ limit: 4, status: 'published' });
-  const others = recentRes.data.filter((a: any) => a.id !== article.id).slice(0, 3);
+  const recentRes = await listArticles({ limit: 4, status: 'published' }).catch(() => ({ data: [] }));
+  const others = Array.isArray(recentRes?.data) 
+    ? recentRes.data.filter((a: any) => a.id !== article.id).slice(0, 3)
+    : [];
 
   return (
     <div className="flex flex-col">

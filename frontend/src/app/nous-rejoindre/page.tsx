@@ -46,8 +46,8 @@ const engagementTypes = [
 ]
 
 export default async function NousRejoindrePage() {
-  const careersRes = await listCareers({ status: 'open' });
-  const careers = careersRes.data;
+  const careersRes = await listCareers({ status: 'open' }).catch(() => ({ data: [] }));
+  const careers = Array.isArray(careersRes?.data) ? careersRes.data : [];
 
   return (
     <div className="flex flex-col">

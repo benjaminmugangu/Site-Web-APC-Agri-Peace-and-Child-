@@ -99,7 +99,7 @@ export default function AppelsDOffresPage() {
     const fetchTenders = async () => {
       try {
         const res = await listTenders();
-        setTenders(res.data);
+        setTenders(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch tenders", err);
       } finally {
@@ -264,7 +264,7 @@ export default function AppelsDOffresPage() {
                       dangerouslySetInnerHTML={{ __html: selectedTender.content || selectedTender.description }}
                     />
 
-                    {selectedTender.documents && selectedTender.documents.length > 0 && (
+                    {Array.isArray(selectedTender.documents) && selectedTender.documents.length > 0 && (
                       <>
                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Documents à télécharger</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">

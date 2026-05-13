@@ -59,8 +59,8 @@ export default async function Home() {
     );
   }
 
-  const hero = settings.hero;
-  const stats = settings.stats;
+  const hero = settings?.hero || { title: "Agri-Peace and Child", subtitle: "Soutenir la RDC et l'Afrique", imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop" };
+  const stats = settings?.stats || { beneficiaries: "15 000+", projects: "32", provinces: "4" };
 
 
   return (

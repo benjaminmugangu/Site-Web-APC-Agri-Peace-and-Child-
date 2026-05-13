@@ -39,15 +39,16 @@ export default function AdminDashboard() {
         ])
 
         setStats({
-          services: { value: services.length || 0, label: "Nos Services", href: "/admin/services", description: "Gérer les services →" },
-          realisations: { value: projects.meta?.total || 0, label: "Réalisations", href: "/admin/projets", description: "Voir les projets →" },
-          emplois: { value: careers.length || 0, label: "Offres d'Emploi", href: "/admin/emplois", description: "Recrutements →" },
-          equipe: { value: team.length || 0, label: "Experts / Équipe", href: "/admin/equipe", description: "Gérer l'équipe →" },
-          partenaires: { value: partners.length || 0, label: "Partenaires", href: "/admin/partenaires", description: "Voir les partenaires →" },
-          appels: { value: tenders.length || 0, label: "Appels d'Offres", href: "/admin/appels-d-offres", description: "Marchés publics →" },
+          services: { value: Array.isArray(services) ? services.length : 0, label: "Nos Services", href: "/admin/services", description: "Gérer les services →" },
+          realisations: { value: projects?.meta?.total || 0, label: "Réalisations", href: "/admin/projets", description: "Voir les projets →" },
+          emplois: { value: Array.isArray(careers) ? careers.length : 0, label: "Offres d'Emploi", href: "/admin/emplois", description: "Recrutements →" },
+          equipe: { value: Array.isArray(team) ? team.length : 0, label: "Experts / Équipe", href: "/admin/equipe", description: "Gérer l'équipe →" },
+          partenaires: { value: Array.isArray(partners) ? partners.length : 0, label: "Partenaires", href: "/admin/partenaires", description: "Voir les partenaires →" },
+          appels: { value: Array.isArray(tenders) ? tenders.length : 0, label: "Appels d'Offres", href: "/admin/appels-d-offres", description: "Marchés publics →" },
         })
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erreur chargement stats:", error)
+        // En cas d'erreur 401, on peut imaginer une redirection ou un message plus clair
       } finally {
         setLoading(false)
       }
