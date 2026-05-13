@@ -1,15 +1,5 @@
 import api from "./api-client";
-
-export interface Partner {
-  id: string;
-  name: string;
-  logo: string;
-  websiteUrl?: string;
-  type: "TECHNICAL" | "FINANCIAL" | "STRATEGIC" | "GOVERNMENTAL";
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { type Partner, type ApiResponse } from "@/types";
 
 export const listPartners = async (options?: any) => {
   const response = await api.get("/partners", { params: options });

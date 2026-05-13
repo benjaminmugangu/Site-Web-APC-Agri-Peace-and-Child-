@@ -1,46 +1,27 @@
-"use client"
-
-import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import {
-  projects,
-  statusLabels,
-  statusColors,
-  type ProjectStatus,
-} from "@/lib/data"
+import { listProjects } from "@/lib/api/projects"
 import { MapPin, Users, ChevronRight } from "lucide-react"
 
-const tabs: { label: string; value: "active" | "completed" }[] = [
-  { label: "En cours", value: "active" },
-  { label: "Terminés", value: "completed" },
-]
-
-const domainLabels: Record<string, string> = {
-  agriculture: "Agriculture",
-  paix: "Paix & Cohésion",
-  enfance: "Protection Enfance",
-  femmes: "Femmes & Jeunes",
-  sante: "Santé & Nutrition",
+export const metadata = {
+  title: "Nos Projets — Agri-Peace and Child",
+  description: "Découvrez l'ensemble des initiatives menées par Agri-Peace and Child sur le terrain.",
 }
 
-const domainColors: Record<string, string> = {
-  agriculture: "bg-apc-green/10 text-apc-green",
-  paix: "bg-apc-blue/10 text-apc-blue",
-  enfance: "bg-orange-100 text-orange-600",
-  femmes: "bg-purple-100 text-purple-700",
-  sante: "bg-teal-100 text-teal-700",
+export const dynamic = 'force-dynamic';
+
+const categoryColors: Record<string, string> = {
+  "Agriculture": "bg-apc-green/10 text-apc-green",
+  "Protection": "bg-orange-100 text-orange-600",
+  "Paix": "bg-apc-blue/10 text-apc-blue",
+  "Éducation": "bg-purple-100 text-purple-700",
 }
 
-// Note: This is a client component, metadata is handled in layout or via head (if using app dir pattern correctly)
-// But for now, let's just make sure the visible text is clean.
-
-export default function ProjetsPage() {
-  const [activeTab, setActiveTab] = useState<"active" | "completed">("active")
-
-  const filtered = projects.filter((p) => p.status === activeTab)
+export default async function ProjetsPage() {
+  const projectsRes = await listProjects({ status: 'published' });
+  const projects = projectsRes.data;
 
   return (
     <div className="flex flex-col">
@@ -53,105 +34,63 @@ export default function ProjetsPage() {
 
       <section className="py-16 bg-apc-bgLight min-h-screen">
         <div className="container px-4">
-          {/* Filter tabs */}
-          <div className="flex flex-wrap gap-2 mb-10 bg-white p-1.5 rounded-2xl shadow-sm border border-border/50 max-w-xl">
-            {tabs.map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                  activeTab === tab.value
-                    ? "bg-apc-green text-white shadow-md"
-                    : "text-muted-foreground hover:text-apc-green hover:bg-apc-green/5"
-                }`}
-              >
-                {tab.label}
-                <span
-                  className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-                    activeTab === tab.value
-                      ? "bg-white/20 text-white"
-                      : "bg-gray-100 text-muted-foreground"
-                  }`}
-                >
-                  {projects.filter((p) => p.status === tab.value).length}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Project grid */}
-          {filtered.length === 0 ? (
-            <div className="text-center py-24 text-muted-foreground">
-              Aucun projet dans cette catégorie pour le moment.
+          {projects.length === 0 ? (
+            <div className="text-center py-24">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-gray-300" />
+              </div>
+              <p className="text-muted-foreground italic">Aucun projet publié pour le moment.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((project) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {projects.map((project) => (
                 <article
                   key={project.id}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-border/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-border/50 hover:shadow-xl transition-all duration-300 flex flex-col"
                 >
-                  {/* Image */}
-                  <div className="relative h-52 overflow-hidden">
+                  <div className="relative h-56 overflow-hidden">
                     <Image
-                      src={project.image}
+                      src={project.mainImage}
                       alt={project.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    {/* Status badge */}
-                    <span
-                      className={`absolute top-3 left-3 text-xs font-semibold px-3 py-1 rounded-full border backdrop-blur-sm bg-white/80 ${statusColors[project.status]}`}
-                    >
-                      {statusLabels[project.status]}
-                    </span>
-                    {/* Domain badge */}
-                    <span
-                      className={`absolute top-3 right-3 text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/80 ${domainColors[project.domain]}`}
-                    >
-                      {domainLabels[project.domain]}
+                    <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[project.category] || "bg-white text-gray-600"}`}>
+                      {project.category}
                     </span>
                   </div>
 
-                  {/* Content */}
-                  <div className="p-5 flex flex-col flex-1">
-                    <h2 className="font-bold text-foreground text-lg leading-snug mb-2 group-hover:text-apc-green transition-colors">
+                  <div className="p-6 flex flex-col flex-1">
+                    <h2 className="font-bold text-gray-900 text-xl leading-tight mb-3 group-hover:text-apc-green transition-colors line-clamp-2">
                       {project.title}
                     </h2>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-1">
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
                       {project.description}
                     </p>
 
-                    {/* Meta */}
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                    <div className="flex items-center gap-4 text-xs font-medium text-gray-400 mb-6">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-apc-alert" />
                         {project.location}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-apc-blue" />
-                        {project.beneficiaries.toLocaleString()} bénéficiaires
+                        {project.beneficiariesCount?.toLocaleString()} bénéficiaires
                       </span>
                     </div>
 
-
-
-
-                    {/* Budget */}
-                    <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                      <span className="text-xs text-muted-foreground">
-                        Budget:{" "}
-                        <strong className="text-foreground">
-                          {project.budget.toLocaleString()} {project.currency}
-                        </strong>
-                      </span>
+                    <div className="flex items-center justify-between pt-5 border-t border-gray-50">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Budget</span>
+                        <span className="text-sm font-bold text-gray-900">{project.budget?.toLocaleString()} {project.currency}</span>
+                      </div>
                       <Link href={`/projets/${project.slug}`}>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-apc-green hover:bg-apc-green/10 gap-1 text-xs"
+                          className="text-apc-green hover:bg-apc-green/5 font-bold gap-2"
                         >
-                          Détails <ChevronRight className="w-3.5 h-3.5" />
+                          Détails <ChevronRight className="w-4 h-4" />
                         </Button>
                       </Link>
                     </div>
@@ -161,23 +100,25 @@ export default function ProjetsPage() {
             </div>
           )}
 
-          {/* CTA */}
-          <div className="mt-16 text-center py-12 bg-white rounded-3xl border border-border/50 shadow-sm">
-            <h3 className="text-2xl font-bold text-foreground mb-3">
-              Vous souhaitez soutenir un projet ?
-            </h3>
-            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-              Votre don, quel que soit son montant, contribue directement à 
-              la réalisation de ces projets sur le terrain.
-            </p>
-            <Link href="/contact?sujet=don">
-              <Button size="lg" variant="white" className="px-10">
-                Faire un Don
-              </Button>
-            </Link>
+          <div className="mt-16 text-center py-16 bg-[#1a472a] rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px]" />
+            <div className="relative z-10 px-6">
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                Soutenir nos actions sur le terrain
+              </h3>
+              <p className="text-apc-bgLight/80 mb-10 max-w-xl mx-auto text-lg">
+                Votre contribution directe permet de transformer durablement la vie des communautés les plus vulnérables.
+              </p>
+              <Link href="/contact">
+                <Button size="lg" variant="white" className="px-12 h-14 text-base font-bold shadow-xl hover:scale-105 transition-transform">
+                  Faire un Don
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
     </div>
   )
 }
+

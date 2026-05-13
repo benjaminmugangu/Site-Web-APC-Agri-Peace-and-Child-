@@ -3,8 +3,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
-import { mockSettings } from "@/lib/data/mock-settings";
-import { apc } from "@/lib/data";
+import { settingsService } from "@/lib/api/settings";
+import { listProjects } from "@/lib/api/projects";
+
+export const dynamic = 'force-dynamic';
 
 const pilierLinks: Record<string, string> = {
   Protection: "/domaines#protection",
@@ -44,8 +46,22 @@ const piliers = [
   }
 ];
 
-export default function Home() {
-  const { hero } = mockSettings;
+export default async function Home() {
+  const settings = await settingsService.get();
+  const projectsRes = await listProjects({ perPage: 6, status: 'published' });
+  const recentProjects = projectsRes.data || [];
+
+  if (!settings) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-apc-bgLight">
+        <p className="text-gray-500 font-medium italic">Configuration du site en cours de chargement...</p>
+      </div>
+    );
+  }
+
+  const hero = settings.hero;
+  const stats = settings.stats;
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -53,8 +69,8 @@ export default function Home() {
       <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src={hero.image}
-            alt="Communauté et agriculture"
+            src={hero.imageUrl}
+            alt="Hero background"
             fill
             className="object-cover scale-105 animate-[kenburns_15s_ease-in-out_infinite_alternate]"
             priority
@@ -68,10 +84,15 @@ export default function Home() {
               Soutenir la RDC et l&apos;Afrique
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
-              Agir pour la <span className="text-apc-greenLight">Dignité humaine</span><br className="hidden md:block"/> et la <span className="text-apc-greenLight">Paix</span>
+              {hero.title.split(' et ').map((part, i) => (
+                <span key={i}>
+                  {i > 0 && " et "}
+                  <span className={i % 2 === 0 ? "" : "text-apc-greenLight"}>{part}</span>
+                </span>
+              ))}
             </h1>
             <p className="text-lg md:text-xl md:max-w-2xl mx-auto mb-10 text-gray-200">
-              {apc.name} est une organisation non gouvernementale engagée dans la protection sociale, le développement agricole et la consolidation de l&apos;équité en RD Congo.
+              {hero.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/faire-un-don">
@@ -118,28 +139,67 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact — statistiques administrables depuis le dashboard */}
+      {/* Impact Section */}
       <section id="impact" className="py-20 relative overflow-hidden bg-[#1a472a]">
         <div className="absolute inset-0 bg-[#0d2616] opacity-30 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:20px_20px]" />
         <div className="container relative z-10 px-4">
           <StaggerContainer className="flex flex-wrap items-center justify-center gap-12 sm:gap-24 text-white">
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.beneficiaries.toLocaleString()}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.beneficiaries}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Bénéficiaires</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.projects}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.projects}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Projets Réalisés</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{apc.stats.provinces}</div>
+              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.provinces}</div>
               <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Provinces RDC</div>
             </StaggerItem>
           </StaggerContainer>
         </div>
       </section>
+
+      {/* Projects Section */}
+      {recentProjects.length > 0 && (
+        <section className="py-24 bg-gray-50">
+          <div className="container px-4">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Nos Projets Récents</h2>
+                <p className="text-gray-500 mt-2">Découvrez nos dernières actions sur le terrain.</p>
+              </div>
+              <Link href="/projets" className="text-apc-green font-semibold hover:underline flex items-center gap-1">
+                Tous les projets <ChevronRight size={16} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {recentProjects.map((project) => (
+                <Link key={project.id} href={`/projets/${project.slug}`} className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <Image src={project.mainImage} alt={project.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-white/90 backdrop-blur-sm text-apc-green text-xs font-bold px-3 py-1 rounded-full uppercase">
+                        {project.category}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-gray-900 mb-2 group-hover:text-apc-green transition-colors line-clamp-1">{project.title}</h3>
+                    <p className="text-gray-500 text-sm line-clamp-2 mb-4">{project.description}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-400">
+                      <span>{project.location}</span>
+                      <span>{project.beneficiariesCount} bénéficiaires</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-24 bg-white">
@@ -208,3 +268,4 @@ export default function Home() {
     </div>
   );
 }
+

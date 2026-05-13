@@ -19,7 +19,7 @@ export const mediaService = {
       // On utilise le fetch natif ou on configure apiClient pour accepter FormData
       // Pour éviter les soucis de Content-Type avec JSON, on utilise fetch direct
       const token = localStorage.getItem('token');
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const baseURL = process.env.NEXT_PUBLIC_API_URL;
       
       const response = await fetch(`${baseURL}/media/upload`, {
         method: 'POST',

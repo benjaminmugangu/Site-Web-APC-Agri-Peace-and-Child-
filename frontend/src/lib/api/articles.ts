@@ -1,5 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-import { type Article, type ArticleStatus } from "@/lib/data/mock-articles";
+import { apiClient } from './api-client';
+import { type Article, type ArticleStatus, type PaginatedResult, type ApiResponse } from "@/types";
 
 export type ListArticlesOptions = {
   status?: ArticleStatus | "all";
@@ -7,11 +7,6 @@ export type ListArticlesOptions = {
   search?: string;
   page?: number;
   perPage?: number;
-};
-
-export type PaginatedResult<T> = {
-  data: T[];
-  meta: { total: number; page: number; perPage: number; totalPages: number };
 };
 
 // ── GET /api/v1/news ──
@@ -29,6 +24,10 @@ export async function listArticles(options: ListArticlesOptions = {}): Promise<P
 export async function getArticle(id: string): Promise<Article | null> {
   const response = await apiClient.get<ApiResponse<Article>>(`/news/${id}`);
   return response.data || null;
+}
+
+export async function getArticleBySlug(slug: string): Promise<ApiResponse<Article>> {
+  return apiClient.get<ApiResponse<Article>>(`/news/slug/${slug}`);
 }
 
 // ── POST /api/v1/news ──

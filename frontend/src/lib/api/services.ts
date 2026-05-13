@@ -1,22 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-
-export type Service = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  icon?: string;
-  mainImage?: string;
-  actions?: string[];
-  stats?: { label: string; value: string }[];
-  style?: {
-    color: string;
-    bgColor: string;
-    borderColor: string;
-  };
-  order: number;
-  isActive: boolean;
-};
+import { apiClient } from './api-client';
+import { type Service, type ApiResponse } from "@/types";
 
 export const domainService = {
   async list(params?: any): Promise<Service[]> {

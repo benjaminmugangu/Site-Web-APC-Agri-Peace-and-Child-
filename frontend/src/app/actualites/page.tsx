@@ -3,14 +3,15 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { articles, categoryColors } from "@/lib/data"
+import { listArticles } from "@/lib/api/articles"
 import { Calendar, Clock, ChevronRight, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Actualités & Rapports — APC",
-  description:
-    "Suivez les dernières nouvelles d'APC : rapports de terrain, résultats de projets, partenariats et événements.",
+  description: "Suivez les dernières nouvelles d'APC : rapports de terrain, résultats de projets, partenariats et événements.",
 }
+
+export const dynamic = 'force-dynamic';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -20,12 +21,19 @@ function formatDate(dateStr: string) {
   })
 }
 
-export default function ActualitesPage() {
-  const featured = articles.find((a) => a.featured)
-  const rest = articles.filter((a) => !a.featured)
+const categoryColors: Record<string, string> = {
+  "Rapport": "bg-apc-green/10 text-apc-green",
+  "Terrain": "bg-amber-100 text-amber-700",
+  "Impact": "bg-blue-100 text-blue-700",
+  "Partenariat": "bg-purple-100 text-purple-700",
+}
 
-  // Unique categories
-  const categories = ["Tous", ...Array.from(new Set(articles.map((a) => a.category)))]
+export default async function ActualitesPage() {
+  const articlesRes = await listArticles({ status: 'published' });
+  const articles = articlesRes.data;
+
+  const featured = articles.find((a: any) => a.featured) || articles[0];
+  const rest = articles.filter((a: any) => a.id !== featured?.id);
 
   return (
     <div className="flex flex-col">
@@ -36,161 +44,131 @@ export default function ActualitesPage() {
         tag="Dernières Nouvelles"
       />
 
-      <section className="py-16 bg-apc-bgLight">
+      <section className="py-16 bg-apc-bgLight min-h-screen">
         <div className="container px-4">
-          {/* ── Categories strip ── */}
-          <div className="flex flex-wrap gap-2 mb-10">
-            {categories.map((cat) => (
-              <span
-                key={cat}
-                className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all border ${
-                  cat === "Tous"
-                    ? "bg-apc-green text-white border-apc-green shadow-md"
-                    : "bg-white text-muted-foreground border-border/50 hover:border-apc-green/40 hover:text-apc-green"
-                }`}
-              >
-                {cat}
-              </span>
-            ))}
-          </div>
+          {!featured ? (
+            <div className="text-center py-24 text-muted-foreground italic">
+              Aucun article publié pour le moment.
+            </div>
+          ) : (
+            <>
+              {/* ── Featured Article ── */}
+              <Link href={`/actualites/${featured.slug}`} className="group block mb-12">
+                <article className="relative h-[420px] md:h-[550px] rounded-[2.5rem] overflow-hidden shadow-2xl">
+                  <Image
+                    src={featured.mainImage}
+                    alt={featured.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-          {/* ── Featured Article ── */}
-          {featured && (
-            <Link href={`/actualites/${featured.slug}`} className="group block mb-10">
-              <article className="relative h-[420px] md:h-[500px] rounded-3xl overflow-hidden shadow-xl">
-                <Image
-                  src={featured.image}
-                  alt={featured.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  priority
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span
-                      className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                        categoryColors[featured.category] || "bg-white/20 text-white"
-                      }`}
-                    >
-                      {featured.category}
-                    </span>
-                    <span className="text-white/60 text-xs flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {formatDate(featured.date)}
-                    </span>
-                    <span className="text-white/60 text-xs flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {featured.readTime} min de lecture
-                    </span>
-                  </div>
-
-                  <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-3 group-hover:text-apc-greenLight transition-colors">
-                    {featured.title}
-                  </h2>
-                  <p className="text-white/75 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-2xl">
-                    {featured.excerpt}
-                  </p>
-
-                  <div className="flex items-center gap-2 text-apc-greenLight font-medium text-sm">
-                    Lire l&apos;article complet
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-
-                {/* Featured badge */}
-                <div className="absolute top-5 right-5 bg-apc-alert text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                  ★ À la Une
-                </div>
-              </article>
-            </Link>
-          )}
-
-          {/* ── Article grid ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {rest.map((article) => (
-              <Link
-                key={article.id}
-                href={`/actualites/${article.slug}`}
-                className="group"
-              >
-                <article className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
-                  {/* Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={article.image}
-                      alt={article.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span
-                      className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/85 ${
-                        categoryColors[article.category] || "text-gray-600"
-                      }`}
-                    >
-                      {article.category}
-                    </span>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5 flex flex-col flex-1">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {formatDate(article.date)}
+                  <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full backdrop-blur-md bg-white/90 ${categoryColors[featured.category] || "text-gray-900"}`}>
+                        {featured.category}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {article.readTime} min
+                      <span className="text-white/70 text-xs flex items-center gap-1.5 font-medium">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {formatDate(featured.publishedAt)}
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-foreground leading-snug mb-2 flex-1 group-hover:text-apc-green transition-colors line-clamp-3">
-                      {article.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                      {article.excerpt}
+                    <h2 className="text-3xl md:text-5xl font-bold leading-tight mb-4 group-hover:text-apc-greenLight transition-colors max-w-4xl">
+                      {featured.title}
+                    </h2>
+                    <p className="text-white/80 text-base md:text-lg leading-relaxed line-clamp-2 mb-6 max-w-2xl">
+                      {featured.excerpt}
                     </p>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-3 border-t border-border/40 mt-auto">
-                      <span className="text-xs text-muted-foreground">
-                        Par {article.author}
-                      </span>
-                      <span className="text-apc-green text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Lire <ChevronRight className="w-3.5 h-3.5" />
-                      </span>
+                    <div className="flex items-center gap-2 text-apc-greenLight font-bold text-sm tracking-wide">
+                      Lire l&apos;article complet
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
                     </div>
+                  </div>
+
+                  <div className="absolute top-6 right-6 bg-apc-alert text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-xl uppercase tracking-widest">
+                    ★ À la Une
                   </div>
                 </article>
               </Link>
-            ))}
-          </div>
+
+              {/* ── Article grid ── */}
+              {rest.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                  {rest.map((article: any) => (
+                    <Link
+                      key={article.id}
+                      href={`/actualites/${article.slug}`}
+                      className="group"
+                    >
+                      <article className="bg-white rounded-3xl overflow-hidden shadow-sm border border-border/40 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                        <div className="relative h-56 overflow-hidden">
+                          <Image
+                            src={article.mainImage}
+                            alt={article.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[article.category] || "text-gray-900"}`}>
+                            {article.category}
+                          </span>
+                        </div>
+
+                        <div className="p-6 flex flex-col flex-1">
+                          <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {formatDate(article.publishedAt)}
+                            </span>
+                          </div>
+
+                          <h3 className="font-bold text-gray-900 text-lg leading-snug mb-3 flex-1 group-hover:text-apc-green transition-colors line-clamp-3">
+                            {article.title}
+                          </h3>
+                          <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2">
+                            {article.excerpt}
+                          </p>
+
+                          <div className="flex items-center justify-between pt-5 border-t border-gray-50 mt-auto">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                              Par {article.author?.firstName || 'APC'}
+                            </span>
+                            <span className="text-apc-green text-xs font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                              Lire <ChevronRight className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
           {/* ── Newsletter CTA ── */}
-          <div className="bg-apc-green rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+          <div className="bg-[#1a472a] rounded-[2.5rem] p-10 md:p-16 text-white text-center relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px]" />
             <div className="relative z-10">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4">
                 Ne Manquez Aucune Actualité
               </h3>
-              <p className="text-white/75 mb-6 max-w-md mx-auto">
-                Inscrivez-vous à notre newsletter pour recevoir nos rapports, 
-                actualités et appels à l'action directement dans votre boîte mail.
+              <p className="text-apc-bgLight/80 mb-10 max-w-lg mx-auto text-lg leading-relaxed">
+                Inscrivez-vous à notre newsletter pour recevoir nos rapports de terrain et actualités directement dans votre boîte mail.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
                 <input
                   type="email"
                   placeholder="Votre adresse email"
-                  className="flex-1 px-4 py-3 rounded-xl bg-white/15 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-white/60 text-sm"
+                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-apc-greenLight/50 text-base"
+                  required
                 />
-                <Button variant="white" className="shrink-0 px-6">
+                <Button variant="white" className="shrink-0 px-8 h-14 text-base font-bold shadow-xl hover:scale-105 transition-transform">
                   S&apos;inscrire
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -198,3 +176,4 @@ export default function ActualitesPage() {
     </div>
   )
 }
+

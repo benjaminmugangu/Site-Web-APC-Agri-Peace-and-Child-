@@ -1,18 +1,5 @@
 import api from "./api-client";
-
-export interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  bio?: string;
-  photo?: string;
-  email?: string;
-  phone?: string;
-  socialLinks?: any;
-  order: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { type TeamMember, type ApiResponse } from "@/types";
 
 export const listTeam = async (options?: any) => {
   const response = await api.get("/team", { params: options });

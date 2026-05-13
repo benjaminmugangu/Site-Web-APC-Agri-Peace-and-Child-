@@ -1,36 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in"
+import { listTenders } from "@/lib/api/tenders"
+import { Tender } from "@/types"
 import {
   FileText,
-  Building2,
-  User,
-  MapPin,
-  Phone,
-  Mail,
-  Upload,
   CheckCircle2,
   AlertCircle,
   ChevronRight,
   ArrowLeft,
   Calendar,
   Download,
+  Upload,
+  Globe,
+  Loader2,
 } from "lucide-react"
-
-// --- Types ---
-type Tender = {
-  id: string
-  title: string
-  reference: string
-  description: string
-  publicationDate: string
-  deadline: string
-  status: "open" | "closed"
-  documents?: { label: string; url: string }[]
-}
 
 type FormState = {
   nomEntreprise: string
@@ -43,30 +30,6 @@ type FormState = {
   documentAdministratif: File | null
 }
 
-// --- Mock Data ---
-const mockTenders: Tender[] = [
-  {
-    id: "ao-2025-001",
-    title: "Fournitures agricoles pour le Masisi",
-    reference: "AAO-N°001/APC/2025",
-    description: "Fourniture de semences améliorées, d'intrants agricoles et de matériel de travail destinés aux bénéficiaires du programme de sécurité alimentaire dans le territoire de Masisi, Nord-Kivu.",
-    publicationDate: "1 mai 2025",
-    deadline: "30 mai 2025",
-    status: "open",
-    documents: [{ label: "Dossier d'Appel d'Offres (DAO) complet", url: "#" }]
-  },
-  {
-    id: "ao-2025-002",
-    title: "Réhabilitation de forages d'eau potable",
-    reference: "AAO-N°002/APC/2025",
-    description: "Travaux de réhabilitation de 10 forages manuels et motorisés dans la zone de santé de Nyiragongo pour améliorer l'accès à l'eau potable des populations déplacées.",
-    publicationDate: "10 mai 2025",
-    deadline: "15 juin 2025",
-    status: "open",
-    documents: [{ label: "Spécifications techniques", url: "#" }]
-  }
-]
-
 const initialState: FormState = {
   nomEntreprise: "",
   nomResponsable: "",
@@ -78,7 +41,6 @@ const initialState: FormState = {
   documentAdministratif: null,
 }
 
-// --- Components ---
 function FileUploadField({
   id,
   label,
@@ -92,32 +54,31 @@ function FileUploadField({
 }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">{label}</label>
       <label
         htmlFor={id}
-        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
           file
             ? "border-apc-green bg-apc-green/5"
-            : "border-gray-300 bg-gray-50 hover:border-apc-blue hover:bg-apc-blue/5"
+            : "border-gray-200 bg-gray-50 hover:border-apc-blue hover:bg-apc-blue/5"
         }`}
       >
         {file ? (
           <div className="flex flex-col items-center gap-2 px-4 text-center">
             <CheckCircle2 className="w-6 h-6 text-apc-green" />
-            <span className="text-sm font-medium text-apc-green truncate max-w-full">{file.name}</span>
+            <span className="text-xs font-bold text-apc-green truncate max-w-full">{file.name}</span>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-gray-400">
+          <div className="flex flex-col items-center gap-2 text-gray-300">
             <Upload className="w-5 h-5" />
-            <span className="text-xs font-medium">Choisir un fichier</span>
-            <span className="text-[10px]">PDF, DOCX (Max 10Mo)</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Choisir un fichier</span>
           </div>
         )}
         <input
           id={id}
           type="file"
           className="hidden"
-          accept=".pdf,.doc,.docx,.xls,.xlsx"
+          accept=".pdf,.doc,.docx"
           onChange={(e) => onChange(e.target.files?.[0] ?? null)}
         />
       </label>
@@ -126,11 +87,27 @@ function FileUploadField({
 }
 
 export default function AppelsDOffresPage() {
+  const [tenders, setTenders] = useState<Tender[]>([])
+  const [loadingTenders, setLoadingTenders] = useState(true)
   const [selectedTender, setSelectedTender] = useState<Tender | null>(null)
   const [form, setForm] = useState<FormState>(initialState)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+
+  useEffect(() => {
+    const fetchTenders = async () => {
+      try {
+        const res = await listTenders();
+        setTenders(res.data);
+      } catch (err) {
+        console.error("Failed to fetch tenders", err);
+      } finally {
+        setLoadingTenders(false);
+      }
+    };
+    fetchTenders();
+  }, []);
 
   const handleSet = (field: keyof FormState, value: string | File | null) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -144,7 +121,6 @@ export default function AppelsDOffresPage() {
     if (!form.email.trim()) newErrors.email = "Requis"
     if (!form.offreTechnique) newErrors.offreTechnique = "Requis"
     if (!form.offreFinanciere) newErrors.offreFinanciere = "Requis"
-    if (!form.documentAdministratif) newErrors.documentAdministratif = "Requis"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -153,10 +129,36 @@ export default function AppelsDOffresPage() {
     e.preventDefault()
     if (!validate()) return
     setLoading(true)
-    await new Promise((res) => setTimeout(res, 2000))
-    setLoading(false)
-    setSubmitted(true)
+    
+    try {
+      const formData = new FormData();
+      formData.append("companyName", form.nomEntreprise);
+      formData.append("contactName", form.nomResponsable);
+      formData.append("email", form.email);
+      formData.append("phone", form.numero);
+      formData.append("address", form.adresse);
+      formData.append("tenderId", selectedTender?.id || "");
+      
+      if (form.offreTechnique) formData.append("offreTechnique", form.offreTechnique);
+      if (form.offreFinanciere) formData.append("offreFinanciere", form.offreFinanciere);
+      if (form.documentAdministratif) formData.append("documentAdministratif", form.documentAdministratif);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenders/submit`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de la soumission");
+      
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert("Une erreur est survenue lors de l'envoi de votre offre. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   }
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -167,199 +169,236 @@ export default function AppelsDOffresPage() {
         tag="Procurement"
       />
 
-      <section className="py-20 bg-apc-bgLight">
+      <section className="py-24 bg-apc-bgLight">
         <div className="container px-4">
           {!selectedTender ? (
-            /* --- LIST VIEW --- */
-            <div className="max-w-5xl mx-auto">
-              <FadeIn className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Offres en cours</h2>
-                <p className="text-gray-600">Sélectionnez un appel d&apos;offres pour consulter les détails et soumettre votre candidature.</p>
+            <div className="max-w-6xl mx-auto">
+              <FadeIn className="mb-16 text-center max-w-2xl mx-auto">
+                <h2 className="text-4xl font-black text-gray-900 mb-6 uppercase tracking-tighter">Marchés Publics APC</h2>
+                <p className="text-gray-500 text-lg">Consultez nos appels d&apos;offres ouverts et soumettez votre proposition technique et financière directement en ligne.</p>
               </FadeIn>
 
-              <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {mockTenders.map((tender) => (
-                  <StaggerItem key={tender.id}>
-                    <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="bg-apc-blue/10 text-apc-blue text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
-                          {tender.reference}
+              {loadingTenders ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 text-apc-green animate-spin" />
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Chargement des offres...</p>
+                </div>
+              ) : tenders.length === 0 ? (
+                <div className="bg-white rounded-[3rem] p-20 text-center border border-dashed border-gray-200">
+                  <Globe className="w-12 h-12 text-gray-200 mx-auto mb-6" />
+                  <p className="text-gray-400 font-medium italic">Aucun appel d&apos;offres n&apos;est ouvert actuellement.</p>
+                </div>
+              ) : (
+                <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {tenders.map((tender) => (
+                    <StaggerItem key={tender.id}>
+                      <div className="bg-white rounded-[2.5rem] p-10 border border-border/40 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full group relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-apc-green/5 rounded-bl-[5rem] -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />
+                        
+                        <div className="flex justify-between items-start mb-8 relative z-10">
+                          <div className="bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-xl border border-gray-100">
+                            Ref: {tender.reference}
+                          </div>
+                          <span className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${tender.status === 'open' ? 'text-apc-green' : 'text-gray-400'}`}>
+                            <div className={`w-2 h-2 rounded-full ${tender.status === 'open' ? 'bg-apc-green animate-pulse' : 'bg-gray-400'}`} />
+                            {tender.status === 'open' ? 'Ouvert' : 'Clôturé'}
+                          </span>
                         </div>
-                        <span className="flex items-center gap-1.5 text-xs text-apc-green font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Ouvert
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-apc-green transition-colors">{tender.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-1">{tender.description}</p>
-                      
-                      <div className="space-y-3 mb-8 text-xs text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-300" /> Publié le {tender.publicationDate}
-                        </div>
-                        <div className="flex items-center gap-2 text-red-500 font-medium">
-                          <AlertCircle className="w-4 h-4" /> Date limite : {tender.deadline}
-                        </div>
-                      </div>
 
-                      <Button 
-                        onClick={() => setSelectedTender(tender)}
-                        className="w-full gap-2 rounded-xl group-hover:bg-apc-blue transition-colors"
-                      >
-                        Consulter l&apos;offre <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </StaggerItem>
-                ))}
-              </StaggerContainer>
+                        <h3 className="text-2xl font-black text-gray-900 mb-4 group-hover:text-apc-green transition-colors uppercase tracking-tight leading-none">
+                          {tender.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm leading-relaxed mb-10 flex-1 line-clamp-3">
+                          {tender.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap items-center gap-8 mb-10 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                          <div className="flex items-center gap-3">
+                            <Calendar className="w-4 h-4 text-apc-green" />
+                            Limite : {new Date(tender.deadline).toLocaleDateString('fr-FR')}
+                          </div>
+                        </div>
+
+                        <Button 
+                          onClick={() => setSelectedTender(tender)}
+                          className="w-full h-14 gap-3 rounded-2xl bg-apc-green hover:bg-apc-green/90 font-black uppercase tracking-widest text-[11px] shadow-xl shadow-apc-green/20 relative z-10"
+                        >
+                          Détails & Soumission <ArrowLeft className="w-4 h-4 rotate-180" />
+                        </Button>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </StaggerContainer>
+              )}
             </div>
           ) : (
-            /* --- DETAIL & SUBMISSION VIEW --- */
             <div className="max-w-4xl mx-auto">
               <FadeIn>
                 <button 
                   onClick={() => { setSelectedTender(null); setSubmitted(false); }}
-                  className="flex items-center gap-2 text-apc-green hover:text-apc-blue transition-colors font-medium mb-8"
+                  className="flex items-center gap-3 text-gray-400 hover:text-apc-green transition-all font-black uppercase tracking-widest text-[10px] mb-12"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Retour à la liste
+                  <ArrowLeft className="w-4 h-4" /> Retour aux opportunités
                 </button>
 
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden mb-12">
-                  <div className="bg-gradient-to-r from-apc-blue to-blue-700 p-8 text-white">
-                    <h2 className="text-2xl font-bold mb-2">{selectedTender.title}</h2>
-                    <p className="text-white/70 text-sm flex items-center gap-2">
-                      <FileText className="w-4 h-4" /> Réf: {selectedTender.reference}
-                    </p>
+                <div className="bg-white rounded-[3rem] border border-border/40 shadow-2xl overflow-hidden mb-12">
+                  <div className="bg-[#1a472a] p-12 text-white relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px]" />
+                    <div className="relative z-10">
+                      <h2 className="text-3xl font-black mb-4 uppercase tracking-tighter leading-none">{selectedTender.title}</h2>
+                      <div className="flex flex-wrap items-center gap-6 opacity-60 text-[10px] font-black uppercase tracking-widest">
+                        <span className="flex items-center gap-2">
+                          <FileText className="w-4 h-4" /> {selectedTender.reference}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" /> Publié le {new Date(selectedTender.createdAt).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="p-8">
-                    <h3 className="font-bold text-gray-900 mb-4">Description de l&apos;appel</h3>
-                    <p className="text-gray-600 leading-relaxed mb-8">{selectedTender.description}</p>
+                  <div className="p-12">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Description du marché</h3>
+                    <div 
+                      className="prose prose-apc max-w-none text-gray-600 mb-12 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: selectedTender.content || selectedTender.description }}
+                    />
 
-                    <h3 className="font-bold text-gray-900 mb-4">Documents de référence</h3>
-                    <div className="flex flex-wrap gap-4 mb-8">
-                      {selectedTender.documents?.map((doc) => (
-                        <a key={doc.label} href={doc.url} className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700">
-                          <Download className="w-4 h-4 text-apc-green" /> {doc.label}
-                        </a>
-                      ))}
-                    </div>
+                    {selectedTender.documents && selectedTender.documents.length > 0 && (
+                      <>
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Documents à télécharger</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+                          {selectedTender.documents.map((doc, idx) => (
+                            <a key={idx} href={doc.url} className="flex items-center justify-between p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] hover:bg-white hover:border-apc-green transition-all group shadow-sm">
+                              <span className="text-xs font-bold text-gray-900">{doc.label}</span>
+                              <Download className="w-5 h-5 text-apc-green group-hover:scale-110 transition-transform" />
+                            </a>
+                          ))}
+                        </div>
+                      </>
+                    )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-6 border-t border-gray-50 text-sm">
-                      <div>
-                        <span className="text-gray-400 block mb-1">Date de publication</span>
-                        <span className="font-semibold text-gray-900">{selectedTender.publicationDate}</span>
+                    <div className="bg-red-50 rounded-[2rem] p-8 border border-red-100 flex items-center gap-6">
+                      <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
+                        <AlertCircle className="w-6 h-6 text-red-600" />
                       </div>
                       <div>
-                        <span className="text-gray-400 block mb-1">Date limite de soumission</span>
-                        <span className="font-semibold text-red-600">{selectedTender.deadline}</span>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-1">Date limite de soumission</p>
+                        <p className="text-xl font-black text-red-700 tracking-tight">
+                          {new Date(selectedTender.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {submitted ? (
-                  <div className="text-center py-16 bg-white rounded-3xl border border-apc-green/20 shadow-md">
-                    <div className="w-16 h-16 rounded-full bg-apc-green/10 flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="w-8 h-8 text-apc-green" />
+                  <div className="text-center p-16 bg-white rounded-[3rem] border border-apc-green/20 shadow-2xl">
+                    <div className="w-20 h-20 rounded-[2rem] bg-apc-green/10 flex items-center justify-center mx-auto mb-8">
+                      <CheckCircle2 className="w-10 h-10 text-apc-green" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Offre soumise avec succès !</h3>
-                    <p className="text-gray-500 max-w-md mx-auto mb-8">
-                      Nous avons bien reçu votre dossier pour l&apos;offre &quot;{selectedTender.title}&quot;. 
-                      Un accusé de réception a été envoyé à votre adresse e-mail.
+                    <h3 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tighter">Offre déposée avec succès !</h3>
+                    <p className="text-gray-500 max-w-md mx-auto mb-10 leading-relaxed font-medium">
+                      Votre dossier complet a bien été transmis à la cellule de passation des marchés de APC. 
+                      Vous recevrez un accusé de réception par email sous peu.
                     </p>
-                    <Button onClick={() => setSelectedTender(null)} variant="outline" className="rounded-xl">
+                    <Button onClick={() => setSelectedTender(null)} className="h-14 px-10 rounded-2xl bg-[#1a472a] font-black uppercase tracking-widest text-[11px]">
                       Revenir aux offres
                     </Button>
                   </div>
                 ) : (
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-8 md:p-10">
-                    <div className="mb-10">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Soumettre votre offre</h3>
-                      <p className="text-gray-500 text-sm">Veuillez remplir les informations de votre entreprise et joindre les trois pièces obligatoires.</p>
+                  <div className="bg-white rounded-[3rem] border border-border/40 shadow-2xl p-10 md:p-16">
+                    <div className="mb-12">
+                      <h3 className="text-3xl font-black text-gray-900 mb-3 uppercase tracking-tighter leading-none">Soumission en ligne</h3>
+                      <p className="text-gray-500 font-medium">Veuillez renseigner les informations de votre entreprise et joindre les documents requis.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                      {/* Informations Entreprise */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-700">Nom de l&apos;entreprise *</label>
+                    <form onSubmit={handleSubmit} className="space-y-10">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Raison Sociale *</label>
                           <input 
                             type="text" 
-                            className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-apc-blue/20 transition-all ${errors.nomEntreprise ? "border-red-400 bg-red-50" : "border-gray-100 bg-gray-50"}`}
-                            placeholder="Ex: SARL Construction Goma"
+                            className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
+                            placeholder="Nom complet de l'entreprise"
+                            required
                             value={form.nomEntreprise}
                             onChange={(e) => handleSet("nomEntreprise", e.target.value)}
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-700">Responsable / Contact *</label>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Responsable Technique *</label>
                           <input 
                             type="text" 
-                            className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-apc-blue/20 transition-all ${errors.nomResponsable ? "border-red-400 bg-red-50" : "border-gray-100 bg-gray-50"}`}
-                            placeholder="Ex: Jean Dupont"
+                            className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
+                            placeholder="Prénom & Nom"
+                            required
                             value={form.nomResponsable}
                             onChange={(e) => handleSet("nomResponsable", e.target.value)}
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-700">E-mail de l&apos;entreprise *</label>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">E-mail Officiel *</label>
                           <input 
                             type="email" 
-                            className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-apc-blue/20 transition-all ${errors.email ? "border-red-400 bg-red-50" : "border-gray-100 bg-gray-50"}`}
-                            placeholder="contact@entreprise.com"
+                            className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
+                            placeholder="admin@votre-entreprise.cd"
+                            required
                             value={form.email}
                             onChange={(e) => handleSet("email", e.target.value)}
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-700">Téléphone *</label>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Téléphone de contact *</label>
                           <input 
                             type="tel" 
-                            className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-apc-blue/20"
+                            className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
                             placeholder="+243..."
+                            required
                             value={form.numero}
                             onChange={(e) => handleSet("numero", e.target.value)}
                           />
                         </div>
                       </div>
 
-                      {/* Documents - Procurement Logic */}
-                      <div className="pt-6 border-t border-gray-50">
-                        <h4 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                          <FileText className="w-5 h-5 text-apc-blue" /> Dossier Technique & Financier
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="pt-10 border-t border-gray-50">
+                        <div className="flex items-center gap-3 mb-8">
+                          <FileText className="w-5 h-5 text-apc-green" />
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900">Dossier de candidature (Pièces Jointes)</h4>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                           <FileUploadField 
                             id="tech" 
-                            label="1. Offre Technique *" 
+                            label="1. Offre Technique" 
                             file={form.offreTechnique}
                             onChange={(f) => handleSet("offreTechnique", f)}
                           />
                           <FileUploadField 
                             id="fin" 
-                            label="2. Offre Financière *" 
+                            label="2. Offre Financière" 
                             file={form.offreFinanciere}
                             onChange={(f) => handleSet("offreFinanciere", f)}
                           />
                           <FileUploadField 
                             id="admin" 
-                            label="3. Documents Admin *" 
+                            label="3. Dossier Administratif" 
                             file={form.documentAdministratif}
                             onChange={(f) => handleSet("documentAdministratif", f)}
                           />
                         </div>
-                        <p className="mt-4 text-[10px] text-gray-400 italic">
-                          * Conformément aux procédures de passation de marchés de Agri-Peace and Child, ces trois pièces sont indispensables pour la recevabilité de votre offre.
-                        </p>
                       </div>
 
                       <Button 
                         type="submit" 
-                        size="lg" 
-                        className="w-full h-14 text-lg rounded-2xl bg-apc-blue hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+                        className="w-full h-16 rounded-[1.5rem] bg-apc-green hover:bg-apc-green/90 text-white font-black uppercase tracking-widest shadow-xl shadow-apc-green/20 hover:scale-[1.01] transition-all disabled:opacity-50"
                         disabled={loading}
                       >
-                        {loading ? "Soumission en cours..." : "Soumettre ma candidature"}
+                        {loading ? (
+                          <div className="flex items-center gap-3">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Transmission sécurisée...
+                          </div>
+                        ) : "Envoyer mon offre de services"}
                       </Button>
                     </form>
                   </div>

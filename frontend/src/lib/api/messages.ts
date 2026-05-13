@@ -1,5 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-import { type Message, type MessageStatus, type MessageType } from "@/lib/data/mock-messages";
+import { apiClient } from './api-client';
+import { type Message, type MessageStatus, type MessageType, type PaginatedResult, type ApiResponse } from "@/types";
 
 export type ListMessagesOptions = {
   status?: MessageStatus | "all";
@@ -9,10 +9,10 @@ export type ListMessagesOptions = {
   perPage?: number;
 };
 
-export type PaginatedResult<T> = {
-  data: T[];
-  meta: { total: number; page: number; perPage: number; totalPages: number };
-};
+// ── POST /api/v1/contact ──
+export async function createMessage(payload: any): Promise<ApiResponse<Message>> {
+  return apiClient.post<ApiResponse<Message>>('/contact', payload);
+}
 
 // ── GET /api/v1/contact ──
 export async function listMessages(options: ListMessagesOptions = {}): Promise<PaginatedResult<Message>> {

@@ -1,5 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-import { type Project, type ProjectStatus } from "@/lib/data/mock-projects";
+import { apiClient } from './api-client';
+import { type Project, type ProjectStatus, type PaginatedResult, type ApiResponse } from "@/types";
 
 export type ListProjectsOptions = {
   status?: ProjectStatus | "all";
@@ -7,11 +7,6 @@ export type ListProjectsOptions = {
   search?: string;
   page?: number;
   perPage?: number;
-};
-
-export type PaginatedResult<T> = {
-  data: T[];
-  meta: { total: number; page: number; perPage: number; totalPages: number };
 };
 
 // ── GET /api/v1/projects ──
@@ -27,6 +22,10 @@ export async function listProjects(options: ListProjectsOptions = {}): Promise<P
 export async function getProject(id: string): Promise<Project | null> {
   const response = await apiClient.get<ApiResponse<Project>>(`/projects/${id}`);
   return response.data || null;
+}
+
+export async function getProjectBySlug(slug: string): Promise<ApiResponse<Project>> {
+  return apiClient.get<ApiResponse<Project>>(`/projects/slug/${slug}`);
 }
 
 // ── POST /api/v1/projects ──

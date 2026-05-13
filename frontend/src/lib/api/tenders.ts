@@ -1,20 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-
-export type TenderStatus = 'open' | 'closed' | 'archived' | 'cancelled';
-
-export type Tender = {
-  id: string;
-  reference: string;
-  title: string;
-  description: string;
-  category: string;
-  status: TenderStatus;
-  publishDate: string;
-  deadline: string;
-  fileUrl?: string; // Aligné avec le backend
-  location: string;
-  organization: string;
-};
+import { apiClient } from './api-client';
+import { type Tender, type TenderStatus, type ApiResponse } from "@/types";
 
 export const tenderService = {
   async list(params?: any): Promise<Tender[]> {

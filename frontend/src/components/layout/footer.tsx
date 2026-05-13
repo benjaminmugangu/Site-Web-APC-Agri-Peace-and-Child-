@@ -73,7 +73,7 @@ export function Footer() {
       </div>
       
       <div className="container mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-apc-bgLight/60">
-        <p>&copy; {new Date().getFullYear()} {apc.name} (APC). Tous droits réservés.</p>
+        <p>&copy; 2026 {apc.name} (APC). Tous droits réservés.</p>
         <div className="flex gap-6">
           <Link href="/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
           <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions Légales</Link>

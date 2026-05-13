@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Users,
   Cog,
@@ -6,82 +8,80 @@ import {
   Handshake,
   Plus,
   Clock,
-  LayoutDashboard,
   FileText,
 } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { getDashboardStats, getRecentActivity } from "@/lib/data/mock-dashboard"
-
-const activityIcons: Record<string, string> = {
-  project: "📁",
-  article: "📝",
-  member: "👤",
-  settings: "⚙️",
-  system: "⚡",
-}
+import { listProjects } from "@/lib/api/projects"
+import { listTeam } from "@/lib/api/team"
+import { listMessages } from "@/lib/api/messages"
+import { listCareers } from "@/lib/api/careers"
+import { listPartners } from "@/lib/api/partners"
+import { listTenders } from "@/lib/api/tenders"
+import { domainService } from "@/lib/api/services"
 
 export default function AdminDashboard() {
-  const stats = getDashboardStats()
-  const recentActivity = getRecentActivity()
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  const adminCards = [
-    {
-      label: stats.services.label,
-      value: stats.services.value,
-      icon: Cog,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      href: stats.services.href,
-      description: stats.services.description,
-    },
-    {
-      label: stats.realisations.label,
-      value: stats.realisations.value,
-      subValue: stats.realisations.subValue,
-      icon: Briefcase,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      href: stats.realisations.href,
-      description: stats.realisations.description,
-    },
-    {
-      label: stats.emplois.label,
-      value: stats.emplois.value,
-      icon: Search,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      href: stats.emplois.href,
-      description: stats.emplois.description,
-    },
-    {
-      label: stats.equipe.label,
-      value: stats.equipe.value,
-      icon: Users,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-      href: stats.equipe.href,
-      description: stats.equipe.description,
-    },
-    {
-      label: stats.partenaires.label,
-      value: stats.partenaires.value,
-      icon: Handshake,
-      color: "text-cyan-600",
-      bg: "bg-cyan-50",
-      href: stats.partenaires.href,
-      description: stats.partenaires.description,
-    },
-    {
-      label: stats.appels.label,
-      value: stats.appels.value,
-      icon: FileText,
-      color: "text-red-600",
-      bg: "bg-red-50",
-      href: stats.appels.href,
-      description: stats.appels.description,
-    },
-  ]
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [projects, team, messages, careers, partners, tenders, services] = await Promise.all([
+          listProjects({ perPage: 1 }),
+          listTeam(),
+          listMessages({ perPage: 1 }),
+          listCareers(),
+          listPartners(),
+          listTenders(),
+          domainService.list()
+        ])
+
+        setStats({
+          services: { value: services.length || 0, label: "Nos Services", href: "/admin/services", description: "Gérer les services →" },
+          realisations: { value: projects.meta?.total || 0, label: "Réalisations", href: "/admin/projets", description: "Voir les projets →" },
+          emplois: { value: careers.length || 0, label: "Offres d'Emploi", href: "/admin/emplois", description: "Recrutements →" },
+          equipe: { value: team.length || 0, label: "Experts / Équipe", href: "/admin/equipe", description: "Gérer l'équipe →" },
+          partenaires: { value: partners.length || 0, label: "Partenaires", href: "/admin/partenaires", description: "Voir les partenaires →" },
+          appels: { value: tenders.length || 0, label: "Appels d'Offres", href: "/admin/appels-d-offres", description: "Marchés publics →" },
+        })
+      } catch (error) {
+        console.error("Erreur chargement stats:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadStats()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apc-green"></div>
+      </div>
+    )
+  }
+
+  const adminCards = stats ? [
+    stats.services,
+    stats.realisations,
+    stats.emplois,
+    stats.equipe,
+    stats.partenaires,
+    stats.appels
+  ].map((s, i) => {
+    const configs = [
+      { icon: Cog, color: "text-blue-600", bg: "bg-blue-50" },
+      { icon: Briefcase, color: "text-emerald-600", bg: "bg-emerald-50" },
+      { icon: Search, color: "text-amber-600", bg: "bg-amber-50" },
+      { icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+      { icon: Handshake, color: "text-cyan-600", bg: "bg-cyan-50" },
+      { icon: FileText, color: "text-red-600", bg: "bg-red-50" },
+    ]
+    return { ...s, ...configs[i] }
+  }) : []
+
 
   return (
     <div className="space-y-8">
@@ -126,35 +126,17 @@ export default function AdminDashboard() {
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
               <Clock size={18} className="text-apc-green" /> Notifications & Activités Récentes
             </h3>
-            <span className="text-xs text-gray-400 font-medium px-2 py-1 bg-gray-100 rounded-full">{recentActivity.length} nouvelles alertes</span>
+            <span className="text-xs text-gray-400 font-medium px-2 py-1 bg-gray-100 rounded-full">0 nouvelles alertes</span>
           </div>
-          <div className="divide-y divide-gray-50">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="px-6 py-5 hover:bg-gray-50/80 transition-colors flex items-center gap-4 group">
-                <div className={`w-10 h-10 rounded-xl ${activity.memberColor} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
-                  {activity.memberInitials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 font-medium">
-                    <span className="text-apc-green font-bold">{activity.memberName}</span>{" "}
-                    <span className="text-gray-500 font-normal">{activity.action}</span>{" "}
-                    <span className="font-bold text-gray-700 italic">&quot;{activity.target}&quot;</span>
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                    <Clock size={10} /> {activity.elapsed}
-                  </p>
-                </div>
-                <div className="text-2xl shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                  {activityIcons[activity.targetType] ?? "•"}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="p-4 bg-gray-50/50 text-center border-t border-gray-50">
-            <button className="text-xs font-bold text-apc-green hover:underline">Voir l&apos;historique complet</button>
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-gray-300" />
+            </div>
+            <p className="text-gray-500">Aucune activité récente enregistrée.</p>
           </div>
         </div>
       </div>
     </div>
   )
 }
+

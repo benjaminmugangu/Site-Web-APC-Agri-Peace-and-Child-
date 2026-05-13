@@ -1,17 +1,5 @@
 import api from "./api-client";
-
-export interface Career {
-  id: string;
-  title: string;
-  type: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP" | "VOLUNTEER";
-  location: string;
-  description: string;
-  content?: string;
-  deadline: string;
-  status: "OPEN" | "CLOSED" | "ARCHIVED";
-  createdAt: string;
-  updatedAt: string;
-}
+import { type Career, type ApiResponse } from "@/types";
 
 export const listCareers = async (options?: any) => {
   const response = await api.get("/careers", { params: options });

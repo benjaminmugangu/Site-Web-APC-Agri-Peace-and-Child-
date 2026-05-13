@@ -4,25 +4,24 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { getArticleBySlug, articles, categoryColors } from "@/lib/data"
+import { getArticleBySlug, listArticles } from "@/lib/api/articles"
 import {
   Calendar,
   Clock,
   ArrowLeft,
   ChevronRight,
   Globe,
+  User,
 } from "lucide-react"
-
-export async function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }))
-}
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const article = getArticleBySlug(params.slug)
+  const articleRes = await getArticleBySlug(params.slug).catch(() => null);
+  const article = articleRes?.data;
+  
   if (!article) return { title: "Article introuvable — APC" }
   return {
     title: article.title,
@@ -31,6 +30,7 @@ export async function generateMetadata({
 }
 
 function formatDate(dateStr: string) {
+  if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
@@ -38,26 +38,26 @@ function formatDate(dateStr: string) {
   })
 }
 
-export default function ArticleDetailPage({
+const categoryColors: Record<string, string> = {
+  "Rapport": "bg-apc-green/10 text-apc-green border-apc-green/20",
+  "Terrain": "bg-amber-100 text-amber-700 border-amber-200",
+  "Impact": "bg-blue-100 text-blue-700 border-blue-200",
+  "Partenariat": "bg-purple-100 text-purple-700 border-purple-200",
+}
+
+export default async function ArticleDetailPage({
   params,
 }: {
   params: { slug: string }
 }) {
-  const article = getArticleBySlug(params.slug)
-  if (!article) notFound()
+  const articleRes = await getArticleBySlug(params.slug).catch(() => null);
+  const article = articleRes?.data;
+  
+  if (!article) notFound();
 
-  const related = articles
-    .filter((a) => a.slug !== article.slug && a.category === article.category)
-    .slice(0, 3)
-
-  const others = related.length < 3
-    ? [
-        ...related,
-        ...articles
-          .filter((a) => a.slug !== article.slug && !related.includes(a))
-          .slice(0, 3 - related.length),
-      ]
-    : related
+  // Fetch recent articles for sidebar
+  const recentRes = await listArticles({ limit: 4, status: 'published' });
+  const others = recentRes.data.filter((a: any) => a.id !== article.id).slice(0, 3);
 
   return (
     <div className="flex flex-col">
@@ -72,23 +72,23 @@ export default function ArticleDetailPage({
         tag={article.category}
       />
 
-      <section className="py-16 bg-apc-bgLight">
+      <section className="py-16 bg-apc-bgLight min-h-screen">
         <div className="container px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* ── Main Article ── */}
-            <article className="lg:col-span-2 space-y-6">
+            <article className="lg:col-span-2 space-y-8">
               {/* Hero image */}
-              <div className="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative h-80 md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl">
                 <Image
-                  src={article.image}
+                  src={article.mainImage}
                   alt={article.title}
                   fill
                   className="object-cover"
                   priority
                 />
                 <span
-                  className={`absolute top-4 left-4 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm bg-white/90 ${
-                    categoryColors[article.category] || "text-gray-700"
+                  className={`absolute top-6 left-6 text-[10px] font-bold uppercase tracking-[0.2em] px-5 py-2 rounded-full backdrop-blur-md bg-white/90 shadow-xl ${
+                    categoryColors[article.category] || "text-gray-900"
                   }`}
                 >
                   {article.category}
@@ -96,105 +96,68 @@ export default function ArticleDetailPage({
               </div>
 
               {/* Meta bar */}
-              <div className="bg-white rounded-2xl p-5 border border-border/50 shadow-sm flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
+              <div className="bg-white rounded-[1.5rem] p-6 border border-border/40 shadow-sm flex flex-wrap items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
+                <div className="flex items-center gap-3">
                   <Calendar className="w-4 h-4 text-apc-green" />
-                  <span>{formatDate(article.date)}</span>
+                  <span>{formatDate(article.publishedAt)}</span>
                 </div>
-                <div className="w-px h-4 bg-border hidden sm:block" />
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-apc-green" />
-                  <span>{article.readTime} min de lecture</span>
-                </div>
-                <div className="w-px h-4 bg-border hidden sm:block" />
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-apc-green" />
-                  <span>Par <strong className="text-foreground">{article.author}</strong></span>
+                <div className="flex items-center gap-3">
+                  <User className="w-4 h-4 text-apc-green" />
+                  <span>Par <strong className="text-gray-900">{article.author?.firstName || 'APC Admin'} {article.author?.lastName || ''}</strong></span>
                 </div>
               </div>
 
               {/* Article body */}
-              <div className="bg-white rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-border/40 shadow-sm">
                 {/* Excerpt as lead */}
-                <p className="text-lg text-muted-foreground leading-relaxed border-l-4 border-apc-green pl-5 mb-8 italic">
+                <p className="text-xl text-gray-500 leading-relaxed border-l-4 border-apc-green pl-6 mb-12 italic font-medium">
                   {article.excerpt}
                 </p>
 
-                {/* Placeholder content — to be replaced by rich text from CMS */}
-                <div className="prose prose-green max-w-none space-y-5 text-muted-foreground leading-relaxed">
-                  <p>
-                    Dans le cadre de ses activités de terrain, APC continue de déployer ses équipes
-                    dans les zones les plus vulnérables de l&apos;Est de la République Démocratique du Congo.
-                    Cet article présente les détails et résultats liés à cette initiative.
-                  </p>
-                  <p>
-                    Le travail accompli s&apos;inscrit dans notre mission fondamentale : contribuer à
-                    l&apos;amélioration durable des conditions de vie des populations vulnérables, à travers
-                    une approche intégrée qui combine aspects humanitaires, développement agricole
-                    et consolidation de la paix.
-                  </p>
-                  <h3 className="text-xl font-bold text-foreground mt-8 mb-4">
-                    Contexte et Enjeux
-                  </h3>
-                  <p>
-                    La situation humanitaire dans l&apos;Est du Congo continue de nécessiter une réponse
-                    rapide et coordonnée. Les déplacements de population, les crises alimentaires
-                    et les tensions intercommunautaires constituent des défis permanents auxquels
-                    APC répond avec les outils adaptés à chaque territoire d&apos;intervention.
-                  </p>
-                  <h3 className="text-xl font-bold text-foreground mt-8 mb-4">
-                    Résultats & Impact
-                  </h3>
-                  <p>
-                    Les résultats obtenus témoignent de l&apos;efficacité de notre approche de proximité.
-                    Grâce à l&apos;engagement de nos équipes terrain et au soutien de nos partenaires,
-                    nous avons pu atteindre les objectifs fixés et générer un impact mesurable
-                    sur la vie des bénéficiaires.
-                  </p>
-                  <p>
-                    <em>
-                      Le contenu complet de cet article sera disponible dès le lancement
-                      de la plateforme CMS backend APC. Pour plus d&apos;informations, contactez-nous
-                      directement.
-                    </em>
-                  </p>
-                </div>
+                {/* Content from CMS */}
+                <div 
+                  className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
+                  dangerouslySetInnerHTML={{ __html: article.content }}
+                />
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-border/40">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1.5 bg-apc-bgLight border border-border/50 rounded-full text-xs text-muted-foreground font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
+                {article.tags && article.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-gray-50">
+                    {article.tags.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="px-4 py-1.5 bg-gray-50 border border-border/30 rounded-xl text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Share / CTA */}
-              <div className="bg-apc-green rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-bold text-lg mb-1">
-                    Cet article vous a touché ?
+              <div className="bg-[#1a472a] rounded-[2rem] p-8 md:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+                <div className="relative z-10 text-center md:text-left">
+                  <h3 className="font-bold text-xl md:text-2xl mb-2">
+                    Soutenir nos actions sur le terrain
                   </h3>
-                  <p className="text-white/75 text-sm">
-                    Soutenez notre mission sur le terrain.
+                  <p className="text-apc-bgLight/70 text-sm md:text-base">
+                    Votre aide est précieuse pour la réussite de nos programmes humanitaires.
                   </p>
                 </div>
-                <Link href="/contact?sujet=don" className="shrink-0">
-                  <Button variant="white" className="px-6">
+                <Link href="/contact" className="shrink-0 relative z-10">
+                  <Button variant="white" className="px-10 h-14 font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-transform">
                     Faire un Don
                   </Button>
                 </Link>
               </div>
 
               {/* Back link */}
-              <Link href="/actualites">
+              <Link href="/actualites" className="inline-block">
                 <Button
                   variant="ghost"
-                  className="text-muted-foreground gap-2 hover:text-apc-green"
+                  className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px] gap-3 hover:text-apc-green"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Retour aux actualités
@@ -203,73 +166,65 @@ export default function ArticleDetailPage({
             </article>
 
             {/* ── Sidebar ── */}
-            <aside className="space-y-6">
+            <aside className="space-y-8">
               {/* About APC block */}
-              <div className="bg-[#1a472a] rounded-2xl p-6 text-white">
-                <div className="w-12 h-12 bg-apc-greenLight/20 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-apc-greenLight font-bold text-xl">A</span>
+              <div className="bg-[#1a472a] rounded-[2rem] p-8 text-white shadow-xl">
+                <div className="w-14 h-14 bg-apc-greenLight/20 rounded-2xl flex items-center justify-center mb-6">
+                  <Globe className="text-apc-greenLight w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">À propos d&apos;APC</h3>
-                <p className="text-white/70 text-sm leading-relaxed mb-4">
+                <h3 className="font-bold text-xl mb-4">À propos d&apos;APC</h3>
+                <p className="text-apc-bgLight/70 text-sm leading-relaxed mb-8">
                   ONG humanitaire fondée en 2017 à Goma, RDC. Nous agissons pour
                   la Protection, l&apos;Agriculture, la Dignité et la Paix.
                 </p>
                 <Link href="/a-propos">
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="w-full border-white/40 text-white hover:bg-white/10 hover:text-white"
+                    className="w-full h-12 border-white/20 text-white hover:bg-white/10 font-bold text-xs uppercase tracking-widest"
                   >
-                    En savoir plus
+                    Découvrir notre Vision
                   </Button>
                 </Link>
               </div>
 
               {/* Related articles */}
               {others.length > 0 && (
-                <div className="bg-white rounded-2xl p-5 border border-border/50 shadow-sm">
-                  <h3 className="font-bold text-foreground mb-4 text-sm uppercase tracking-wider">
-                    Autres Actualités
+                <div className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm">
+                  <h3 className="font-bold text-gray-900 mb-8 text-[10px] uppercase tracking-[0.2em] opacity-40">
+                    Articles Récents
                   </h3>
-                  <div className="space-y-4">
-                    {others.map((a) => (
+                  <div className="space-y-6">
+                    {others.map((a: any) => (
                       <Link
                         key={a.id}
                         href={`/actualites/${a.slug}`}
-                        className="group flex gap-3 hover:bg-apc-bgLight rounded-xl p-2 -mx-2 transition-colors"
+                        className="group flex gap-4"
                       >
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                        <div className="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-sm">
                           <Image
-                            src={a.image}
+                            src={a.mainImage}
                             alt={a.title}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                              categoryColors[a.category] || "bg-gray-100 text-gray-600"
-                            }`}
-                          >
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${categoryColors[a.category] || "bg-gray-100"}`}>
                             {a.category}
                           </span>
-                          <p className="text-sm font-medium text-foreground mt-1 line-clamp-2 group-hover:text-apc-green transition-colors leading-snug">
+                          <p className="text-sm font-bold text-gray-900 mt-2 line-clamp-2 group-hover:text-apc-green transition-colors leading-snug">
                             {a.title}
                           </p>
-                          <span className="text-[11px] text-muted-foreground">
-                            {formatDate(a.date)}
-                          </span>
                         </div>
                       </Link>
                     ))}
                   </div>
-                  <div className="mt-4 pt-4 border-t border-border/40">
+                  <div className="mt-8 pt-8 border-t border-gray-50">
                     <Link
                       href="/actualites"
-                      className="text-apc-green text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all"
+                      className="text-apc-green text-[10px] font-black uppercase tracking-widest flex items-center justify-between hover:translate-x-1 transition-transform"
                     >
-                      Voir toutes les actualités{" "}
+                      Tout voir
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
@@ -277,21 +232,24 @@ export default function ArticleDetailPage({
               )}
 
               {/* Newsletter mini block */}
-              <div className="bg-apc-bgLight rounded-2xl p-5 border border-border/50">
-                <h3 className="font-bold text-foreground mb-2 text-sm">
-                  📬 Newsletter APC
+              <div className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm">
+                <h3 className="font-bold text-gray-900 mb-3 text-lg">
+                  📬 Restez informé
                 </h3>
-                <p className="text-muted-foreground text-xs mb-3 leading-relaxed">
-                  Recevez nos actualités et rapports directement par email.
+                <p className="text-gray-400 text-xs mb-6 leading-relaxed">
+                  Recevez nos rapports et actualités directement par email.
                 </p>
-                <input
-                  type="email"
-                  placeholder="votre@email.com"
-                  className="w-full px-3 py-2 rounded-xl border border-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/30 mb-2"
-                />
-                <Button size="sm" className="w-full text-xs">
-                  S&apos;inscrire
-                </Button>
+                <form className="space-y-3">
+                  <input
+                    type="email"
+                    placeholder="votre@email.com"
+                    className="w-full h-12 px-4 rounded-xl border border-gray-100 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-apc-green/20"
+                    required
+                  />
+                  <Button className="w-full h-12 rounded-xl bg-apc-green hover:bg-apc-green/90 text-white font-bold text-xs uppercase tracking-widest">
+                    S&apos;abonner
+                  </Button>
+                </form>
               </div>
             </aside>
           </div>

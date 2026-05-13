@@ -1,29 +1,5 @@
-import { apiClient, type ApiResponse } from './api-client';
-
-export type SiteSettings = {
-  id?: number;
-  hero: {
-    title: string;
-    subtitle: string;
-    imageUrl: string;
-  };
-  stats: {
-    beneficiaries: string;
-    projects: string;
-    provinces: string;
-  };
-  contact: {
-    address: string;
-    phone: string;
-    email: string;
-    socials?: {
-      facebook?: string;
-      twitter?: string;
-      linkedin?: string;
-      instagram?: string;
-    };
-  };
-};
+import { apiClient } from './api-client';
+import { type SiteSettings, type ApiResponse } from "@/types";
 
 export const settingsService = {
   async get(): Promise<SiteSettings | null> {
