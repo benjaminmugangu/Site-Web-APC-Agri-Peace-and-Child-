@@ -26,8 +26,9 @@ export async function getArticle(id: string): Promise<Article | null> {
   return response.data || null;
 }
 
-export async function getArticleBySlug(slug: string): Promise<ApiResponse<Article>> {
-  return apiClient.get<ApiResponse<Article>>(`/news/slug/${slug}`);
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const response = await apiClient.get<ApiResponse<Article>>(`/news/slug/${slug}`);
+  return response.data || null;
 }
 
 // ── POST /api/v1/news ──

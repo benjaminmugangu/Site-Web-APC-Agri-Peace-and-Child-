@@ -24,8 +24,9 @@ export async function getProject(id: string): Promise<Project | null> {
   return response.data || null;
 }
 
-export async function getProjectBySlug(slug: string): Promise<ApiResponse<Project>> {
-  return apiClient.get<ApiResponse<Project>>(`/projects/slug/${slug}`);
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  const response = await apiClient.get<ApiResponse<Project>>(`/projects/slug/${slug}`);
+  return response.data || null;
 }
 
 // ── POST /api/v1/projects ──

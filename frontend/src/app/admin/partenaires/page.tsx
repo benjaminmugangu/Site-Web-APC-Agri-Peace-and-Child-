@@ -42,7 +42,7 @@ export default function AdminPartenairesPage() {
     setFetching(true)
     try {
       const result = await listPartners()
-      setPartenaires(result.data)
+      setPartenaires(Array.isArray(result) ? result : [])
     } catch (error) {
       toast.error("Erreur chargement partenaires")
     } finally {

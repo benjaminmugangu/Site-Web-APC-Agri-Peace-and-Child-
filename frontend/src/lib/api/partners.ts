@@ -1,9 +1,9 @@
 import api from "./api-client";
 import { type Partner, type ApiResponse } from "@/types";
 
-export const listPartners = async (options?: any) => {
-  const response = await api.get("/partners", { params: options });
-  return response.data;
+export const listPartners = async (options?: any): Promise<Partner[]> => {
+  const response = await api.get<ApiResponse<Partner[]>>("/partners", { params: options });
+  return response.data.data || [];
 };
 
 export const getPartner = async (id: string) => {

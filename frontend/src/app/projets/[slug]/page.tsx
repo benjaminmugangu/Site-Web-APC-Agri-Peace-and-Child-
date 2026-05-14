@@ -20,8 +20,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const projectRes = await getProjectBySlug(params.slug).catch(() => null);
-  const project = projectRes?.data;
+  const project = await getProjectBySlug(params.slug).catch(() => null);
   
   if (!project) return { title: "Projet introuvable — APC" }
   return {
@@ -31,10 +30,10 @@ export async function generateMetadata({
 }
 
 const categoryColors: Record<string, string> = {
-  "Agriculture": "bg-apc-green/10 text-apc-green border-apc-green/20",
-  "Protection": "bg-orange-100 text-orange-600 border-orange-200",
-  "Paix": "bg-apc-blue/10 text-apc-blue border-apc-blue/20",
-  "Éducation": "bg-purple-100 text-purple-700 border-purple-200",
+  "agriculture": "bg-apc-green/10 text-apc-green border-apc-green/20",
+  "protection": "bg-orange-100 text-orange-600 border-orange-200",
+  "paix": "bg-apc-blue/10 text-apc-blue border-apc-blue/20",
+  "dignite": "bg-purple-100 text-purple-700 border-purple-200",
 }
 
 export default async function ProjetDetailPage({
@@ -42,13 +41,12 @@ export default async function ProjetDetailPage({
 }: {
   params: { slug: string }
 }) {
-  const projectRes = await getProjectBySlug(params.slug).catch(() => null);
-  const project = projectRes?.data;
+  const project = await getProjectBySlug(params.slug).catch(() => null);
   
   if (!project) notFound();
 
   // Fetch related projects (same category)
-  const relatedRes = await listProjects({ category: project.category, limit: 3 }).catch(() => ({ data: [] }));
+  const relatedRes = await listProjects({ category: project.category, perPage: 3 }).catch(() => ({ data: [] }));
   const otherProjects = Array.isArray(relatedRes?.data)
     ? relatedRes.data.filter((p: any) => p.id !== project.id).slice(0, 2)
     : [];
@@ -147,7 +145,7 @@ export default async function ProjetDetailPage({
                     <div>
                       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Impact Direct</div>
                       <div className="font-black text-2xl text-gray-900 leading-none">
-                        {project.beneficiariesCount?.toLocaleString()}
+                        {project.beneficiaries?.toLocaleString()}
                         <span className="text-xs font-bold text-gray-400 ml-2 uppercase tracking-tighter">Bénéficiaires</span>
                       </div>
                     </div>

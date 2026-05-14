@@ -191,7 +191,7 @@ export default async function Home() {
                     <p className="text-gray-500 text-sm line-clamp-2 mb-4">{project.description}</p>
                     <div className="flex items-center justify-between text-xs text-gray-400">
                       <span>{project.location}</span>
-                      <span>{project.beneficiariesCount} bénéficiaires</span>
+                      <span>{project.beneficiaries} bénéficiaires</span>
                     </div>
                   </div>
                 </Link>

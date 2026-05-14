@@ -1,9 +1,9 @@
 import api from "./api-client";
 import { type Career, type ApiResponse } from "@/types";
 
-export const listCareers = async (options?: any) => {
-  const response = await api.get("/careers", { params: options });
-  return response.data;
+export const listCareers = async (options?: any): Promise<Career[]> => {
+  const response = await api.get<ApiResponse<Career[]>>("/careers", { params: options });
+  return response.data.data || [];
 };
 
 export const getCareer = async (id: string) => {

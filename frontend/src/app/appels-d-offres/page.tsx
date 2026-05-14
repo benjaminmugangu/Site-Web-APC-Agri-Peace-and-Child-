@@ -10,7 +10,6 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
-  ChevronRight,
   ArrowLeft,
   Calendar,
   Download,
@@ -99,7 +98,7 @@ export default function AppelsDOffresPage() {
     const fetchTenders = async () => {
       try {
         const res = await listTenders();
-        setTenders(Array.isArray(res.data) ? res.data : []);
+        setTenders(Array.isArray(res) ? res : []);
       } catch (err) {
         console.error("Failed to fetch tenders", err);
       } finally {
@@ -251,7 +250,7 @@ export default function AppelsDOffresPage() {
                           <FileText className="w-4 h-4" /> {selectedTender.reference}
                         </span>
                         <span className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" /> Publié le {new Date(selectedTender.createdAt).toLocaleDateString('fr-FR')}
+                          <Calendar className="w-4 h-4" /> Publié le {new Date(selectedTender.createdAt || new Date()).toLocaleDateString('fr-FR')}
                         </span>
                       </div>
                     </div>
@@ -264,16 +263,26 @@ export default function AppelsDOffresPage() {
                       dangerouslySetInnerHTML={{ __html: selectedTender.content || selectedTender.description }}
                     />
 
-                    {Array.isArray(selectedTender.documents) && selectedTender.documents.length > 0 && (
+                    {selectedTender.documents && selectedTender.documents.length > 0 ? (
                       <>
                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Documents à télécharger</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                          {selectedTender.documents.map((doc, idx) => (
-                            <a key={idx} href={doc.url} className="flex items-center justify-between p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] hover:bg-white hover:border-apc-green transition-all group shadow-sm">
+                          {selectedTender.documents.map((doc: { label: string; url: string }, idx: number) => (
+                            <a key={`${selectedTender.id}-doc-${idx}`} href={doc.url} className="flex items-center justify-between p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] hover:bg-white hover:border-apc-green transition-all group shadow-sm">
                               <span className="text-xs font-bold text-gray-900">{doc.label}</span>
                               <Download className="w-5 h-5 text-apc-green group-hover:scale-110 transition-transform" />
                             </a>
                           ))}
+                        </div>
+                      </>
+                    ) : selectedTender.fileUrl && (
+                      <>
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Documents à télécharger</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+                          <a href={selectedTender.fileUrl} className="flex items-center justify-between p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] hover:bg-white hover:border-apc-green transition-all group shadow-sm">
+                            <span className="text-xs font-bold text-gray-900">Document d&apos;Appel d&apos;Offres (DAO)</span>
+                            <Download className="w-5 h-5 text-apc-green group-hover:scale-110 transition-transform" />
+                          </a>
                         </div>
                       </>
                     )}
@@ -316,8 +325,9 @@ export default function AppelsDOffresPage() {
                     <form onSubmit={handleSubmit} className="space-y-10">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Raison Sociale *</label>
+                          <label htmlFor="nomEntreprise" className="text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer">Raison Sociale *</label>
                           <input 
+                            id="nomEntreprise"
                             type="text" 
                             className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
                             placeholder="Nom complet de l'entreprise"
@@ -327,8 +337,9 @@ export default function AppelsDOffresPage() {
                           />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Responsable Technique *</label>
+                          <label htmlFor="nomResponsable" className="text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer">Responsable Technique *</label>
                           <input 
+                            id="nomResponsable"
                             type="text" 
                             className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
                             placeholder="Prénom & Nom"
@@ -338,8 +349,9 @@ export default function AppelsDOffresPage() {
                           />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">E-mail Officiel *</label>
+                          <label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer">E-mail Officiel *</label>
                           <input 
+                            id="email"
                             type="email" 
                             className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
                             placeholder="admin@votre-entreprise.cd"
@@ -349,8 +361,9 @@ export default function AppelsDOffresPage() {
                           />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Téléphone de contact *</label>
+                          <label htmlFor="numero" className="text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer">Téléphone de contact *</label>
                           <input 
+                            id="numero"
                             type="tel" 
                             className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium"
                             placeholder="+243..."

@@ -61,7 +61,7 @@ export interface Project {
   startDate: string
   endDate: string | null
   budget?: string
-  beneficiariesCount: number
+  beneficiaries: number
   mainImage: string
   gallery?: string[]
   tags: string[]
@@ -118,12 +118,16 @@ export interface Tender {
   title: string
   reference: string
   description: string
+  content?: string
   status: TenderStatus
-  publishDate: string
+  publishDate?: string
   deadline: string
   fileUrl?: string
   location: string
   organization: string
+  documents?: { label: string; url: string }[]
+  createdAt: string
+  updatedAt: string
 }
 
 // --- SETTINGS & HOME ---

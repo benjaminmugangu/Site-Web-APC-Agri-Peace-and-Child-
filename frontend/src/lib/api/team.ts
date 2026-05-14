@@ -1,9 +1,9 @@
 import api from "./api-client";
 import { type TeamMember, type ApiResponse } from "@/types";
 
-export const listTeam = async (options?: any) => {
-  const response = await api.get("/team", { params: options });
-  return response.data;
+export const listTeam = async (options?: any): Promise<TeamMember[]> => {
+  const response = await api.get<ApiResponse<TeamMember[]>>("/team", { params: options });
+  return response.data.data || [];
 };
 
 export const getTeamMember = async (id: string) => {
