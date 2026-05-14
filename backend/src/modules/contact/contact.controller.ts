@@ -60,6 +60,17 @@ export class ContactController {
     }
   };
 
+  reply = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { content } = req.body;
+      const adminId = (req as any).user.id;
+      const result = await this.service.reply(req.params.id as string, content, adminId);
+      return ResponseUtil.success(res, 'Réponse envoyée avec succès', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   remove = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.service.remove(req.params.id as string);

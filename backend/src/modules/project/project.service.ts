@@ -69,6 +69,19 @@ export class ProjectService {
     return project;
   }
 
+  async findBySlug(slug: string) {
+    const project = await this.repository.findOneBy({ 
+      slug, 
+      isVisible: true, 
+      status: ProjectStatus.PUBLISHED 
+    });
+    
+    if (!project) {
+      throw new NotFoundError('Projet introuvable');
+    }
+    return project;
+  }
+
   async update(id: string, data: UpdateProjectDto) {
     const project = await this.findOne(id);
     

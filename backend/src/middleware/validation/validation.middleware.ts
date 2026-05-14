@@ -6,7 +6,7 @@ import { ResponseUtil } from '@/common/utils/response.util';
 export const validationMiddleware = (type: any, value: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction) => {
     const input = plainToInstance(type, req[value]);
-    validate(input, { whitelist: true, forbidNonWhitelisted: true }).then((errors: ValidationError[]) => {
+    validate(input, { whitelist: true, forbidNonWhitelisted: false }).then((errors: ValidationError[]) => {
       if (errors.length > 0) {
         const errorMessages = errors.map((error: ValidationError) => ({
           property: error.property,

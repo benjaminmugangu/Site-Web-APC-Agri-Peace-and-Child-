@@ -10,6 +10,12 @@ export class LoginDto {
 }
 
 export class RegisterDto {
+  @IsNotEmpty({ message: 'Le prénom est requis' })
+  firstName!: string;
+
+  @IsNotEmpty({ message: 'Le nom est requis' })
+  lastName!: string;
+
   @IsEmail({}, { message: 'Email invalide' })
   @IsNotEmpty({ message: "L'email est requis" })
   email!: string;

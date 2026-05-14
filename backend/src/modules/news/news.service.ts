@@ -78,6 +78,21 @@ export class NewsService {
     return news;
   }
 
+  async findBySlug(slug: string) {
+    const news = await this.repository.findOne({
+      where: {
+        slug,
+        status: NewsStatus.PUBLISHED,
+        publishDate: LessThanOrEqual(new Date())
+      }
+    });
+
+    if (!news) {
+      throw new NotFoundError('Actualité introuvable');
+    }
+    return news;
+  }
+
   async update(id: string, data: UpdateNewsDto) {
     const news = await this.findOne(id);
     

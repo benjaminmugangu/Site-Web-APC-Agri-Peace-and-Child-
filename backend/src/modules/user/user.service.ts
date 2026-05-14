@@ -1,7 +1,7 @@
 import { AppDataSource } from '@/config/database.config';
 import { User } from '@/entities/user.entity';
 import { UpdateUserAdminDto } from './dto/user-admin.dto';
-import { NotFoundError } from '@/common/utils/error.util';
+import { NotFoundError, BadRequestError } from '@/common/utils/error.util';
 import { PaginationUtil } from '@/common/utils/pagination.util';
 
 export class UserService {
@@ -46,6 +46,20 @@ export class UserService {
       throw new NotFoundError('Utilisateur introuvable');
     }
     return user;
+  }
+
+  async create(data: any) {
+    const existingUser = await this.repository.findOneBy({ email: data.email });
+    if (existingUser) {
+      throw new BadRequestError('Cet email est déjà utilisé');
+    }
+
+    const user = this.repository.create(data);
+    
+    // Si un password est fourni, on le hache (via hook @BeforeInsert ou manuellement ici)
+    // Dans notre entité User, on a probablement un hook. Vérifions.
+    // En attendant, on fait le save.
+    return await this.repository.save(user);
   }
 
   async update(id: string, data: UpdateUserAdminDto) {

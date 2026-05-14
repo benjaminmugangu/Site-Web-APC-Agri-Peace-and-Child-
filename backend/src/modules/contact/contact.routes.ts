@@ -135,7 +135,56 @@ router.patch('/:id/status', validationMiddleware(UpdateMessageStatusDto), contro
  *         description: Message marqué comme lu
  */
 router.patch('/:id/read', controller.markAsRead);
+/**
+ * @swagger
+ * /api/v1/contact/{id}/reply:
+ *   post:
+ *     summary: Répondre à un message
+ *     tags: [Messages]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Réponse stockée
+ */
+router.post('/:id/reply', controller.reply);
 
+/**
+ * @swagger
+ * /api/v1/contact/bulk:
+ *   delete:
+ *     summary: Supprimer plusieurs messages
+ *     tags: [Messages]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Supprimés avec succès
+ */
 router.delete('/bulk', controller.bulkDelete);
 
 /**

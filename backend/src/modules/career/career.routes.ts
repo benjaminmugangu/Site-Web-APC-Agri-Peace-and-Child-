@@ -1,19 +1,24 @@
 import { Router } from 'express';
 import { CareerController } from './career.controller';
+import { ApplicationController } from './application.controller';
 import { authMiddleware } from '@/middleware/auth/auth.middleware';
 import { authorize } from '@/middleware/auth/roles.middleware';
 import { validationMiddleware } from '@/middleware/validation/validation.middleware';
 import { UserRole } from '@/common/enums/role.enum';
 import { CreateCareerDto, UpdateCareerDto } from './dto/career.dto';
+import { upload } from '@/config/cloudinary.config';
 
 const router = Router();
 const controller = new CareerController();
+const applicationController = new ApplicationController();
 
 /**
  * @swagger
  * tags:
- *   name: Careers
- *   description: Gestion des opportunités d'emploi et appels d'offres
+ *   - name: Careers
+ *     description: Gestion des opportunités d'emploi et appels d'offres
+ *   - name: Applications
+ *     description: Gestion des candidatures
  */
 
 /**
@@ -27,6 +32,29 @@ const controller = new CareerController();
  *         description: Liste des opportunités
  */
 router.get('/', controller.findAll);
+
+/**
+ * @swagger
+ * /api/v1/careers/apply:
+ *   post:
+ *     summary: Soumettre une candidature
+ *     tags: [Applications]
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName: { type: string }
+ *               lastName: { type: string }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               type: { type: string }
+ *               motivation: { type: string }
+ *               careerId: { type: string }
+ *               cv: { type: string, format: binary }
+ */
+router.post('/apply', upload.single('cv'), applicationController.apply);
 
 /**
  * @swagger
@@ -49,6 +77,8 @@ router.get('/:id', controller.findOne);
 // Routes administratives (Protégées)
 router.use(authMiddleware);
 router.use(authorize(UserRole.ADMIN));
+
+router.get('/applications/all', applicationController.findAll);
 
 /**
  * @swagger

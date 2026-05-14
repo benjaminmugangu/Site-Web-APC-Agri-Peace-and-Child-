@@ -15,11 +15,14 @@ export class AuthService {
       throw new BadRequestError('Cet email est déjà utilisé');
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 12);
+    const userCount = await this.userRepository.count();
+    
     const user = this.userRepository.create({
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
-      password: hashedPassword,
-      role: UserRole.VISITOR // Par défaut
+      password: data.password,
+      role: userCount === 0 ? UserRole.ADMIN : UserRole.VISITOR
     });
 
     await this.userRepository.save(user);

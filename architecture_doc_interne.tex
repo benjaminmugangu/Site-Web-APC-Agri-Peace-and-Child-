@@ -1,0 +1,494 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit}
+
+\definecolor{primary}{HTML}{1a1a2e}
+\definecolor{accent}{HTML}{16a34a}
+\definecolor{codebg}{HTML}{f5f5f5}
+\definecolor{codeframe}{HTML}{e0e0e0}
+
+\hypersetup{colorlinks=true,linkcolor=primary,urlcolor=accent,citecolor=primary}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  stringstyle=\color{accent},
+  commentstyle=\color{gray}\itshape,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  xleftmargin=1.5em,
+  framexleftmargin=1em,
+}
+
+\lstdefinelanguage{TypeScript}{
+  keywords={import, export, from, const, let, var, function, return, if, else, class, new, async, await, try, catch, throw, interface, type, enum, extends, implements, private, public, protected, static, readonly, as, typeof, void, null, undefined, true, false, Promise},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  sensitive=true
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textcolor{primary}{Propre \& Confiance -- Documentation Interne}}
+\fancyhead[R]{\footnotesize\textcolor{primary}{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{primary}}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titleformat{\section}{\normalfont\Large\bfseries\color{primary}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{primary!80}}{\thesubsection}{1em}{}
+
+\newtcolorbox{infobox}[1][]{colback=accent!5,colframe=accent,fonttitle=\bfseries,title=#1}
+\newtcolorbox{warnbox}[1][]{colback=red!5,colframe=red!70,fonttitle=\bfseries,title=#1}
+
+\title{
+  \vspace{-2cm}
+  \textcolor{primary}{\rule{\linewidth}{2pt}}\\[0.5cm]
+  {\Huge\textbf{\textcolor{primary}{Propre \& Confiance}}}\\[0.3cm]
+  {\LARGE\textcolor{primary!70}{Documentation Technique d'Architecture Backend}}\\[0.5cm]
+  \textcolor{primary}{\rule{\linewidth}{2pt}}\\[1.5cm]
+  {\large\textcolor{gray}{Document interne -- Ne pas diffuser}}\\[0.3cm]
+  {\normalsize Version 1.0 -- Mai 2026}
+}
+\author{
+  \textbf{Équipe Backend -- Benflux Company}\\
+  \texttt{benjamin@benflux.com}
+}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{warnbox}[DOCUMENT CONFIDENTIEL]
+Ce document contient des détails sensibles sur l'architecture interne du système. Il ne doit en aucun cas être poussé sur GitHub ni partagé en dehors de l'équipe d'ingénierie.
+\end{warnbox}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+%% ======================================================================
+\chapter{Introduction et Vision du Projet}
+%% ======================================================================
+
+\section{Contexte}
+\textbf{Propre \& Confiance} est une plateforme de mise en relation entre des \textbf{familles} à la recherche de services de ménage et des \textbf{ménagères} professionnelles. Le backend expose une API RESTful qui gère l'ensemble du cycle de vie : inscription, vérification d'identité (KYC), réservation de missions, paiement, notation et administration.
+
+\section{Stack Technologique}
+\begin{longtable}{@{}p{4cm}p{9cm}@{}}
+\toprule
+\textbf{Composant} & \textbf{Technologie} \\
+\midrule
+Langage & TypeScript 5.5 (strict mode) \\
+Runtime & Node.js avec ts-node-dev (dev) \\
+Framework HTTP & Express.js 4.19 \\
+ORM & TypeORM 0.3 \\
+Base de données & PostgreSQL 16 \\
+Authentification & JWT (Access + Refresh Tokens) \\
+Validation & class-validator + class-transformer \\
+Upload fichiers & Multer (mémoire) + Cloudinary \\
+Email & Nodemailer (SMTP / Ethereal en dev) \\
+Logging & Winston + DailyRotateFile \\
+Documentation API & Swagger (swagger-jsdoc + swagger-ui-express) \\
+Process Manager & PM2 (cluster mode en production) \\
+Sécurité & Helmet, CORS, express-rate-limit, bcryptjs \\
+\bottomrule
+\end{longtable}
+
+\section{Principes Architecturaux}
+\begin{enumerate}
+  \item \textbf{Modularité} -- Chaque domaine métier est isolé dans son propre module (Controller / Service / DTO / Routes).
+  \item \textbf{Séparation des responsabilités} -- Les middlewares gèrent les préoccupations transversales (auth, validation, erreurs).
+  \item \textbf{Sécurité en profondeur} -- Chaque couche applique ses propres contrôles (RBAC, rate-limiting, validation stricte).
+  \item \textbf{Convention over Configuration} -- Nommage et structure uniformes dans tout le projet.
+\end{enumerate}
+
+%% ======================================================================
+\chapter{Structure du Projet}
+%% ======================================================================
+
+\section{Arborescence des Dossiers}
+\begin{lstlisting}[language={},title={Arborescence src/}]
+src/
+|-- server.ts              # Point d'entree (bootstrap)
+|-- app.ts                 # Configuration Express
+|-- config/                # Configurations centralisees
+|   |-- database.config.ts
+|   |-- jwt.config.ts
+|   |-- logger.config.ts
+|   +-- swagger.config.ts
+|-- common/                # Code partage (transversal)
+|   |-- enums/             # Enumerations metier
+|   |-- types/             # Types TypeScript globaux
+|   +-- utils/             # Fonctions utilitaires
+|-- entities/              # Entites TypeORM (modeles DB)
+|-- middleware/             # Middlewares Express
+|-- modules/               # Modules metier
+|   |-- auth/              # Authentification
+|   |-- user/              # Gestion utilisateurs
+|   |-- maid/              # Profils menageres
+|   |-- kyc/               # Verification d'identite
+|   |-- ticket/            # Missions / reservations
+|   |-- payment/           # Paiements
+|   |-- wallet/            # Portefeuilles
+|   |-- withdrawal/        # Retraits
+|   |-- rating/            # Notations
+|   |-- search/            # Recherche
+|   |-- notification/      # Notifications
+|   +-- admin/             # Administration
+|-- services/              # Services externes (mail)
+|-- seeds/                 # Donnees initiales
++-- migrations/            # Migrations TypeORM
+\end{lstlisting}
+
+\section{Patron d'un Module}
+Chaque module suit une structure identique :
+\begin{lstlisting}[language={}]
+modules/<nom>/
+|-- <nom>.controller.ts    # Gere les requetes HTTP
+|-- <nom>.service.ts       # Logique metier
+|-- <nom>.routes.ts        # Definition des routes
++-- dto/                   # Data Transfer Objects
+    +-- <action>-<nom>.dto.ts
+\end{lstlisting}
+
+\begin{infobox}[Pourquoi cette structure ?]
+Ce découpage permet de : (1) tester chaque couche indépendamment, (2) remplacer une implémentation sans toucher aux autres couches, (3) naviguer intuitivement dans le code.
+\end{infobox}
+
+%% ======================================================================
+\chapter{Cycle de Vie d'une Requête}
+%% ======================================================================
+
+\section{Pipeline de Middlewares}
+
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={rectangle, draw=primary, fill=primary!10, rounded corners, minimum width=3cm, minimum height=0.8cm, font=\small\bfseries, text=primary},
+  arr/.style={-{Stealth[length=3mm]}, thick, primary},
+  node distance=0.6cm
+]
+\node[box] (helmet) {Helmet};
+\node[box, below=of helmet] (cors) {CORS};
+\node[box, below=of cors] (body) {Body Parser};
+\node[box, below=of body] (logger) {HTTP Logger};
+\node[box, below=of logger] (rate) {Rate Limiter};
+\node[box, below=of rate] (auth) {Authenticate};
+\node[box, below=of auth] (email) {Email Verified};
+\node[box, below=of email] (roles) {Authorize (RBAC)};
+\node[box, below=of roles] (validate) {Validate Body};
+\node[box, below=of validate, fill=accent!20] (ctrl) {Controller};
+
+\draw[arr] (helmet) -- (cors);
+\draw[arr] (cors) -- (body);
+\draw[arr] (body) -- (logger);
+\draw[arr] (logger) -- (rate);
+\draw[arr] (rate) -- (auth);
+\draw[arr] (auth) -- (email);
+\draw[arr] (email) -- (roles);
+\draw[arr] (roles) -- (validate);
+\draw[arr] (validate) -- (ctrl);
+\end{tikzpicture}
+\end{center}
+
+\section{Détail de chaque middleware}
+
+\subsection{Helmet}
+Ajoute des en-têtes HTTP de sécurité (CSP, HSTS, X-Frame-Options, etc.).
+
+\subsection{CORS}
+Contrôle les origines autorisées via \texttt{ALLOWED\_ORIGINS}. Supporte le mode wildcard pour le développement et les origines explicites pour la production. Le flag \texttt{credentials: true} permet l'envoi de cookies (refresh token).
+
+\subsection{Rate Limiting}
+Deux niveaux : un \textbf{limiteur global} (100 requêtes / 15 min) et un \textbf{limiteur d'authentification} (10 requêtes / 15 min) pour les routes sensibles (login, register, forgot-password).
+
+\subsection{Authentification JWT}
+\begin{lstlisting}[language=TypeScript,title={auth.middleware.ts -- Extrait}]
+const payload = jwt.verify(token, jwtConfig.secret);
+// Verification: mot de passe change apres emission du token
+const user = await userRepo.findOne({
+  where: { id: payload.sub },
+  select: ['passwordChangedAt'],
+});
+if (user?.passwordChangedAt) {
+  const changedTs = Math.floor(
+    user.passwordChangedAt.getTime() / 1000
+  );
+  if (payload.iat < changedTs) {
+    // Token invalide: mot de passe change
+  }
+}
+req.user = { id: payload.sub, email, role };
+\end{lstlisting}
+
+\subsection{Autorisation RBAC}
+\begin{lstlisting}[language=TypeScript,title={roles.middleware.ts}]
+export function authorize(...allowedRoles: UserRole[]) {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      return ResponseUtil.forbidden(res,
+        'Access restricted. Required: '
+        + allowedRoles.join(', '));
+    }
+    next();
+  };
+}
+\end{lstlisting}
+
+Trois rôles : \texttt{FAMILY}, \texttt{MAID}, \texttt{ADMIN}. Chaque route déclare explicitement les rôles autorisés.
+
+\subsection{Validation des Données}
+Utilise \texttt{class-validator} avec les options \texttt{whitelist: true} et \texttt{forbidNonWhitelisted: true} pour rejeter tout champ inconnu. Les DTOs définissent les règles de validation via des décorateurs.
+
+%% ======================================================================
+\chapter{Modèle de Données}
+%% ======================================================================
+
+\section{Diagramme Entité-Relation}
+
+\begin{center}
+\begin{tikzpicture}[
+  entity/.style={rectangle, draw=primary, fill=primary!8, rounded corners=3pt, minimum width=2.8cm, minimum height=0.7cm, font=\small\bfseries},
+  rel/.style={-{Stealth}, thick, accent!70},
+  node distance=1.5cm and 2.5cm
+]
+\node[entity] (user) {User};
+\node[entity, below left=of user] (family) {Family};
+\node[entity, below=of user] (maid) {Maid};
+\node[entity, below right=of user] (admin) {Admin};
+\node[entity, right=2.5cm of maid] (kyc) {Kyc};
+\node[entity, below=of family] (ticket) {Ticket};
+\node[entity, below=of ticket] (payment) {Payment};
+\node[entity, right=of ticket] (rating) {Rating};
+\node[entity, below=of maid] (wallet) {Wallet};
+\node[entity, right=of wallet] (withdrawal) {Withdrawal};
+\node[entity, above right=1cm and 2.5cm of user] (notif) {Notification};
+
+\draw[rel] (user) -- node[left,font=\tiny]{1:1} (family);
+\draw[rel] (user) -- node[left,font=\tiny]{1:1} (maid);
+\draw[rel] (user) -- node[right,font=\tiny]{1:1} (admin);
+\draw[rel] (maid) -- node[above,font=\tiny]{1:1} (kyc);
+\draw[rel] (family) -- node[left,font=\tiny]{1:N} (ticket);
+\draw[rel] (maid) -- node[right,font=\tiny]{1:N} (ticket);
+\draw[rel] (ticket) -- node[left,font=\tiny]{1:1} (payment);
+\draw[rel] (ticket) -- node[above,font=\tiny]{1:N} (rating);
+\draw[rel] (maid) -- node[left,font=\tiny]{1:1} (wallet);
+\draw[rel] (maid) -- node[right,font=\tiny]{1:N} (withdrawal);
+\draw[rel] (user) -- node[above,font=\tiny]{1:N} (notif);
+\end{tikzpicture}
+\end{center}
+
+\section{Entités Principales}
+
+\subsection{User}
+Entité centrale. Contient les champs d'authentification (\texttt{email}, \texttt{password}, \texttt{role}), les flags de sécurité (\texttt{isEmailVerified}, \texttt{isActive}), et les tokens sensibles marqués \texttt{select: false} pour ne jamais les exposer par défaut.
+
+\subsection{Family / Maid / Admin}
+Profils spécialisés liés en \texttt{OneToOne} à \texttt{User}. Cette approche de \textbf{Table-per-Type} évite les colonnes nulles dans une table unique tout en permettant des champs spécifiques (ex: \texttt{hourlyRate} pour Maid, \texttt{commissionRate} pour Admin).
+
+\subsection{Ticket}
+Représente une mission de ménage. Contient le calcul de prix complet : \texttt{subtotal}, \texttt{discountRate}, \texttt{discountAmount}, \texttt{totalPrice}, \texttt{commissionRate}. Cycle de vie : \texttt{PENDING} $\to$ \texttt{PAID} $\to$ \texttt{IN\_PROGRESS} $\to$ \texttt{COMPLETED}.
+
+\subsection{Payment}
+Lié 1:1 au Ticket. Supporte la validation manuelle par l'admin (preuve de paiement via screenshot). Champs d'audit : \texttt{reviewedBy}, \texttt{reviewedAt}, \texttt{distributedAt}, \texttt{escrowedAt}.
+
+\subsection{Wallet}
+Portefeuille polymorphe : peut appartenir à une Family, une Maid ou un Admin via des clés étrangères nullables (\texttt{maidId}, \texttt{adminId}, \texttt{familyId}).
+
+%% ======================================================================
+\chapter{Sécurité}
+%% ======================================================================
+
+\section{Authentification JWT Dual-Token}
+
+\begin{infobox}[Stratégie Access + Refresh]
+\begin{itemize}[nosep]
+  \item \textbf{Access Token} : durée courte (15 min), envoyé dans le header \texttt{Authorization: Bearer}.
+  \item \textbf{Refresh Token} : durée longue (7 jours), stocké en base de données (hashé) et en cookie HttpOnly.
+  \item Rotation automatique : chaque \texttt{/auth/refresh} génère une nouvelle paire et invalide l'ancien refresh token.
+\end{itemize}
+\end{infobox}
+
+\section{Hachage des Mots de Passe}
+Utilisation de \texttt{bcryptjs} avec un coût de \textbf{12 rounds}. Le champ \texttt{password} est marqué \texttt{select: false} dans l'entité TypeORM pour ne jamais être retourné par défaut.
+
+\section{Vérification d'Email par OTP}
+\begin{enumerate}
+  \item À l'inscription, un OTP à 6 chiffres est généré via \texttt{crypto.randomInt}.
+  \item L'OTP est hashé en SHA-256 avant stockage en base (\texttt{emailVerificationToken}).
+  \item L'utilisateur soumet l'OTP, le serveur hash la soumission et compare.
+  \item Expiration : 24 heures.
+\end{enumerate}
+
+\section{Protection contre les Attaques}
+\begin{longtable}{@{}p{4cm}p{9cm}@{}}
+\toprule
+\textbf{Attaque} & \textbf{Protection} \\
+\midrule
+Brute force & Rate limiting (10 req/15 min sur auth) \\
+XSS & Helmet CSP headers \\
+CSRF & Cookies SameSite, CORS strict \\
+Injection SQL & ORM paramétré (TypeORM) \\
+Token replay & Vérification \texttt{passwordChangedAt} vs \texttt{iat} \\
+Mass assignment & \texttt{whitelist: true, forbidNonWhitelisted: true} \\
+Data leakage & \texttt{select: false} sur champs sensibles + \texttt{sanitizeUser()} \\
+\bottomrule
+\end{longtable}
+
+%% ======================================================================
+\chapter{Logique Métier}
+%% ======================================================================
+
+\section{Flux de Réservation (Ticket)}
+\begin{enumerate}
+  \item La famille crée un ticket en spécifiant : ménagère, tâches, durée, heures/jour.
+  \item Le système calcule le prix via \texttt{calculateMissionPrice()} avec remise progressive.
+  \item La famille soumet une preuve de paiement (screenshot Airtel Money).
+  \item L'admin valide manuellement $\to$ statut passe à \texttt{PAID}.
+  \item Après complétion : commission prélevée, fonds distribués vers les wallets.
+\end{enumerate}
+
+\section{Grille de Remises}
+\begin{lstlisting}[language=TypeScript,title={pricing.util.ts}]
+// 1-2 jours  -> 0%    | 3-6 jours  -> 5%
+// 7-13 jours -> 10%   | 14-29 jours -> 15%
+// 30+ jours  -> 20%
+function getDiscountRate(days: number): number {
+  if (days >= 30) return 20;
+  if (days >= 14) return 15;
+  if (days >= 7) return 10;
+  if (days >= 3) return 5;
+  return 0;
+}
+\end{lstlisting}
+
+\section{Split de Paiement}
+\begin{lstlisting}[language=TypeScript]
+function splitPayment(totalPrice, commissionRate) {
+  const adminAmount = totalPrice * (commissionRate / 100);
+  const maidAmount = totalPrice - adminAmount;
+  return { adminAmount, maidAmount };
+}
+\end{lstlisting}
+
+\section{Module KYC}
+Processus de vérification d'identité pour les ménagères. Documents requis : pièce d'identité (recto/verso), selfie, casier judiciaire. Upload parallèle vers Cloudinary via \texttt{Promise.all}. Cycle : \texttt{PENDING} $\to$ \texttt{APPROVED} / \texttt{REJECTED}.
+
+%% ======================================================================
+\chapter{Services Externes}
+%% ======================================================================
+
+\section{Cloudinary (Stockage Fichiers)}
+Les fichiers sont stockés en mémoire (Multer \texttt{memoryStorage}) puis envoyés vers Cloudinary via un stream. Organisation des dossiers : \texttt{propre-confiance/kyc/<userId>/}.
+
+\section{Nodemailer (Emails)}
+Templates HTML intégrés pour les OTP (vérification email et reset mot de passe). En développement : Ethereal Mail (bac à sable). Configuration flexible avec fallback \texttt{SMTP\_*} / \texttt{MAIL\_*}.
+
+\section{Winston (Logging)}
+\begin{itemize}[nosep]
+  \item \textbf{Développement} : console colorisée, niveau \texttt{debug}.
+  \item \textbf{Production} : fichiers rotatifs journaliers (\texttt{logs/app-YYYY-MM-DD.log}), compressés, rétention 14 jours, taille max 20 Mo.
+\end{itemize}
+
+%% ======================================================================
+\chapter{Scalabilité et Production}
+%% ======================================================================
+
+\section{PM2 Cluster Mode}
+\begin{lstlisting}[language={},title={ecosystem.config.cjs}]
+{
+  name: 'propre-confiance-api',
+  script: 'dist/server.js',
+  instances: 'max',       // 1 worker par CPU
+  exec_mode: 'cluster',
+  max_memory_restart: '500M',
+}
+\end{lstlisting}
+
+\section{Graceful Shutdown}
+Le serveur intercepte \texttt{SIGTERM} et \texttt{SIGINT}, ferme proprement les connexions HTTP, puis quitte. Un timeout de 10 secondes force l'arrêt si le serveur ne répond pas.
+
+\section{Pagination}
+Toutes les listes sont paginées avec métadonnées : \texttt{total}, \texttt{page}, \texttt{limit}, \texttt{totalPages}, \texttt{hasNextPage}, \texttt{hasPrevPage}. Limite maximale : 100 éléments par page.
+
+\section{Réponse Standardisée}
+\begin{lstlisting}[language=TypeScript]
+// Succes
+{ success: true, message: "...", data: {...}, meta: {...} }
+// Erreur
+{ success: false, message: "...", errors: [...] }
+\end{lstlisting}
+
+%% ======================================================================
+\chapter{Guide de Reproduction}
+%% ======================================================================
+
+Pour reproduire cette architecture dans un nouveau projet :
+
+\begin{enumerate}
+  \item \textbf{Initialiser} : \texttt{npm init}, installer Express, TypeORM, TypeScript.
+  \item \textbf{Configurer TypeScript} : activer \texttt{strict}, \texttt{experimentalDecorators}, \texttt{emitDecoratorMetadata}.
+  \item \textbf{Créer la structure} : \texttt{src/\{config, common, entities, middleware, modules, services\}}.
+  \item \textbf{Configurer la DB} : créer \texttt{database.config.ts} avec \texttt{DataSource}.
+  \item \textbf{Créer les entités} : une classe par table, décorateurs TypeORM.
+  \item \textbf{Créer les middlewares} : error handler global, auth, RBAC, validation.
+  \item \textbf{Créer les modules} : pour chaque domaine : routes $\to$ controller $\to$ service.
+  \item \textbf{Assembler dans app.ts} : middlewares globaux puis routes.
+  \item \textbf{Bootstrap dans server.ts} : init DB $\to$ create app $\to$ listen.
+\end{enumerate}
+
+\begin{infobox}[Règle d'or]
+Un module ne doit \textbf{jamais} importer directement un autre module. La communication se fait via les services, et les dépendances transversales passent par \texttt{common/}.
+\end{infobox}
+
+%% ======================================================================
+\chapter{Bonnes Pratiques}
+%% ======================================================================
+
+\begin{enumerate}
+  \item \textbf{Ne jamais exposer les champs sensibles} : utiliser \texttt{select: false} et \texttt{sanitizeUser()}.
+  \item \textbf{Valider toutes les entrées} : DTOs avec \texttt{class-validator}, \texttt{whitelist: true}.
+  \item \textbf{Utiliser des enums} pour les statuts et rôles (pas de strings magiques).
+  \item \textbf{Gérer les erreurs avec une hiérarchie} : \texttt{AppError} $\to$ \texttt{NotFoundError}, \texttt{UnauthorizedError}, etc.
+  \item \textbf{Logger les événements importants} : authentifications, paiements, erreurs.
+  \item \textbf{Versionner l'API} : préfixe \texttt{/api/v1/} pour permettre des évolutions futures.
+  \item \textbf{Variables d'environnement} : jamais de secrets en dur, tout dans \texttt{.env}.
+  \item \textbf{Graceful shutdown} : fermer proprement les connexions DB et HTTP.
+  \item \textbf{Git workflow} : une branche par fonctionnalité, PR obligatoire avant merge.
+  \item \textbf{Documentation Swagger} : synchronisée avec le code source.
+\end{enumerate}
+
+\vfill
+\begin{center}
+\textcolor{primary}{\rule{0.5\linewidth}{1pt}}\\[0.5cm]
+{\large\textcolor{primary}{\textbf{Propre \& Confiance}}}\\
+{\small\textcolor{gray}{Documentation générée le \today{} -- Benflux Company}}
+\end{center}
+
+\end{document}

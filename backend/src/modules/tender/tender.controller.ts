@@ -80,4 +80,14 @@ export class TenderController {
       next(error);
     }
   };
+
+  bulkSetStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { ids, status } = req.body;
+      await this.service.bulkSetStatus(ids, status);
+      return ResponseUtil.success(res, 'Statuts mis à jour avec succès');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

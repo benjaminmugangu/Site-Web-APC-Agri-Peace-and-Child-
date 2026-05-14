@@ -86,6 +86,9 @@ export class Message {
   @Column({ nullable: true })
   repliedBy!: string; // ID de l'admin ayant répondu
 
+  @Column('text', { nullable: true })
+  replyContent!: string;
+
   @CreateDateColumn()
   createdAt!: Date;
 

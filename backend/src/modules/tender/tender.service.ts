@@ -106,4 +106,9 @@ export class TenderService {
     await this.repository.delete({ id: In(ids) });
     return true;
   }
+
+  async bulkSetStatus(ids: string[], status: TenderStatus) {
+    await this.repository.update({ id: In(ids) }, { status });
+    return true;
+  }
 }

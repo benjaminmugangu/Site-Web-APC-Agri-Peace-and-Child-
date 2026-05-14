@@ -45,6 +45,7 @@ router.get('/', controller.findAll);
  *         description: Détails du projet
  */
 router.get('/:id', controller.findOne);
+router.get('/slug/:slug', controller.findBySlug);
 
 // Routes administratives (Protégées)
 router.use(authMiddleware);
@@ -118,9 +119,103 @@ router.delete('/bulk', controller.bulkDelete);
  */
 router.delete('/:id', controller.remove);
 
+/**
+ * @swagger
+ * /api/v1/projects/{id}/duplicate:
+ *   post:
+ *     summary: Dupliquer un projet
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Copie créée
+ */
 router.post('/:id/duplicate', controller.duplicate);
+
+/**
+ * @swagger
+ * /api/v1/projects/bulk-status:
+ *   patch:
+ *     summary: Changer le statut de plusieurs projets
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Statuts mis à jour
+ */
 router.patch('/bulk-status', controller.bulkSetStatus);
+
+/**
+ * @swagger
+ * /api/v1/projects/{id}/publish:
+ *   patch:
+ *     summary: Publier un projet
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Projet publié
+ */
 router.patch('/:id/publish', controller.publish);
+
+/**
+ * @swagger
+ * /api/v1/projects/{id}/unpublish:
+ *   patch:
+ *     summary: Dépublier un projet (remettre en brouillon)
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Projet dépublié
+ */
+router.patch('/:id/unpublish', controller.unpublish);
+
+/**
+ * @swagger
+ * /api/v1/projects/{id}/archive:
+ *   patch:
+ *     summary: Archiver un projet
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Projet archivé
+ */
 router.patch('/:id/archive', controller.archive);
 
 /**

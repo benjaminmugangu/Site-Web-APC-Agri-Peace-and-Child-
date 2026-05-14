@@ -12,6 +12,6 @@ const controller = new MediaController();
 router.use(authMiddleware);
 router.use(authorize(UserRole.ADMIN));
 
-router.post('/upload', upload.single('image'), controller.uploadImage);
+router.post('/upload', upload.single('file'), controller.uploadImage);
 
 export default router;

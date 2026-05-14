@@ -13,12 +13,23 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'apc-website',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    transformation: [{ width: 1000, crop: 'limit' }], // Optimisation automatique
-  } as any,
+  params: async (req, file) => {
+    const isImage = file.mimetype.startsWith('image/');
+    return {
+      folder: 'apc-website',
+      resource_type: isImage ? 'image' : 'raw',
+      format: file.originalname.split('.').pop(), // Garder l'extension originale
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'pdf', 'doc', 'docx'],
+    };
+  },
 });
 
-export const upload = multer({ storage: storage });
+export const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  }
+});
+
 export default cloudinary;
+

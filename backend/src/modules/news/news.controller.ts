@@ -44,6 +44,15 @@ export class NewsController {
     }
   };
 
+  findBySlug = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.findBySlug(req.params.slug as string);
+      return ResponseUtil.success(res, 'Détails de l\'actualité récupérés par slug', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.service.update(req.params.id as string, req.body);

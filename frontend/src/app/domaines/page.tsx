@@ -1,4 +1,6 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
@@ -11,18 +13,50 @@ import {
   ShieldCheck,
   ChevronRight,
   Check,
+  Loader2,
+  Globe,
 } from "lucide-react"
+import { domainService } from "@/lib/api/services"
+import { Service } from "@/types"
 
-import { mockDomaines } from "@/lib/data/mock-domaines"
-
-export const metadata: Metadata = {
-  title: "Domaines d'Intervention — Agri-Peace and Child",
-  description:
-    "Cinq axes d'action : Agriculture, Paix & Cohésion, Protection de l'Enfance, Autonomisation des Femmes, et Santé & Nutrition.",
+const iconMap: Record<string, any> = {
+  Sprout,
+  Handshake,
+  Heart,
+  Users,
+  ShieldCheck,
 }
 
 export default function DomainesPage() {
-  const domaines = mockDomaines
+  const [domaines, setDomaines] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await domainService.list()
+        setDomaines(data)
+      } catch (err) {
+        console.error("Erreur domaines:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHero title="Nos Domaines d'Intervention" breadcrumbs={[{ label: "Domaines" }]} />
+        <div className="flex-1 flex flex-col items-center justify-center py-32 gap-4">
+          <Loader2 className="w-12 h-12 text-apc-green animate-spin" />
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Chargement des axes d&apos;intervention...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
       <PageHero
@@ -32,112 +66,121 @@ export default function DomainesPage() {
         tag="Nos Axes d'Action"
       />
 
-      {/* ── Domain sections ── */}
-      {domaines.map((d, i) => {
-        const isEven = i % 2 === 0
-        const Icon = d.icon
-        return (
-          <section
-            key={d.id}
-            id={d.id}
-            className={`py-20 ${isEven ? "bg-white" : "bg-apc-bgLight"}`}
-          >
-            <div className="container px-4">
-              <div
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${
-                  !isEven ? "lg:grid-flow-dense" : ""
-                }`}
-              >
-                {/* Image */}
-                <div className={`relative h-[420px] rounded-3xl overflow-hidden shadow-xl ${!isEven ? "lg:col-start-2" : ""}`}>
-                  <Image
-                    src={d.image}
-                    alt={d.title}
-                    fill
-                    className="object-cover"
-                  />
-                  {/* Color overlay */}
-                  <div
-                    className="absolute inset-0 opacity-20"
-                    style={{
-                      background: `linear-gradient(135deg, ${d.color}88 0%, transparent 60%)`,
-                    }}
-                  />
-                  {/* Stats strip */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                    <div className="flex justify-around text-white">
-                      {d.stats.map((s, si) => (
-                        <div key={si} className="text-center">
-                          <div className="text-2xl font-bold">{s.value}</div>
-                          <div className="text-xs text-white/70">{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className={!isEven ? "lg:col-start-1 lg:row-start-1" : ""}>
-                  {/* Icon + number */}
-                  <div className="flex items-center gap-3 mb-5">
+      {domaines.length === 0 ? (
+        <div className="py-32 text-center">
+          <Globe className="w-12 h-12 text-gray-200 mx-auto mb-6" />
+          <p className="text-gray-400 italic">Aucun domaine d&apos;intervention n&apos;est répertorié pour le moment.</p>
+        </div>
+      ) : (
+        domaines.map((d, i) => {
+          const isEven = i % 2 === 0
+          const Icon = iconMap[d.iconName] || Globe
+          const color = d.accentClass.includes('text-') ? (d.accentClass.split(' ')[0] === 'text-emerald-700' ? '#047857' : '#1a472a') : '#1a472a'
+          
+          return (
+            <section
+              key={d.id}
+              id={d.slug}
+              className={`py-20 ${isEven ? "bg-white" : "bg-apc-bgLight"}`}
+            >
+              <div className="container px-4">
+                <div
+                  className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${
+                    !isEven ? "lg:grid-flow-dense" : ""
+                  }`}
+                >
+                  {/* Image */}
+                  <div className={`relative h-[420px] rounded-3xl overflow-hidden shadow-xl ${!isEven ? "lg:col-start-2" : ""}`}>
+                    <Image
+                      src={d.mainImage || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80"}
+                      alt={d.name}
+                      fill
+                      className="object-cover"
+                    />
+                    {/* Color overlay */}
                     <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md"
-                      style={{ backgroundColor: d.lightColor }}
-                    >
-                      <Icon
-                        className="w-7 h-7"
-                        style={{ color: d.color }}
-                      />
-                    </div>
-                    <span
-                      className="text-5xl font-black opacity-10"
-                      style={{ color: d.color }}
-                    >
-                      0{i + 1}
-                    </span>
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        background: `linear-gradient(135deg, ${color}88 0%, transparent 60%)`,
+                      }}
+                    />
+                    {/* Stats strip */}
+                    {d.stats && d.stats.length > 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                        <div className="flex justify-around text-white">
+                          {d.stats.map((s, si) => (
+                            <div key={si} className="text-center">
+                              <div className="text-2xl font-bold">{s.value}</div>
+                              <div className="text-xs text-white/70">{s.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">
-                    {d.title}
-                  </h2>
-                  <p className="text-muted-foreground leading-relaxed mb-7">
-                    {d.description}
-                  </p>
+                  {/* Content */}
+                  <div className={!isEven ? "lg:col-start-1 lg:row-start-1" : ""}>
+                    {/* Icon + number */}
+                    <div className="flex items-center gap-3 mb-5">
+                      <div
+                        className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${d.bgClass || 'bg-emerald-50'}`}
+                      >
+                        <Icon
+                          className={`w-7 h-7 ${d.accentClass || 'text-emerald-700'}`}
+                        />
+                      </div>
+                      <span
+                        className={`text-5xl font-black opacity-10 ${d.accentClass || 'text-emerald-700'}`}
+                      >
+                        0{i + 1}
+                      </span>
+                    </div>
 
-                  {/* Actions */}
-                  <ul className="space-y-3 mb-8">
-                    {d.actions.map((action, ai) => (
-                      <li key={ai} className="flex items-start gap-3">
-                        <div
-                          className={`w-5 h-5 rounded-full ${d.bgClass} flex items-center justify-center mt-0.5 shrink-0`}
-                        >
-                          <Check className={`w-3 h-3 ${d.accentClass}`} />
-                        </div>
-                        <span className="text-foreground/80 text-sm leading-snug">
-                          {action}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">
+                      {d.name}
+                    </h2>
+                    <p className="text-muted-foreground leading-relaxed mb-7">
+                      {d.description}
+                    </p>
 
-                  <Link href="/projets">
-                    <Button
-                      variant="outline"
-                      className={`gap-2 border-2 hover:text-white`}
-                      style={{
-                        borderColor: d.color,
-                        color: d.color,
-                      }}
-                    >
-                      Voir nos projets <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
+                    {/* Actions */}
+                    {d.actions && d.actions.length > 0 && (
+                      <ul className="space-y-3 mb-8">
+                        {d.actions.map((action, ai) => (
+                          <li key={ai} className="flex items-start gap-3">
+                            <div
+                              className={`w-5 h-5 rounded-full ${d.bgClass || 'bg-emerald-100'} flex items-center justify-center mt-0.5 shrink-0`}
+                            >
+                              <Check className={`w-3 h-3 ${d.accentClass || 'text-emerald-700'}`} />
+                            </div>
+                            <span className="text-foreground/80 text-sm leading-snug">
+                              {action}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <Link href={`/projets?domaine=${d.slug}`}>
+                      <Button
+                        variant="outline"
+                        className={`gap-2 border-2 hover:bg-opacity-10`}
+                        style={{
+                          borderColor: color,
+                          color: color,
+                        }}
+                      >
+                        Voir nos projets <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        )
-      })}
+            </section>
+          )
+        })
+      )}
 
       {/* ── CTA ── */}
       <section className="py-20 bg-[#1a472a] text-white">
@@ -153,8 +196,7 @@ export default function DomainesPage() {
             <Link href="/contact?sujet=don">
               <Button
                 size="lg"
-                variant="white"
-                className="text-base px-8 w-full sm:w-auto"
+                className="text-base px-8 w-full sm:w-auto bg-white text-emerald-900 hover:bg-gray-100"
               >
                 Faire un Don
               </Button>

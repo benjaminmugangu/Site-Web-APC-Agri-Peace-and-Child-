@@ -75,6 +75,19 @@ export class ContactService {
     return await this.repository.save(message);
   }
 
+  async reply(id: string, content: string, adminId: string) {
+    const message = await this.findOne(id);
+    
+    // Ici on simulerait l'envoi d'un email réel via un service comme Nodemailer
+    // Pour l'instant on met à jour le statut et on stocke la réponse
+    message.status = MessageStatus.REPLIED;
+    message.repliedAt = new Date();
+    message.repliedBy = adminId;
+    message.replyContent = content; // On suppose que ce champ existe ou on l'ajoute à l'entité
+    
+    return await this.repository.save(message);
+  }
+
   async remove(id: string) {
     const message = await this.findOne(id);
     await this.repository.remove(message);

@@ -3,44 +3,44 @@ import { Type } from 'class-transformer';
 
 class HeroSettingsDto {
   @IsString()
-  @IsNotEmpty()
-  title!: string;
+  @IsOptional()
+  title?: string;
 
   @IsString()
-  @IsNotEmpty()
-  subtitle!: string;
+  @IsOptional()
+  subtitle?: string;
 
   @IsString()
-  @IsNotEmpty()
-  imageUrl!: string;
+  @IsOptional()
+  imageUrl?: string;
 }
 
 class StatsSettingsDto {
   @IsString()
-  @IsNotEmpty()
-  beneficiaries!: string;
+  @IsOptional()
+  beneficiaries?: string;
 
   @IsString()
-  @IsNotEmpty()
-  projects!: string;
+  @IsOptional()
+  projects?: string;
 
   @IsString()
-  @IsNotEmpty()
-  provinces!: string;
+  @IsOptional()
+  provinces?: string;
 }
 
 class ContactSettingsDto {
   @IsString()
-  @IsNotEmpty()
-  address!: string;
+  @IsOptional()
+  address?: string;
 
   @IsString()
-  @IsNotEmpty()
-  phone!: string;
+  @IsOptional()
+  phone?: string;
 
   @IsString()
-  @IsNotEmpty()
-  email!: string;
+  @IsOptional()
+  email?: string;
 
   @IsObject()
   @IsOptional()

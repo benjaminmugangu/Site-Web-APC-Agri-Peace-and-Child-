@@ -56,6 +56,7 @@ router.get('/', controller.findAll);
  *         description: Actualité introuvable
  */
 router.get('/:id', controller.findOne);
+router.get('/slug/:slug', controller.findBySlug);
 
 // Routes administratives (Protégées)
 router.use(authMiddleware);
@@ -129,8 +130,67 @@ router.delete('/bulk', controller.bulkDelete);
  */
 router.delete('/:id', controller.remove);
 
+/**
+ * @swagger
+ * /api/v1/news/bulk-status:
+ *   patch:
+ *     summary: Changer le statut de plusieurs actualités
+ *     tags: [News]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Statuts mis à jour
+ */
 router.patch('/bulk-status', controller.bulkSetStatus);
+
+/**
+ * @swagger
+ * /api/v1/news/{id}/duplicate:
+ *   post:
+ *     summary: Dupliquer une actualité
+ *     tags: [News]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Copie créée
+ */
 router.post('/:id/duplicate', controller.duplicate);
+
+/**
+ * @swagger
+ * /api/v1/news/{id}/publish:
+ *   patch:
+ *     summary: Publier une actualité
+ *     tags: [News]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Actualité publiée
+ */
 router.patch('/:id/publish', controller.publish);
 
 /**

@@ -43,6 +43,15 @@ export class ProjectController {
     }
   };
 
+  findBySlug = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.findBySlug(req.params.slug as string);
+      return ResponseUtil.success(res, 'Détails du projet récupérés par slug', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.service.update(req.params.id as string, req.body);
@@ -74,6 +83,15 @@ export class ProjectController {
     try {
       const result = await this.service.setStatus(req.params.id as string, 'published' as any);
       return ResponseUtil.success(res, 'Projet publié avec succès', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  unpublish = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.setStatus(req.params.id as string, 'draft' as any);
+      return ResponseUtil.success(res, 'Projet dépublié avec succès', result);
     } catch (error) {
       next(error);
     }

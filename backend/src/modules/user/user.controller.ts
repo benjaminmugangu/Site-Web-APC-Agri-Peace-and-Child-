@@ -25,6 +25,15 @@ export class UserController {
     }
   };
 
+  create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.create(req.body);
+      return ResponseUtil.success(res, 'Utilisateur créé avec succès', result, undefined, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.service.update(req.params.id as string, req.body);
