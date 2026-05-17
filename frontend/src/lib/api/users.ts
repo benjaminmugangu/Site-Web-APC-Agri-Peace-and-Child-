@@ -1,6 +1,6 @@
 import { apiClient, type ApiResponse } from './api-client';
 
-export type UserRole = 'ADMIN' | 'EDITOR' | 'USER';
+export type UserRole = 'ADMIN';
 
 export type User = {
   id: string;
