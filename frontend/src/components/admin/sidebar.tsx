@@ -14,7 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
-  MessageSquare
+  MessageSquare,
+  ShieldCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
@@ -29,6 +30,7 @@ const menuItems = [
   { icon: Users, label: "Experts / Équipe", href: "/admin/equipe" },
   { icon: Handshake, label: "Partenaires", href: "/admin/partenaires" },
   { icon: MessageSquare, label: "Messages", href: "/admin/messages" },
+  { icon: ShieldCheck, label: "Utilisateurs", href: "/admin/utilisateurs" },
   { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
 ]
 

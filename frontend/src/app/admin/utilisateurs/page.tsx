@@ -308,8 +308,6 @@ export default function AdminUsers() {
                   <label className="text-sm font-medium text-slate-700">Rôle *</label>
                   <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as UserRole})} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
                     <option value="ADMIN">Administrateur</option>
-                    <option value="EDITOR">Éditeur</option>
-                    <option value="USER">Utilisateur</option>
                   </select>
                 </div>
                 <div className="space-y-1">

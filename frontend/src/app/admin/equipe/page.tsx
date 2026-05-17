@@ -32,7 +32,7 @@ export default function AdminEquipePage() {
     setFetching(true)
     try {
       const result = await listTeam()
-      setTeam(result.data)
+      setTeam(result?.data || [])
     } catch (error) {
       toast.error("Erreur chargement équipe")
     } finally {
