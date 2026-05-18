@@ -160,10 +160,15 @@ export interface SiteSettings {
 export interface Partner {
   id: string;
   name: string;
-  logo: string;
+  type: "DONOR" | "TECHNICAL" | "LOCAL" | "STRATEGIC";
+  logoUrl?: string;
   websiteUrl?: string;
-  type: "TECHNICAL" | "FINANCIAL" | "STRATEGIC" | "GOVERNMENTAL";
   description?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  totalFunding?: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
