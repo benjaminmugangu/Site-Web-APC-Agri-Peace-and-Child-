@@ -19,8 +19,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const articleRes = await getArticleBySlug(params.slug).catch(() => null);
-  const article = articleRes?.data;
+  const article = await getArticleBySlug(params.slug).catch(() => null);
   
   if (!article) return { title: "Article introuvable — APC" }
   return {
@@ -50,8 +49,7 @@ export default async function ArticleDetailPage({
 }: {
   params: { slug: string }
 }) {
-  const articleRes = await getArticleBySlug(params.slug).catch(() => null);
-  const article = articleRes?.data;
+  const article = await getArticleBySlug(params.slug).catch(() => null);
   
   if (!article) notFound();
 
@@ -101,11 +99,11 @@ export default async function ArticleDetailPage({
               <div className="bg-white rounded-[1.5rem] p-6 border border-border/40 shadow-sm flex flex-wrap items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-4 h-4 text-apc-green" />
-                  <span>{formatDate(article.publishedAt)}</span>
+                  <span>{formatDate(article.publishDate || article.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <User className="w-4 h-4 text-apc-green" />
-                  <span>Par <strong className="text-gray-900">{article.author?.firstName || 'APC Admin'} {article.author?.lastName || ''}</strong></span>
+                  <span>Par <strong className="text-gray-900">{article.author || 'APC Admin'}</strong></span>
                 </div>
               </div>
 
