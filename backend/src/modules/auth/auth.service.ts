@@ -1,36 +1,13 @@
 import bcrypt from 'bcryptjs';
 import { AppDataSource } from '@/config/database.config';
 import { User } from '@/entities/user.entity';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto } from './dto/auth.dto';
 import { BadRequestError, UnauthorizedError } from '@/common/utils/error.util';
 import { TokenUtil } from '@/common/utils/token.util';
 import { UserRole } from '@/common/enums/role.enum';
 
 export class AuthService {
   private userRepository = AppDataSource.getRepository(User);
-
-  async register(data: RegisterDto) {
-    const existingUser = await this.userRepository.findOneBy({ email: data.email });
-    if (existingUser) {
-      throw new BadRequestError('Cet email est déjà utilisé');
-    }
-
-    const userCount = await this.userRepository.count();
-    
-    const user = this.userRepository.create({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
-      role: userCount === 0 ? UserRole.ADMIN : UserRole.VISITOR
-    });
-
-    await this.userRepository.save(user);
-    
-    // On ne renvoie pas le password
-    const { password, ...result } = user;
-    return result;
-  }
 
   async login(data: LoginDto) {
     const user = await this.userRepository.createQueryBuilder('user')
@@ -48,8 +25,9 @@ export class AuthService {
 
     const tokens = this.generateTokens(user);
     
-    // Sauvegarder le refresh token (optionnellement haché selon la doc)
-    user.refreshToken = tokens.refreshToken;
+    // Sauvegarder le refresh token haché
+    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    user.refreshToken = hashedRefreshToken;
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
@@ -60,20 +38,38 @@ export class AuthService {
   async refresh(token: string) {
     try {
       const decoded = TokenUtil.verifyRefreshToken(token);
-      const user = await this.userRepository.findOneBy({ id: decoded.sub, refreshToken: token });
+      
+      // On récupère l'utilisateur en incluant explicitement le refreshToken (caché par défaut)
+      const user = await this.userRepository.createQueryBuilder('user')
+        .addSelect('user.refreshToken')
+        .where('user.id = :id', { id: decoded.sub })
+        .getOne();
 
-      if (!user || !user.isActive) {
+      if (!user || !user.isActive || !user.refreshToken) {
+        throw new UnauthorizedError('Session invalide');
+      }
+
+      // On vérifie que le token reçu correspond au hash en BDD
+      const isTokenValid = await bcrypt.compare(token, user.refreshToken);
+      if (!isTokenValid) {
         throw new UnauthorizedError('Session invalide');
       }
 
       const tokens = this.generateTokens(user);
-      user.refreshToken = tokens.refreshToken;
+      
+      // On hache le nouveau token avant sauvegarde
+      const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+      user.refreshToken = hashedRefreshToken;
       await this.userRepository.save(user);
 
       return tokens;
     } catch (error) {
       throw new UnauthorizedError('Session expirée');
     }
+  }
+
+  async logout(userId: string) {
+    await this.userRepository.update(userId, { refreshToken: null as any });
   }
 
   private generateTokens(user: User) {
