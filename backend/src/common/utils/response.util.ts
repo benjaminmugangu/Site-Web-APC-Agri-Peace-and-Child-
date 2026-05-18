@@ -20,7 +20,7 @@ export class ResponseUtil {
 
   // Helpers pour les cas courants
   static created(res: Response, message: string, data: any = null) {
-    return this.success(res, message, data, null, 21);
+    return this.success(res, message, data, null, 201);
   }
 
   static unauthorized(res: Response, message: string = 'Non autorisé') {

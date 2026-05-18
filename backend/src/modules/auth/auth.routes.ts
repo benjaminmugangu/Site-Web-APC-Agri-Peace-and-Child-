@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { validationMiddleware } from '@/middleware/validation/validation.middleware';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { authMiddleware } from '@/middleware/auth/auth.middleware';
+import { LoginDto } from './dto/auth.dto';
 
 const router = Router();
 const controller = new AuthController();
@@ -12,40 +13,6 @@ const controller = new AuthController();
  *   name: Auth
  *   description: Gestion de l'authentification et des sessions
  */
-
-/**
- * @swagger
- * /api/v1/auth/register:
- *   post:
- *     summary: Inscrire un nouvel utilisateur
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - firstName
- *               - lastName
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *     responses:
- *       201:
- *         description: Utilisateur créé
- *       400:
- *         description: Erreur de validation
- */
-router.post('/register', validationMiddleware(RegisterDto), controller.register);
 
 /**
  * @swagger
@@ -81,9 +48,21 @@ router.post('/login', validationMiddleware(LoginDto), controller.login);
  *   post:
  *     summary: Rafraîchir le token d'accès
  *     tags: [Auth]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *             description: Le refresh token (optionnel si envoyé via Cookie)
  *     responses:
  *       200:
  *         description: Nouveau token généré
+ *       401:
+ *         description: Session invalide ou expirée
  */
 router.post('/refresh', controller.refresh);
 
@@ -93,10 +72,12 @@ router.post('/refresh', controller.refresh);
  *   post:
  *     summary: Se déconnecter
  *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Déconnexion réussie
  */
-router.post('/logout', controller.logout);
+router.post('/logout', authMiddleware, controller.logout);
 
 export default router;

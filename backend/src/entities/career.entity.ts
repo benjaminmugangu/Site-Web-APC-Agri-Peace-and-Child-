@@ -1,10 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-export enum CareerType {
-  JOB = 'JOB',
-  TENDER = 'TENDER' // Appel d'offres
-}
-
 /**
  * @swagger
  * components:
@@ -20,9 +15,6 @@ export enum CareerType {
  *           format: uuid
  *         title:
  *           type: string
- *         type:
- *           type: string
- *           enum: [JOB, TENDER]
  *         description:
  *           type: string
  *         requirements:
@@ -34,8 +26,6 @@ export enum CareerType {
  *           format: date-time
  *         isOpen:
  *           type: boolean
- *         applicationLink:
- *           type: string
  */
 @Entity('careers')
 export class Career {
@@ -44,13 +34,6 @@ export class Career {
 
   @Column()
   title!: string;
-
-  @Column({
-    type: 'enum',
-    enum: CareerType,
-    default: CareerType.JOB
-  })
-  type!: CareerType;
 
   @Column('text')
   description!: string;
@@ -66,9 +49,6 @@ export class Career {
 
   @Column({ default: true })
   isOpen!: boolean;
-
-  @Column({ nullable: true })
-  applicationLink!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

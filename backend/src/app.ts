@@ -30,7 +30,7 @@ const app: Application = express();
 app.use(helmet());
 
 // 2. CORS
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['http://localhost:3000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['http://localhost:3000', 'http://localhost:5000'];
 
 app.use(cors({
   origin: (origin, callback) => {

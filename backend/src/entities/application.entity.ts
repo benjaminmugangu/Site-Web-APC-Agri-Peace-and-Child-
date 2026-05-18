@@ -35,8 +35,8 @@ export class Application {
   @Column('text', { nullable: true })
   motivation!: string;
 
-  @Column({ nullable: true })
-  cvUrl!: string;
+  @Column({ type: 'varchar', nullable: true })
+  cvUrl!: string | null;
 
   @Column({
     type: 'enum',
