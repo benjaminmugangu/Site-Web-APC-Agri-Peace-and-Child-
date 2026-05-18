@@ -9,46 +9,88 @@ export type ListMessagesOptions = {
   perPage?: number;
 };
 
-// ── POST /api/v1/contact ──
-export async function createMessage(payload: any): Promise<ApiResponse<Message>> {
-  return apiClient.post<ApiResponse<Message>>('/contact', payload);
-}
-
-// ── GET /api/v1/contact ──
-export async function listMessages(options: ListMessagesOptions = {}): Promise<PaginatedResult<Message>> {
-  const response = await apiClient.get<ApiResponse<Message[]>>('/contact', options);
+/**
+ * Normalise un message provenant du backend en convertissant le champ 'sender' en 'name'
+ * attendu par le frontend.
+ */
+function mapMessage(backendMsg: any): Message {
+  if (!backendMsg) return backendMsg;
   return {
-    data: response.data || [],
-    meta: response.meta || { total: 0, page: 1, perPage: 20, totalPages: 0 }
+    ...backendMsg,
+    name: backendMsg.sender || backendMsg.name || 'Anonyme',
   };
 }
 
-// ── GET /api/v1/contact/:id ──
+// ── POST /api/v1/contact (Public/Admin) ──
+export async function createMessage(payload: any): Promise<ApiResponse<Message>> {
+  // Traduction auto-correctrice : si le formulaire envoie 'firstName'/'lastName' ou 'message',
+  // on les mappe vers les colonnes attendues par l'API du backend ('sender', 'content').
+  const senderName = payload.sender || payload.name || `${payload.firstName || ''} ${payload.lastName || ''}`.trim() || 'Anonyme';
+  
+  const normalizedPayload = {
+    sender: senderName,
+    email: payload.email,
+    phone: payload.phone || undefined,
+    subject: payload.subject || 'Information Générale',
+    content: payload.content || payload.message || '',
+    type: payload.type || (payload.subject === 'don' ? 'donation' : payload.subject === 'partenariat' ? 'partnership' : 'contact')
+  };
+
+  const response = await apiClient.post<ApiResponse<any>>('/contact', normalizedPayload);
+  
+  if (response.data) {
+    response.data = mapMessage(response.data);
+  }
+  return response as ApiResponse<Message>;
+}
+
+// ── GET /api/v1/contact (Admin) ──
+export async function listMessages(options: ListMessagesOptions = {}): Promise<PaginatedResult<Message>> {
+  const queryParams: any = {
+    page: options.page,
+    limit: options.perPage,
+    status: options.status && options.status !== 'all' ? options.status : undefined,
+    type: options.type && options.type !== 'all' ? options.type : undefined,
+    search: options.search || undefined
+  };
+
+  const response = await apiClient.get<ApiResponse<any[]>>('/contact', queryParams);
+  const rawData = response.data || [];
+  const mappedData = rawData.map(mapMessage);
+
+  return {
+    data: mappedData,
+    meta: response.meta || { total: mappedData.length, page: 1, perPage: 20, totalPages: 1 }
+  };
+}
+
+// ── GET /api/v1/contact/:id (Admin) ──
 export async function getMessage(id: string): Promise<Message | null> {
-  const response = await apiClient.get<ApiResponse<Message>>(`/contact/${id}`);
-  return response.data || null;
+  const response = await apiClient.get<ApiResponse<any>>(`/contact/${id}`);
+  return response.data ? mapMessage(response.data) : null;
 }
 
-// ── PATCH /api/v1/contact/:id/status ──
+// ── PATCH /api/v1/contact/:id/status (Admin) ──
 export async function updateMessageStatus(id: string, status: MessageStatus): Promise<Message | null> {
-  const response = await apiClient.patch<ApiResponse<Message>>(`/contact/${id}/status`, { status });
-  return response.data || null;
+  const response = await apiClient.patch<ApiResponse<any>>(`/contact/${id}/status`, { status });
+  return response.data ? mapMessage(response.data) : null;
 }
 
-// ── POST /api/v1/contact/:id/reply ──
+// ── POST /api/v1/contact/:id/reply (Admin) ──
 export async function replyToMessage(id: string, content: string): Promise<Message | null> {
-  const response = await apiClient.post<ApiResponse<Message>>(`/contact/${id}/reply`, { content });
-  return response.data || null;
+  const response = await apiClient.post<ApiResponse<any>>(`/contact/${id}/reply`, { content });
+  return response.data ? mapMessage(response.data) : null;
 }
 
-// ── DELETE /api/v1/contact/:id ──
+// ── DELETE /api/v1/contact/:id (Admin) ──
 export async function deleteMessage(id: string): Promise<boolean> {
   const response = await apiClient.delete<ApiResponse<any>>(`/contact/${id}`);
   return response.success;
 }
 
-// ── GET /api/v1/contact/unread-count ──
+// ── GET /api/v1/contact/unread-count (Admin) ──
 export async function getUnreadCount(): Promise<number> {
   const response = await apiClient.get<ApiResponse<{ count: number }>>('/contact/unread-count');
   return response.data?.count || 0;
 }
+
