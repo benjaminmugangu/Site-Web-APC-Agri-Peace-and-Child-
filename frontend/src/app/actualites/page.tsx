@@ -71,7 +71,7 @@ export default async function ActualitesPage() {
                       </span>
                       <span className="text-white/70 text-xs flex items-center gap-1.5 font-medium">
                         <Calendar className="w-3.5 h-3.5" />
-                        {formatDate(featured.publishedAt)}
+                        {formatDate(featured.publishDate || featured.createdAt)}
                       </span>
                     </div>
 
@@ -120,7 +120,7 @@ export default async function ActualitesPage() {
                           <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
                             <span className="flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5" />
-                              {formatDate(article.publishedAt)}
+                              {formatDate(article.publishDate || article.createdAt)}
                             </span>
                           </div>
 
@@ -133,7 +133,7 @@ export default async function ActualitesPage() {
 
                           <div className="flex items-center justify-between pt-5 border-t border-gray-50 mt-auto">
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                              Par {article.author?.firstName || 'APC'}
+                              Par {article.author || 'APC'}
                             </span>
                             <span className="text-apc-green text-xs font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
                               Lire <ChevronRight className="w-3.5 h-3.5" />

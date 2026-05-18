@@ -118,13 +118,16 @@ export default function AdminActualites() {
                   </td>
                   <td className="px-6 py-4 text-sm">{article.author || "Admin"}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(article.createdAt).toLocaleDateString('fr-FR')}
+                    {new Date(article.publishDate || article.createdAt).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      article.status === "published" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                      article.status === "published" ? "bg-green-100 text-green-700" :
+                      article.status === "scheduled" ? "bg-blue-100 text-blue-700" :
+                      "bg-amber-100 text-amber-700"
                     }`}>
-                      {article.status === "published" ? "Publié" : "Brouillon"}
+                      {article.status === "published" ? "Publié" :
+                       article.status === "scheduled" ? "Planifié" : "Brouillon"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -134,12 +137,17 @@ export default function AdminActualites() {
                           <Eye size={16} />
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="icon" className="h-8 w-8"><Edit size={16} /></Button>
+                      <Link href={`/admin/actualites/editeur?id=${article.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600 hover:bg-amber-50" title="Modifier l'article">
+                          <Edit size={16} />
+                        </Button>
+                      </Link>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-red-600"
+                        className="h-8 w-8 text-red-600 hover:bg-red-50"
                         onClick={() => handleDelete(article.id)}
+                        title="Supprimer l'article"
                       >
                         <Trash2 size={16} />
                       </Button>
