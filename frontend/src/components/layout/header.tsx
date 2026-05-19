@@ -4,7 +4,10 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown, Heart, Handshake, Sprout, ShieldCheck, Leaf } from "lucide-react"
+import { Menu, X, Leaf } from "lucide-react"
+import { settingsService } from "@/lib/api/settings"
+import { type SiteSettings } from "@/types"
+import { apc } from "@/lib/data"
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -19,11 +22,19 @@ const navLinks = [
 export function Header() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
+  const [settings, setSettings] = React.useState<SiteSettings | null>(null)
   const pathname = usePathname()
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener("scroll", onScroll, { passive: true })
+    
+    settingsService.get()
+      .then(data => {
+        if (data) setSettings(data)
+      })
+      .catch(err => console.error("Failed to load header settings", err))
+
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
@@ -31,6 +42,9 @@ export function Header() {
   React.useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
+
+  const name = settings?.institution?.name || apc.name
+  const headerLogo = settings?.logo?.logoHeader
 
   return (
     <header
@@ -47,14 +61,20 @@ export function Header() {
           className="flex items-center gap-2.5 group"
           onClick={() => setMobileOpen(false)}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-apc-green to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
-            <Leaf size={20} />
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="font-bold text-base md:text-lg text-foreground tracking-tight">
-              Agri-Peace and Child
-            </span>
-          </div>
+          {headerLogo ? (
+            <img src={headerLogo} alt={name} className="h-10 w-auto object-contain transition-transform group-hover:scale-102" />
+          ) : (
+            <>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-apc-green to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
+                <Leaf size={20} />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-base md:text-lg text-foreground tracking-tight">
+                  {name}
+                </span>
+              </div>
+            </>
+          )}
         </Link>
 
         {/* ── Desktop Nav ── */}
