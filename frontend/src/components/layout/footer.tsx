@@ -36,7 +36,17 @@ export function Footer() {
       <div className="container grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-1 space-y-4">
           {footerLogo ? (
-            <img src={footerLogo} alt={name} className="h-16 w-auto object-contain mb-2" />
+            <div className="flex items-center gap-3 mb-4">
+              <img src={footerLogo} alt={name} className="h-14 w-auto object-contain filter drop-shadow-md" />
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-lg text-white tracking-tight">
+                  {name}
+                </span>
+                <span className="text-[10px] text-white/50 font-semibold uppercase tracking-wider">
+                  ONG Humanitaire
+                </span>
+              </div>
+            </div>
           ) : (
             <h3 className="text-xl font-bold mb-4">{name}</h3>
           )}

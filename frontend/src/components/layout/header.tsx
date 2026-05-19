@@ -62,7 +62,21 @@ export function Header() {
           onClick={() => setMobileOpen(false)}
         >
           {headerLogo ? (
-            <img src={headerLogo} alt={name} className="h-10 w-auto object-contain transition-transform group-hover:scale-102" />
+            <div className="flex items-center gap-3">
+              <img 
+                src={headerLogo} 
+                alt={name} 
+                className="h-11 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 select-none filter drop-shadow-sm" 
+              />
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-base md:text-lg text-foreground tracking-tight group-hover:text-apc-green transition-colors">
+                  {name}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider hidden sm:block">
+                  ONG Humanitaire
+                </span>
+              </div>
+            </div>
           ) : (
             <>
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-apc-green to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
