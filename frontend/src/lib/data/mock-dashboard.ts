@@ -7,7 +7,7 @@ import { mockMessages } from "./mock-messages"
 
 export function getDashboardStats() {
   const publishedProjects = mockProjects.filter((p) => p.status === "published")
-  const activeProjects = mockProjects.filter((p) => p.status === "published" || p.status === "active").length
+  const activeProjects = mockProjects.filter((p) => p.status === "published").length
   const draftProjects = mockProjects.filter((p) => p.status === "draft").length
   const totalBeneficiaries = publishedProjects.reduce((sum, p) => sum + p.beneficiaries, 0)
   const totalBudget = publishedProjects.reduce((sum, p) => sum + p.budget, 0)

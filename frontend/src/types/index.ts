@@ -45,30 +45,6 @@ export interface Service {
   isActive: boolean;
 }
 
-// --- PROJECTS ---
-export type ProjectStatus = "draft" | "published" | "archived" | "active" | "completed"
-export type ProjectCategory = "Agriculture" | "Paix" | "Éducation" | "Santé" | "Protection" | "Infrastructure"
-
-export interface Project {
-  id: string
-  title: string
-  slug: string
-  description: string
-  content: string
-  category: ProjectCategory
-  location: string
-  status: ProjectStatus
-  startDate: string
-  endDate: string | null
-  budget?: string
-  beneficiaries: number
-  mainImage: string
-  gallery?: string[]
-  tags: string[]
-  featured: boolean
-  createdAt: string
-  updatedAt: string
-}
 
 // --- TEAM ---
 export type TeamRole = "Directeur" | "Agronome" | "Logistique" | "Finance" | "Protection" | "Communication" | "Admin"
@@ -198,8 +174,44 @@ export interface Career {
   updatedAt: string;
 }
 
+
 export interface ApiResponse<T> {
   success: boolean
   message?: string
   data?: T
+  meta?: {
+    total: number
+    page: number
+    perPage: number
+    totalPages: number
+  }
+}
+
+// --- PROJECTS ---
+export type ProjectStatus = 'draft' | 'published' | 'archived';
+export type ProjectCategory = 'agriculture' | 'protection' | 'dignite' | 'paix';
+
+export interface Project {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  content?: string;
+  category: ProjectCategory;
+  status: ProjectStatus;
+  budget: number;
+  currency: string;
+  location?: string;
+  province?: string;
+  beneficiaries: number;
+  startDate?: string;
+  endDate?: string;
+  mainImage?: string;
+  gallery?: string[];
+  featured: boolean;
+  showOnHome: boolean;
+  needsDonation: boolean;
+  isVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

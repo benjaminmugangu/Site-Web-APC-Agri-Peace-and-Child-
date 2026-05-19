@@ -6,7 +6,7 @@ export type ListProjectsOptions = {
   category?: string;
   search?: string;
   page?: number;
-  perPage?: number;
+  limit?: number; // Renommé perPage -> limit pour correspondre au backend
 };
 
 // ── GET /api/v1/projects ──
@@ -30,14 +30,14 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
 }
 
 // ── POST /api/v1/projects ──
-export async function createProject(payload: any): Promise<Project> {
+export async function createProject(payload: Partial<Project>): Promise<Project> {
   const response = await apiClient.post<ApiResponse<Project>>('/projects', payload);
   if (!response.data) throw new Error('Erreur lors de la création');
   return response.data;
 }
 
 // ── PUT /api/v1/projects/:id ──
-export async function updateProject(id: string, payload: any): Promise<Project | null> {
+export async function updateProject(id: string, payload: Partial<Project>): Promise<Project | null> {
   const response = await apiClient.put<ApiResponse<Project>>(`/projects/${id}`, payload);
   return response.data || null;
 }

@@ -48,13 +48,17 @@ export default async function ProjetsPage() {
                   key={project.id}
                   className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-border/50 hover:shadow-xl transition-all duration-300 flex flex-col"
                 >
-                  <div className="relative h-56 overflow-hidden">
-                    <Image
-                      src={project.mainImage}
-                      alt={project.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  <div className="relative h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
+                    {project.mainImage ? (
+                      <Image
+                        src={project.mainImage}
+                        alt={project.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <span className="text-4xl opacity-20">🌿</span>
+                    )}
                     <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[project.category] || "bg-white text-gray-600"}`}>
                       {project.category}
                     </span>
@@ -75,7 +79,7 @@ export default async function ProjetsPage() {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-apc-blue" />
-                        {project.beneficiariesCount?.toLocaleString()} bénéficiaires
+                        {project.beneficiaries?.toLocaleString()} bénéficiaires
                       </span>
                     </div>
 
