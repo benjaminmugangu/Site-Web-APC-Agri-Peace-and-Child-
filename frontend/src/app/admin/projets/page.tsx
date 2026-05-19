@@ -1,16 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Eye, Copy, Archive, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
+import { Plus, Search, MoreVertical, Edit, Trash2, Eye, Copy, Archive, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight, Loader2, ImageOff } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { listProjects, deleteProject, publishProject, unpublishProject, archiveProject, duplicateProject, bulkDeleteProjects, type ListProjectsOptions } from "@/lib/api/projects"
-import type { Project, ProjectStatus } from "@/lib/data/mock-projects"
+import {
+  listProjects, deleteProject, publishProject, unpublishProject,
+  archiveProject, duplicateProject, bulkDeleteProjects,
+  type ListProjectsOptions
+} from "@/lib/api/projects"
+import type { Project, ProjectStatus } from "@/types"
 
+// ── Labels & constantes ──────────────────────────────────────────────────────
 const statusLabels: Record<string, { label: string; color: string; dot: string }> = {
-  published: { label: "Publié", color: "bg-green-100 text-green-700", dot: "bg-green-500" },
+  published: { label: "Publié",    color: "bg-green-100 text-green-700", dot: "bg-green-500" },
   draft:     { label: "Brouillon", color: "bg-amber-100 text-amber-700", dot: "bg-amber-400" },
-  archived:  { label: "Archivé", color: "bg-gray-100 text-gray-500", dot: "bg-gray-400" },
+  archived:  { label: "Archivé",   color: "bg-gray-100 text-gray-500",   dot: "bg-gray-400"  },
 }
 
 const categoryLabels: Record<string, string> = {
@@ -20,41 +25,79 @@ const categoryLabels: Record<string, string> = {
   paix:        "Paix",
 }
 
+const categoryColors: Record<string, string> = {
+  agriculture: "bg-green-50 text-green-700",
+  protection:  "bg-blue-50 text-blue-700",
+  dignite:     "bg-purple-50 text-purple-700",
+  paix:        "bg-orange-50 text-orange-700",
+}
+
 const tabs: { label: string; value: ProjectStatus | "all" }[] = [
-  { label: "Tous", value: "all" },
-  { label: "Publiés", value: "published" },
-  { label: "Brouillons", value: "draft" },
-  { label: "Archivés", value: "archived" },
+  { label: "Tous",       value: "all"       },
+  { label: "Publiés",    value: "published" },
+  { label: "Brouillons", value: "draft"     },
+  { label: "Archivés",   value: "archived"  },
 ]
 
-export default function AdminProjects() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [meta, setMeta] = useState({ total: 0, page: 1, perPage: 8, totalPages: 1 })
-  const [activeTab, setActiveTab] = useState<ProjectStatus | "all">("all")
-  const [search, setSearch] = useState("")
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
-  const [deleteModal, setDeleteModal] = useState<Project | null>(null)
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
+const PER_PAGE = 8
 
-  async function load(opts?: ListProjectsOptions) {
+// ── Component ─────────────────────────────────────────────────────────────────
+export default function AdminProjects() {
+  const [projects,    setProjects]    = useState<Project[]>([])
+  const [meta,        setMeta]        = useState({ total: 0, page: 1, perPage: PER_PAGE, totalPages: 1 })
+  const [activeTab,   setActiveTab]   = useState<ProjectStatus | "all">("all")
+  const [search,      setSearch]      = useState("")
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [openMenuId,  setOpenMenuId]  = useState<string | null>(null)
+  const [deleteModal, setDeleteModal] = useState<Project | null>(null)
+  const [loading,     setLoading]     = useState(true)
+  const [toast,       setToast]       = useState<{ msg: string; type: "success" | "error" } | null>(null)
+
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ── Chargement des données ────────────────────────────────────────────────
+  const load = useCallback(async (opts?: ListProjectsOptions & { status?: ProjectStatus | "all"; search?: string }) => {
+    setLoading(true)
     try {
-      const result = await listProjects({ status: activeTab, search, page: meta.page, perPage: 8, ...opts })
+      const result = await listProjects({
+        status:  opts?.status  ?? activeTab,
+        search:  opts?.search  ?? search,
+        page:    opts?.page    ?? 1,
+        limit:   opts?.limit   ?? PER_PAGE,
+        ...opts,
+      })
       setProjects(result.data)
       setMeta(result.meta)
     } catch (error) {
       console.error("Erreur chargement projets:", error)
       showToast("Erreur lors du chargement des projets", "error")
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [activeTab, search])
 
-  useEffect(() => { load({ page: 1 }) }, [activeTab, search])
+  // Rechargement sur changement de tab
+  useEffect(() => {
+    setSelectedIds([])
+    load({ status: activeTab, search, page: 1 })
+  }, [activeTab])
 
+  // Debounce sur la recherche (300ms)
+  useEffect(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      load({ search, status: activeTab, page: 1 })
+    }, 300)
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current) }
+  }, [search])
+
+  // ── Toast helper ─────────────────────────────────────────────────────────
   function showToast(msg: string, type: "success" | "error" = "success") {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
 
+  // ── Handlers d'actions ────────────────────────────────────────────────────
   async function handleTogglePublish(project: Project) {
     try {
       if (project.status === "published") {
@@ -65,8 +108,8 @@ export default function AdminProjects() {
         showToast(`"${project.title}" publié !`)
       }
       setOpenMenuId(null)
-      load()
-    } catch (error) {
+      load({ status: activeTab, search })
+    } catch {
       showToast("Erreur lors de la modification du statut", "error")
     }
   }
@@ -76,8 +119,8 @@ export default function AdminProjects() {
       await archiveProject(project.id)
       showToast(`"${project.title}" archivé`)
       setOpenMenuId(null)
-      load()
-    } catch (error) {
+      load({ status: activeTab, search })
+    } catch {
       showToast("Erreur lors de l'archivage", "error")
     }
   }
@@ -87,8 +130,8 @@ export default function AdminProjects() {
       await duplicateProject(project.id)
       showToast(`"${project.title}" dupliqué`)
       setOpenMenuId(null)
-      load()
-    } catch (error) {
+      load({ status: activeTab, search })
+    } catch {
       showToast("Erreur lors de la duplication", "error")
     }
   }
@@ -97,10 +140,10 @@ export default function AdminProjects() {
     if (!deleteModal) return
     try {
       await deleteProject(deleteModal.id)
-      showToast(`"${deleteModal.title}" supprimé`, "error")
+      showToast(`"${deleteModal.title}" supprimé avec succès`)
       setDeleteModal(null)
-      load()
-    } catch (error) {
+      load({ status: activeTab, search })
+    } catch {
       showToast("Erreur lors de la suppression", "error")
     }
   }
@@ -108,24 +151,63 @@ export default function AdminProjects() {
   async function handleBulkDelete() {
     try {
       await bulkDeleteProjects(selectedIds)
-      showToast(`${selectedIds.length} projet(s) supprimé(s)`, "error")
+      showToast(`${selectedIds.length} projet(s) supprimé(s) avec succès`)
       setSelectedIds([])
-      load()
-    } catch (error) {
+      load({ status: activeTab, search })
+    } catch {
       showToast("Erreur lors de la suppression groupée", "error")
     }
   }
 
   function toggleSelect(id: string) {
-    setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
   function toggleSelectAll() {
-    setSelectedIds((prev) => prev.length === projects.length ? [] : projects.map((p) => p.id))
+    setSelectedIds(prev => prev.length === projects.length ? [] : projects.map(p => p.id))
   }
 
+  // ── Skeleton loader ───────────────────────────────────────────────────────
+  const SkeletonRow = () => (
+    <tr className="animate-pulse">
+      <td className="px-4 py-3"><div className="w-4 h-4 bg-gray-200 rounded" /></td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-9 bg-gray-200 rounded-lg" />
+          <div className="space-y-2">
+            <div className="w-40 h-3 bg-gray-200 rounded" />
+            <div className="w-24 h-2 bg-gray-100 rounded" />
+          </div>
+        </div>
+      </td>
+      <td className="px-4 py-3 hidden md:table-cell"><div className="w-20 h-5 bg-gray-100 rounded-full" /></td>
+      <td className="px-4 py-3 hidden lg:table-cell"><div className="w-28 h-3 bg-gray-100 rounded" /></td>
+      <td className="px-4 py-3"><div className="w-20 h-5 bg-gray-100 rounded-full" /></td>
+      <td className="px-4 py-3"><div className="w-20 h-6 bg-gray-100 rounded ml-auto" /></td>
+    </tr>
+  )
+
+  // ── Image avec fallback ───────────────────────────────────────────────────
+  const ProjectThumbnail = ({ src, alt }: { src?: string; alt: string }) => {
+    if (!src) return (
+      <div className="w-12 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+        <ImageOff size={14} className="text-gray-400" />
+      </div>
+    )
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className="w-12 h-9 rounded-lg object-cover bg-gray-100 shrink-0"
+        onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+      />
+    )
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6 relative">
+
       {/* Toast */}
       {toast && (
         <div className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-xl text-white text-sm font-medium transition-all ${toast.type === "success" ? "bg-apc-green" : "bg-red-600"}`}>
@@ -137,10 +219,12 @@ export default function AdminProjects() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Gestion des Projets</h1>
-          <p className="text-gray-500 text-sm">{meta.total} projet(s) au total</p>
+          <p className="text-gray-500 text-sm">
+            {loading ? "Chargement..." : `${meta.total} projet(s) au total`}
+          </p>
         </div>
         <Link href="/admin/projets/editeur">
-          <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f]">
+          <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white">
             <Plus size={18} /> Nouveau Projet
           </Button>
         </Link>
@@ -148,18 +232,22 @@ export default function AdminProjects() {
 
       {/* Onglets statuts */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-        {tabs.map((tab) => (
+        {tabs.map(tab => (
           <button
             key={tab.value}
-            onClick={() => { setActiveTab(tab.value); setSelectedIds([]) }}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab.value ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => setActiveTab(tab.value)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === tab.value
+                ? "bg-white shadow-sm text-gray-900"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Recherche & Filtres */}
+      {/* Barre de recherche & bulk actions */}
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex flex-col md:flex-row gap-3 items-center justify-between shadow-sm">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
@@ -167,12 +255,11 @@ export default function AdminProjects() {
             type="text"
             placeholder="Rechercher un projet..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 text-sm"
           />
         </div>
 
-        {/* Bulk actions */}
         {selectedIds.length > 0 && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
             <span className="text-sm text-red-700 font-medium">{selectedIds.length} sélectionné(s)</span>
@@ -183,52 +270,72 @@ export default function AdminProjects() {
         )}
       </div>
 
-      {/* Table */}
+      {/* Tableau */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden text-black">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="px-4 py-3 w-10">
-                  <input type="checkbox" className="accent-apc-green w-4 h-4" checked={selectedIds.length === projects.length && projects.length > 0} onChange={toggleSelectAll} />
+                  <input
+                    type="checkbox"
+                    className="accent-apc-green w-4 h-4"
+                    checked={selectedIds.length === projects.length && projects.length > 0}
+                    onChange={toggleSelectAll}
+                    disabled={loading}
+                  />
                 </th>
                 <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Projet</th>
                 <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider hidden md:table-cell">Catégorie</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Lieu</th>
+                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Province</th>
                 <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Statut</th>
                 <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {projects.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)
+              ) : projects.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-16 text-gray-400 text-sm">
                     Aucun projet trouvé.{" "}
-                    <Link href="/admin/projets/editeur" className="text-apc-green underline">Créer le premier</Link>
+                    <Link href="/admin/projets/editeur" className="text-apc-green underline">
+                      Créer le premier
+                    </Link>
                   </td>
                 </tr>
-              ) : projects.map((project) => {
-                const s = statusLabels[project.status]
+              ) : projects.map(project => {
+                const s = statusLabels[project.status] || statusLabels.draft
                 return (
                   <tr key={project.id} className="hover:bg-gray-50/50 transition-colors group">
                     <td className="px-4 py-3">
-                      <input type="checkbox" className="accent-apc-green w-4 h-4" checked={selectedIds.includes(project.id)} onChange={() => toggleSelect(project.id)} />
+                      <input
+                        type="checkbox"
+                        className="accent-apc-green w-4 h-4"
+                        checked={selectedIds.includes(project.id)}
+                        onChange={() => toggleSelect(project.id)}
+                      />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <img src={project.mainImage} alt="" className="w-12 h-9 rounded-lg object-cover bg-gray-100 shrink-0" />
+                        <ProjectThumbnail src={project.mainImage} alt={project.title} />
                         <div className="min-w-0">
                           <p className="font-semibold text-gray-900 truncate max-w-[200px] text-sm">{project.title}</p>
-                          <p className="text-xs text-gray-400">{project.beneficiaries.toLocaleString("fr-FR")} bénéf.</p>
+                          <p className="text-xs text-gray-400">
+                            {(project.beneficiaries ?? 0).toLocaleString("fr-FR")} bénéf.
+                            {project.budget ? ` · ${Number(project.budget).toLocaleString("fr-FR")} ${project.currency}` : ""}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
-                        {categoryLabels[project.category]}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[project.category] || "bg-gray-100 text-gray-600"}`}>
+                        {categoryLabels[project.category] || project.category}
                       </span>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">{project.province}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">
+                      {project.province || project.location || "—"}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${s.color}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
@@ -247,24 +354,45 @@ export default function AdminProjects() {
                             <Edit size={15} />
                           </Button>
                         </Link>
-                        {/* Menu contextuel */}
                         <div className="relative">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpenMenuId(openMenuId === project.id ? null : project.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setOpenMenuId(openMenuId === project.id ? null : project.id)}
+                          >
                             <MoreVertical size={15} />
                           </Button>
                           {openMenuId === project.id && (
                             <div className="absolute right-0 top-9 z-20 bg-white border border-gray-100 rounded-xl shadow-xl w-48 py-1 text-sm">
-                              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700" onClick={() => handleTogglePublish(project)}>
-                                {project.status === "published" ? <><ToggleLeft size={15} className="text-amber-500" /> Dépublier</> : <><ToggleRight size={15} className="text-green-500" /> Publier</>}
+                              <button
+                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
+                                onClick={() => handleTogglePublish(project)}
+                              >
+                                {project.status === "published"
+                                  ? <><ToggleLeft size={15} className="text-amber-500" /> Dépublier</>
+                                  : <><ToggleRight size={15} className="text-green-500" /> Publier</>
+                                }
                               </button>
-                              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700" onClick={() => handleDuplicate(project)}>
+                              <button
+                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
+                                onClick={() => handleDuplicate(project)}
+                              >
                                 <Copy size={15} className="text-purple-500" /> Dupliquer
                               </button>
-                              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700" onClick={() => handleArchive(project)}>
-                                <Archive size={15} className="text-gray-500" /> Archiver
-                              </button>
+                              {project.status !== "archived" && (
+                                <button
+                                  className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
+                                  onClick={() => handleArchive(project)}
+                                >
+                                  <Archive size={15} className="text-gray-500" /> Archiver
+                                </button>
+                              )}
                               <div className="border-t border-gray-100 my-1" />
-                              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600" onClick={() => { setDeleteModal(project); setOpenMenuId(null) }}>
+                              <button
+                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600"
+                                onClick={() => { setDeleteModal(project); setOpenMenuId(null) }}
+                              >
                                 <Trash2 size={15} /> Supprimer
                               </button>
                             </div>
@@ -280,16 +408,26 @@ export default function AdminProjects() {
         </div>
 
         {/* Pagination */}
-        {meta.totalPages > 1 && (
+        {!loading && meta.totalPages > 1 && (
           <div className="p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/30">
             <p className="text-sm text-gray-500">
               {(meta.page - 1) * meta.perPage + 1}–{Math.min(meta.page * meta.perPage, meta.total)} sur {meta.total} projets
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={meta.page === 1} onClick={() => load({ page: meta.page - 1 })} className="gap-1">
+              <Button
+                variant="outline" size="sm"
+                disabled={meta.page === 1}
+                onClick={() => load({ status: activeTab, search, page: meta.page - 1 })}
+                className="gap-1"
+              >
                 <ChevronLeft size={14} /> Préc.
               </Button>
-              <Button variant="outline" size="sm" disabled={meta.page === meta.totalPages} onClick={() => load({ page: meta.page + 1 })} className="gap-1">
+              <Button
+                variant="outline" size="sm"
+                disabled={meta.page === meta.totalPages}
+                onClick={() => load({ status: activeTab, search, page: meta.page + 1 })}
+                className="gap-1"
+              >
                 Suiv. <ChevronRight size={14} />
               </Button>
             </div>
@@ -297,10 +435,10 @@ export default function AdminProjects() {
         )}
       </div>
 
-      {/* Modale de confirmation suppression */}
+      {/* Modale confirmation suppression */}
       {deleteModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setDeleteModal(null)}>
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <Trash2 size={22} className="text-red-600" />
             </div>

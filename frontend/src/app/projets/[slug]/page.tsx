@@ -46,7 +46,7 @@ export default async function ProjetDetailPage({
   if (!project) notFound();
 
   // Fetch related projects (same category)
-  const relatedRes = await listProjects({ category: project.category, perPage: 3 }).catch(() => ({ data: [] }));
+  const relatedRes = await listProjects({ category: project.category, limit: 3 }).catch(() => ({ data: [] }));
   const otherProjects = Array.isArray(relatedRes?.data)
     ? relatedRes.data.filter((p: any) => p.id !== project.id).slice(0, 2)
     : [];
@@ -70,13 +70,19 @@ export default async function ProjetDetailPage({
             <div className="lg:col-span-2 space-y-10">
               {/* Image */}
               <div className="relative h-80 md:h-[500px] rounded-[2rem] overflow-hidden shadow-2xl">
-                <Image
-                  src={project.mainImage}
-                  alt={project.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
+                {project.mainImage ? (
+                  <Image
+                    src={project.mainImage}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-apc-green/20 to-apc-blue/10 flex items-center justify-center">
+                    <span className="text-6xl">🌿</span>
+                  </div>
+                )}
               </div>
 
               {/* Description & Content */}
@@ -93,19 +99,17 @@ export default async function ProjetDetailPage({
                 />
               </div>
 
-              {/* Tags */}
-              {project.tags && project.tags.length > 0 && (
-                <div className="flex flex-wrap gap-3">
-                  {project.tags.map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="px-5 py-2 bg-white border border-border/50 rounded-2xl text-xs text-gray-500 font-bold uppercase tracking-widest shadow-sm"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Category badge */}
+              <div className="flex flex-wrap gap-3">
+                <span className="px-5 py-2 bg-white border border-border/50 rounded-2xl text-xs text-gray-500 font-bold uppercase tracking-widest shadow-sm">
+                  #{project.category}
+                </span>
+                {project.province && (
+                  <span className="px-5 py-2 bg-white border border-border/50 rounded-2xl text-xs text-gray-500 font-bold uppercase tracking-widest shadow-sm">
+                    📍 {project.province}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* ── Sidebar ── */}
@@ -213,13 +217,17 @@ export default async function ProjetDetailPage({
                 {otherProjects.map((p: any) => (
                   <Link key={p.id} href={`/projets/${p.slug}`} className="group">
                     <div className="bg-white rounded-3xl overflow-hidden border border-border/40 shadow-sm hover:shadow-xl flex items-center transition-all">
-                      <div className="relative w-32 md:w-48 h-32 md:h-48 shrink-0 overflow-hidden">
-                        <Image
-                          src={p.mainImage}
-                          alt={p.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+                      <div className="relative w-32 md:w-48 h-32 md:h-48 shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {p.mainImage ? (
+                          <Image
+                            src={p.mainImage}
+                            alt={p.title}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <span className="text-3xl opacity-20">🌿</span>
+                        )}
                       </div>
                       <div className="p-6 md:p-8 flex-1">
                         <span className={`text-[10px] font-bold px-3 py-1 rounded-full border uppercase tracking-wider ${categoryColors[p.category] || "bg-gray-100"}`}>

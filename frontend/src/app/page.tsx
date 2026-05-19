@@ -48,7 +48,7 @@ const piliers = [
 
 export default async function Home() {
   const settings = await settingsService.get();
-  const projectsRes = await listProjects({ perPage: 6, status: 'published' });
+  const projectsRes = await listProjects({ limit: 6, status: 'published' });
   const recentProjects = projectsRes.data || [];
 
   if (!settings) {
@@ -178,8 +178,12 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {recentProjects.map((project) => (
                 <Link key={project.id} href={`/projets/${project.slug}`} className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all">
-                  <div className="relative h-48 w-full overflow-hidden">
-                    <Image src={project.mainImage} alt={project.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="relative h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                    {project.mainImage ? (
+                      <Image src={project.mainImage} alt={project.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <span className="text-4xl opacity-20">🌿</span>
+                    )}
                     <div className="absolute top-4 left-4">
                       <span className="bg-white/90 backdrop-blur-sm text-apc-green text-xs font-bold px-3 py-1 rounded-full uppercase">
                         {project.category}
