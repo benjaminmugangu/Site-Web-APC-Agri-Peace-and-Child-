@@ -1,11 +1,13 @@
 "use client"
 
-import React, { useState, Suspense } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { createMessage } from "@/lib/api/messages"
+import { settingsService } from "@/lib/api/settings"
+import { type SiteSettings } from "@/types"
 import { MapPin, Phone, Mail, Send, Heart, CheckCircle2, AlertCircle, Loader2, X } from "lucide-react"
 
 // Ensure the map component does not SSR
@@ -17,12 +19,6 @@ const MapDynamic = dynamic(() => import("@/components/ui/map"), {
     </div>
   ),
 })
-
-const apcContact = {
-  address: "Q. les volcans, Av. des orchidées, Goma, Nord-Kivu, RD Congo",
-  email: "contact@apc-rdc.org",
-  phone: "+243 972 581 216"
-}
 
 // ── Sous-composant qui utilise useSearchParams (doit être dans Suspense) ──
 function DonationBanner() {
@@ -56,6 +52,7 @@ function DonationBanner() {
 export default function ContactPage() {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [settings, setSettings] = useState<SiteSettings | null>(null)
   
   // Form State
   const [formData, setFormData] = useState({
@@ -67,6 +64,14 @@ export default function ContactPage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    settingsService.get()
+      .then(data => {
+        if (data) setSettings(data)
+      })
+      .catch(err => console.error("Failed to load contact settings", err))
+  }, [])
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
@@ -110,6 +115,10 @@ export default function ContactPage() {
       setLoading(false)
     }
   }
+
+  const address = settings?.contact?.address || "Avenue Pacifique, Quartier Les Volcans, Goma, Nord-Kivu, RDC"
+  const email = settings?.contact?.email || "contact@apc-agri.org"
+  const phone = settings?.contact?.phone1 || "+243 971 234 567"
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -232,7 +241,7 @@ export default function ContactPage() {
                   <MapPin className="w-10 h-10 text-apc-greenLight mb-6" />
                   <h3 className="font-black text-xl mb-4 uppercase tracking-widest">Siège Social</h3>
                   <p className="text-apc-bgLight/70 leading-relaxed text-base font-medium">
-                    {apcContact.address.split(',').map((line, i) => (
+                    {address.split(',').map((line, i) => (
                       <React.Fragment key={i}>{line.trim()}<br /></React.Fragment>
                     ))}
                   </p>
@@ -245,8 +254,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">E-mail Officiel</h4>
-                      <a href={`mailto:${apcContact.email}`} className="text-base font-bold text-gray-900 hover:text-apc-blue transition-colors break-all">
-                        {apcContact.email}
+                      <a href={`mailto:${email}`} className="text-base font-bold text-gray-900 hover:text-apc-blue transition-colors break-all">
+                        {email}
                       </a>
                     </div>
                   </div>
@@ -257,8 +266,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Permanence</h4>
-                      <a href={`tel:${apcContact.phone.replace(/\s/g, '')}`} className="text-lg font-black text-gray-900 hover:text-apc-alert transition-colors">
-                        {apcContact.phone}
+                      <a href={`tel:${phone.replace(/\s/g, '')}`} className="text-lg font-black text-gray-900 hover:text-apc-alert transition-colors">
+                        {phone}
                       </a>
                     </div>
                   </div>
@@ -305,4 +314,3 @@ function SubjectSelect({ value, onChange }: { value: string, onChange: (val: str
     </select>
   )
 }
-
