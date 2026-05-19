@@ -162,7 +162,7 @@ export default async function ProjetDetailPage({
                     <div>
                       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Calendrier</div>
                       <div className="text-sm text-gray-900 font-bold">
-                        {new Date(project.startDate).getFullYear()} — {project.endDate ? new Date(project.endDate).getFullYear() : 'En cours'}
+                        {project.startDate ? new Date(project.startDate).getFullYear() : 'N/A'} — {project.endDate ? new Date(project.endDate).getFullYear() : 'En cours'}
                       </div>
                     </div>
                   </div>

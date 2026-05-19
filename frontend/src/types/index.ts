@@ -22,6 +22,7 @@ export interface Article {
   publishDate: string | null
   scheduledDate?: string
   mainImage: string
+  tags?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -29,20 +30,21 @@ export interface Article {
 // --- SERVICES ---
 export interface Service {
   id: string;
-  title: string;
+  name: string;
+  titleEn?: string;
   slug: string;
   description: string;
-  icon?: string;
+  descriptionEn?: string;
+  iconName?: string;
+  bgClass?: string;
+  accentClass?: string;
   mainImage?: string;
   actions?: string[];
-  stats?: { label: string; value: string }[];
-  style?: {
-    color: string;
-    bgColor: string;
-    borderColor: string;
-  };
+  stats?: { value: string; label: string }[];
   order: number;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 
@@ -51,19 +53,15 @@ export type TeamRole = "Directeur" | "Agronome" | "Logistique" | "Finance" | "Pr
 
 export interface TeamMember {
   id: string
-  firstName: string
-  lastName: string
+  name: string
   role: string
-  position: string
-  bio: string
+  department?: string
   email: string
   phone?: string
-  photo: string
-  status: "active" | "inactive"
-  socialLinks?: {
-    linkedin?: string
-    twitter?: string
-  }
+  photo?: string
+  photoUrl?: string
+  bio?: string
+  status: "active" | "suspended" | "pending"
   order: number
   createdAt: string
   updatedAt: string
@@ -77,6 +75,7 @@ export interface Message {
   id: string
   name: string
   email: string
+  phone?: string
   subject: string
   content: string
   type: MessageType
