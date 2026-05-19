@@ -23,7 +23,7 @@ import {
 export const metadata: Metadata = {
   title: "À Propos — Agri-Peace and Child",
   description:
-    "Découvrez l'histoire, la mission, la vision et les valeurs d'Agri-Peace and Child — ONG humanitaire fondée en 2017 à Goma, RD Congo.",
+    "Découvrez l'histoire, la mission, la vision et les valeurs d'Agri-Peace and Child — ONG humanitaire engagée pour le développement durable en RD Congo.",
 }
 
 export const dynamic = 'force-dynamic';
@@ -34,14 +34,6 @@ const objectifs = [
   { icon: ShieldCheck, color: "text-apc-alert", bg: "bg-apc-alert/10", label: "Protéger et promouvoir les droits des enfants" },
   { icon: Users, color: "text-purple-600", bg: "bg-purple-100", label: "Autonomiser les femmes et les jeunes" },
   { icon: Heart, color: "text-rose-600", bg: "bg-rose-100", label: "Améliorer l'accès aux services sociaux de base" },
-]
-
-const valeurs = [
-  { icon: Heart, label: "Humanité", desc: "Chaque action est guidée par notre profond respect de la dignité humaine.", color: "text-rose-500", bg: "bg-rose-50" },
-  { icon: ShieldCheck, label: "Intégrité", desc: "Nous agissons avec transparence, éthique et redevabilité envers nos bénéficiaires et partenaires.", color: "text-apc-green", bg: "bg-apc-green/5" },
-  { icon: Handshake, label: "Partenariat", desc: "Nous croyons en la force de la collaboration et du travail communautaire.", color: "text-apc-blue", bg: "bg-apc-blue/5" },
-  { icon: Sprout, label: "Durabilité", desc: "Nos interventions visent un impact pérenne au-delà de notre présence directe.", color: "text-emerald-600", bg: "bg-emerald-50" },
-  { icon: Globe, label: "Inclusion", desc: "Nous intervenons sans discrimination, en prenant soin des plus vulnérables.", color: "text-apc-alert", bg: "bg-apc-alert/5" },
 ]
 
 export default async function AProposPage() {
@@ -56,6 +48,20 @@ export default async function AProposPage() {
     hectares: "450",
     womenPercentage: "80"
   };
+
+  const inst = settings?.institution || {
+    name: "Agri-Peace and Child",
+    acronym: "APC",
+    foundationYear: 2015,
+    mission: "Contribuer à l'amélioration des conditions de vie des personnes vulnérables — enfants, femmes et orphelins — à travers l'agriculture durable, la nutrition, la promotion des droits de l'enfant, la paix et la résilience communautaire.",
+    vision: "Un pays où les enfants et les personnes vulnérables vivent dans la dignité, jouissent pleinement de leurs droits fondamentaux, bénéficient d'une sécurité alimentaire durable et évoluent dans un environnement pacifique et résilient."
+  };
+
+  const name = inst.name;
+  const acronym = inst.acronym;
+  const foundationYear = inst.foundationYear;
+  const mission = inst.mission;
+  const vision = inst.vision;
 
   return (
     <div className="flex flex-col">
@@ -77,7 +83,7 @@ export default async function AProposPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  Fondée le <strong className="text-foreground">18 février 2017</strong>, <strong className="text-apc-green">Agri-Peace and Child (APC)</strong> est une Organisation Non Gouvernementale humanitaire dont le siège est établi à <strong className="text-foreground">Goma, Nord-Kivu, RD Congo</strong>.
+                  Fondée en <strong className="text-foreground">{foundationYear}</strong>, <strong className="text-apc-green">{name} ({acronym})</strong> est une Organisation Non Gouvernementale humanitaire dont le siège est établi à <strong className="text-foreground">Goma, Nord-Kivu, RD Congo</strong>.
                 </p>
                 <p>
                   Face aux crises récurrentes qui frappent l&apos;Est de la RDC, nos fondateurs ont décidé d&apos;agir localement avec une approche intégrée conjuguant agriculture durable, protection sociale et consolidation de la paix.
@@ -91,8 +97,8 @@ export default async function AProposPage() {
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-apc-bgLight border border-border/50">
                   <Calendar className="w-5 h-5 text-apc-green mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fondée le</div>
-                    <div className="font-semibold text-sm text-foreground">18 Fév 2017</div>
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Année de Fondation</div>
+                    <div className="font-semibold text-sm text-foreground">{foundationYear}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-apc-bgLight border border-border/50">
@@ -134,8 +140,8 @@ export default async function AProposPage() {
                   <Target className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Notre Mission</h3>
-                <p className="text-white/85 leading-relaxed">
-                  Contribuer à l'amélioration des conditions de vie des personnes vulnérables — enfants, femmes et orphelins — à travers l'agriculture durable, la nutrition, la promotion des droits de l'enfant, la paix et la résilience communautaire.
+                <p className="text-white/85 leading-relaxed text-sm md:text-base">
+                  {mission}
                 </p>
               </div>
             </div>
@@ -146,8 +152,8 @@ export default async function AProposPage() {
                   <Globe className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Notre Vision</h3>
-                <p className="text-white/85 leading-relaxed italic">
-                  « Un pays où les enfants et les personnes vulnérables vivent dans la dignité, jouissent pleinement de leurs droits fondamentaux, bénéficient d'une sécurité alimentaire durable et évoluent dans un environnement pacifique et résilient. »
+                <p className="text-white/85 leading-relaxed italic text-sm md:text-base">
+                  « {vision} »
                 </p>
               </div>
             </div>
@@ -262,4 +268,3 @@ export default async function AProposPage() {
     </div>
   )
 }
-

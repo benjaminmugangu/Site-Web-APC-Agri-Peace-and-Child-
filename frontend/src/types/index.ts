@@ -117,17 +117,43 @@ export interface SiteSettings {
     beneficiaries: string;
     projects: string;
     provinces: string;
+    partners: string;
+    teamMembers: string;
   };
   contact: {
     address: string;
-    phone: string;
+    phone1: string;
+    phone2?: string;
+    whatsapp?: string;
     email: string;
+    emailSupport?: string;
+    emailCareers?: string;
     socials?: {
       facebook?: string;
       twitter?: string;
       linkedin?: string;
       instagram?: string;
+      youtube?: string;
     };
+  };
+  institution: {
+    name: string;
+    acronym: string;
+    foundationYear: string;
+    vision: string;
+    mission: string;
+  };
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string;
+    ogImage?: string;
+  };
+  logo: {
+    logoHeader: string;
+    logoFooter: string;
+    logoDark?: string;
+    favicon?: string;
   };
 }
 
