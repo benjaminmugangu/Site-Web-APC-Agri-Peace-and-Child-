@@ -217,24 +217,36 @@ export default async function AProposPage() {
           
           {activeMembers.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {activeMembers.map((member: any) => (
-                <div key={member.id} className="group bg-apc-bgLight rounded-2xl p-6 text-center border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  {member.photo ? (
-                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 shadow-md">
-                      <Image src={member.photo} alt={member.firstName} fill className="object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-2xl bg-apc-green flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-md">
-                      {member.firstName[0]}{member.lastName[0]}
-                    </div>
-                  )}
-                  <h3 className="font-bold text-foreground text-sm leading-snug mb-1">
-                    {member.firstName} {member.lastName}
-                  </h3>
-                  <p className="text-apc-green text-xs font-medium mb-3">{member.position}</p>
-                  {member.bio && <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{member.bio}</p>}
-                </div>
-              ))}
+              {activeMembers.map((member: any) => {
+                const fullName = member.name || (member.firstName && member.lastName ? `${member.firstName} ${member.lastName}` : "Collaborateur APC");
+                const displayRole = member.role || member.position || "Expert";
+                const displayPhoto = member.photoUrl || member.photo;
+                
+                // Extraction intelligente des initiales
+                const parts = fullName.trim().split(/\s+/);
+                const initials = parts.length >= 2 
+                  ? (parts[0][0] + parts[1][0]).toUpperCase()
+                  : parts[0].slice(0, 2).toUpperCase();
+
+                return (
+                  <div key={member.id} className="group bg-apc-bgLight rounded-2xl p-6 text-center border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-in fade-in duration-500">
+                    {displayPhoto ? (
+                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 shadow-md">
+                        <Image src={displayPhoto} alt={fullName} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 rounded-2xl bg-apc-green flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-md">
+                        {initials}
+                      </div>
+                    )}
+                    <h3 className="font-bold text-foreground text-sm leading-snug mb-1">
+                      {fullName}
+                    </h3>
+                    <p className="text-apc-green text-xs font-medium mb-3">{displayRole}</p>
+                    {member.bio && <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{member.bio}</p>}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
