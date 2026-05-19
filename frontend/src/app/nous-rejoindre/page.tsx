@@ -106,9 +106,6 @@ export default async function NousRejoindrePage() {
                         <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-apc-alert/10 text-apc-alert rounded-full border border-apc-alert/20">
                           {job.type}
                         </span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-gray-100 text-gray-500 rounded-full">
-                          {job.department}
-                        </span>
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 group-hover:text-apc-green transition-colors">{job.title}</h3>
                       <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-gray-400 uppercase tracking-widest">

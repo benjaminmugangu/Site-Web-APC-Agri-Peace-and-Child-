@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { 
   Plus, 
   Edit, 
@@ -14,7 +14,8 @@ import {
   Calendar,
   AlertCircle,
   X,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -45,7 +46,7 @@ export default function AdminAppelsOffresPage() {
     setFetching(true)
     try {
       const result = await listTenders()
-      setAppels(result.data)
+      setAppels(result || [])
     } catch (error) {
       toast.error("Erreur chargement appels d'offres")
     } finally {
@@ -67,6 +68,10 @@ export default function AdminAppelsOffresPage() {
     setLoading(true)
     try {
       const appel = await getTender(id)
+      if (!appel) {
+        toast.error("Appel d'offres introuvable")
+        return
+      }
       setEditingAppel(appel)
       setFormData({
         title: appel.title,

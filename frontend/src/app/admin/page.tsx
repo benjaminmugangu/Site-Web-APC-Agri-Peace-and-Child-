@@ -29,7 +29,7 @@ export default function AdminDashboard() {
     async function loadStats() {
       try {
         const [projects, team, messages, careers, partners, tenders, services] = await Promise.all([
-          listProjects({ perPage: 1 }),
+          listProjects({ limit: 1 }),
           listTeam(),
           listMessages({ perPage: 1 }),
           listCareers(),

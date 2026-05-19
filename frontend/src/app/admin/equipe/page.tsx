@@ -32,7 +32,7 @@ export default function AdminEquipePage() {
     setFetching(true)
     try {
       const result = await listTeam()
-      setTeam(result?.data || [])
+      setTeam(result || [])
     } catch (error) {
       toast.error("Erreur chargement équipe")
     } finally {
@@ -54,6 +54,10 @@ export default function AdminEquipePage() {
     setLoading(true)
     try {
       const member = await getTeamMember(id)
+      if (!member) {
+        toast.error("Membre introuvable")
+        return
+      }
       setEditingMember(member)
       setFormData({
         name: member.name,

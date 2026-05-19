@@ -395,7 +395,6 @@ export default function AdminProjectEditor() {
             <ImageUploader
               value={formData.mainImage}
               onChange={url => set("mainImage", url)}
-              folder="projects"
             />
           </div>
 

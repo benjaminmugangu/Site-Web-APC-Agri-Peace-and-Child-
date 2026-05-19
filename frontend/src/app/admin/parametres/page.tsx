@@ -15,7 +15,8 @@ import {
   Plus
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { settingsService, type SiteSettings } from "@/lib/api/settings"
+import { settingsService } from "@/lib/api/settings"
+import { type SiteSettings } from "@/types"
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false)

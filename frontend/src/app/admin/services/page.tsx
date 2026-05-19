@@ -1,11 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Plus, Edit, Trash2, ArrowLeft, Save, X, AlertCircle, CheckCircle2, Eye, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, ArrowLeft, Save, AlertCircle, CheckCircle2, Eye, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { domainService, type Service } from "@/lib/api/services"
+import { domainService } from "@/lib/api/services"
+import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
+import { ImageUploader } from "@/components/ui/ImageUploader"
 
 export default function AdminServicesPage() {
   const [services, setServices] = useState<Service[]>([])
@@ -17,13 +19,15 @@ export default function AdminServicesPage() {
 
   // Form State
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
+    name: "",
     titleEn: "",
+    slug: "",
+    description: "",
     descriptionEn: "",
-    icon: "Heart",
-    color: "bg-emerald-500",
-    slug: ""
+    iconName: "Heart",
+    bgClass: "bg-emerald-500",
+    accentClass: "text-emerald-700",
+    mainImage: ""
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -47,14 +51,15 @@ export default function AdminServicesPage() {
   const handleAdd = () => {
     setEditingService(null)
     setFormData({
-      title: "",
-      description: "",
+      name: "",
       titleEn: "",
+      slug: "",
+      description: "",
       descriptionEn: "",
-      icon: "Heart",
-      icon: "Heart",
-      color: "bg-emerald-500",
-      slug: ""
+      iconName: "Heart",
+      bgClass: "bg-emerald-500",
+      accentClass: "text-emerald-700",
+      mainImage: ""
     })
     setErrors({})
     setStatus(null)
@@ -64,13 +69,15 @@ export default function AdminServicesPage() {
   const handleEdit = (service: Service) => {
     setEditingService(service)
     setFormData({
-      title: service.title,
+      name: service.name || "",
+      titleEn: service.titleEn || "",
+      slug: service.slug || "",
       description: service.description || "",
-      titleEn: "", // Ajoutez ceci si le backend gère l'anglais plus tard
-      descriptionEn: "", 
-      icon: service.icon || "Heart",
-      color: service.style?.bgColor || "bg-emerald-500",
-      slug: service.slug
+      descriptionEn: service.descriptionEn || "", 
+      iconName: service.iconName || "Heart",
+      bgClass: service.bgClass || "bg-emerald-500",
+      accentClass: service.accentClass || "text-emerald-700",
+      mainImage: service.mainImage || ""
     })
     setErrors({})
     setStatus(null)
@@ -79,7 +86,7 @@ export default function AdminServicesPage() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
-    if (!formData.title.trim()) newErrors.title = "Le titre est obligatoire"
+    if (!formData.name.trim()) newErrors.name = "Le titre est obligatoire"
     if (!formData.description.trim()) newErrors.description = "La description est obligatoire"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -93,18 +100,18 @@ export default function AdminServicesPage() {
     setStatus(null)
 
     try {
-      const payload = {
-        name: formData.title,
-        slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      const payload: Partial<Service> = {
+        name: formData.name,
+        titleEn: formData.titleEn,
+        slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         description: formData.description,
-        iconName: formData.icon,
+        descriptionEn: formData.descriptionEn,
+        iconName: formData.iconName,
+        bgClass: formData.bgClass,
+        accentClass: formData.accentClass,
+        mainImage: formData.mainImage,
         isActive: true,
         order: editingService ? editingService.order : services.length,
-        style: {
-          color: "text-white",
-          bgColor: formData.color,
-          borderColor: "border-gray-100"
-        }
       };
 
       if (editingService) {
@@ -188,21 +195,21 @@ export default function AdminServicesPage() {
             <tbody className="divide-y divide-gray-50">
               {services.map((service) => {
                 // @ts-ignore
-                const IconComponent = LucideIcons[service.icon || 'Heart'] || LucideIcons.Heart;
+                const IconComponent = LucideIcons[service.iconName || 'Heart'] || LucideIcons.Heart;
                 return (
                 <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className={`w-10 h-10 rounded-lg ${service.style?.bgColor || 'bg-emerald-500'} flex items-center justify-center text-white`}>
+                    <div className={`w-10 h-10 rounded-lg ${service.bgClass || 'bg-emerald-500'} flex items-center justify-center text-white`}>
                       <IconComponent size={20} />
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{service.title}</div>
+                    <div className="font-medium text-gray-900">{service.name}</div>
                     <div className="text-xs text-gray-500 line-clamp-1 max-w-xs">{service.description}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Link href="/domaines" target="_blank">
+                      <Link href={`/domaines#${service.slug}`} target="_blank">
                         <Button 
                           variant="ghost" 
                           size="sm" 
@@ -257,12 +264,12 @@ export default function AdminServicesPage() {
                     <label className="text-sm font-semibold text-gray-700">Titre du service (FR) *</label>
                     <input 
                       type="text" 
-                      value={formData.title}
-                      onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.title ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all`} 
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all`} 
                       placeholder="Ex: Sécurité Alimentaire" 
                     />
-                    {errors.title && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.title}</p>}
+                    {errors.name && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.name}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Description détaillée (FR) *</label>
@@ -306,28 +313,49 @@ export default function AdminServicesPage() {
               </div>
             </div>
 
-            {/* Configuration Icone */}
+            {/* Image de Couverture */}
+            <div className="pt-6 border-t border-gray-100">
+              <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Image Principale</h3>
+              <ImageUploader 
+                value={formData.mainImage}
+                onChange={(url) => setFormData({ ...formData, mainImage: url })}
+                label="Image de couverture du domaine"
+              />
+            </div>
+
+            {/* Configuration Icone et Couleurs */}
             <div className="pt-6 border-t border-gray-100">
               <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Identité Visuelle</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400">Classe de l&apos;icône (Lucide ou FontAwesome)</label>
+                  <label className="text-xs font-bold text-gray-400">Icône (Lucide React)</label>
                   <input 
                     type="text" 
-                    value={formData.icon}
-                    onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                    value={formData.iconName}
+                    onChange={e => setFormData({ ...formData, iconName: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none font-mono text-sm" 
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400">Couleur d&apos;accentuation</label>
-                  <div className="flex gap-3">
-                    {["bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-rose-500", "bg-apc-green", "bg-apc-blue"].map((color) => (
+                  <label className="text-xs font-bold text-gray-400">Couleur d&apos;accentuation (Classe Tailwind Text)</label>
+                  <input 
+                    type="text" 
+                    value={formData.accentClass}
+                    onChange={e => setFormData({ ...formData, accentClass: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none font-mono text-sm" 
+                    placeholder="Ex: text-emerald-700"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400">Couleur de fond (Classe Tailwind Bg)</label>
+                  <div className="flex gap-3 flex-wrap">
+                    {["bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-rose-500", "bg-apc-green", "bg-apc-blue", "bg-indigo-500"].map((color) => (
                       <button 
                         key={color} 
                         type="button"
-                        onClick={() => setFormData({ ...formData, color })}
-                        className={`w-8 h-8 rounded-full ${color} ring-offset-2 transition-all ${formData.color === color ? 'ring-2 ring-gray-900 scale-110' : 'hover:ring-2 ring-gray-300'}`} 
+                        onClick={() => setFormData({ ...formData, bgClass: color })}
+                        className={`w-8 h-8 rounded-full ${color} ring-offset-2 transition-all ${formData.bgClass === color ? 'ring-2 ring-gray-900 scale-110' : 'hover:ring-2 ring-gray-300'}`} 
+                        title={color}
                       />
                     ))}
                   </div>

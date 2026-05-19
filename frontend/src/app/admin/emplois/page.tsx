@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { 
   Plus, 
   Edit, 
@@ -14,7 +14,8 @@ import {
   AlertCircle,
   CheckCircle2,
   X,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -45,7 +46,7 @@ export default function AdminEmploisPage() {
     setFetching(true)
     try {
       const result = await listCareers()
-      setEmplois(result.data)
+      setEmplois(result || [])
     } catch (error) {
       toast.error("Erreur chargement carrières")
     } finally {
@@ -67,6 +68,10 @@ export default function AdminEmploisPage() {
     setLoading(true)
     try {
       const job = await getCareer(id)
+      if (!job) {
+        toast.error("Offre d'emploi introuvable")
+        return
+      }
       setEditingJob(job)
       setFormData({
         title: job.title,

@@ -74,8 +74,8 @@ export default function DomainesPage() {
       ) : (
         domaines.map((d, i) => {
           const isEven = i % 2 === 0
-          const Icon = iconMap[d.iconName] || Globe
-          const color = d.accentClass.includes('text-') ? (d.accentClass.split(' ')[0] === 'text-emerald-700' ? '#047857' : '#1a472a') : '#1a472a'
+          const Icon = iconMap[d.iconName || 'Globe'] || Globe
+          const color = d.accentClass?.includes('text-') ? (d.accentClass.split(' ')[0] === 'text-emerald-700' ? '#047857' : '#1a472a') : '#1a472a'
           
           return (
             <section

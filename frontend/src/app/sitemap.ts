@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const [p, a] = await Promise.all([
-      listProjects({ perPage: 100 }),
+      listProjects({ limit: 100 }),
       listArticles({ perPage: 100 })
     ]);
     projects = Array.isArray(p) ? p : (p as any).data || [];
