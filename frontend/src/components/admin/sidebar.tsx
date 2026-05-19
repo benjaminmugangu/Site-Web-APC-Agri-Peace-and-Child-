@@ -18,7 +18,7 @@ import {
   ShieldCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 
 const menuItems = [
@@ -38,6 +38,17 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [logo, setLogo] = useState<string | null>(null)
+
+  useEffect(() => {
+    import("@/lib/api/settings").then(({ settingsService }) => {
+      settingsService.get().then(data => {
+        if (data?.logo?.logoHeader) {
+          setLogo(data.logo.logoHeader);
+        }
+      }).catch(err => console.error("Failed to load sidebar logo", err));
+    });
+  }, [])
 
   const handleLogout = () => {
     // Effacer le cookie de session
@@ -64,13 +75,17 @@ export function Sidebar() {
       </Button>
 
       {/* Header Sidebar */}
-      <div className="p-6 flex items-center gap-3 overflow-hidden">
-        <div className="w-8 h-8 rounded-lg bg-apc-greenLight flex items-center justify-center shrink-0">
-          <span className="font-bold text-white">A</span>
-        </div>
+      <div className="p-6 flex items-center gap-3 overflow-hidden h-20 shrink-0">
+        {logo ? (
+          <img src={logo} alt="APC" className={cn("object-contain select-none transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-10 w-10")} />
+        ) : (
+          <div className="w-8 h-8 rounded-lg bg-apc-greenLight flex items-center justify-center shrink-0">
+            <span className="font-bold text-white">A</span>
+          </div>
+        )}
         {!isCollapsed && (
           <span className="font-bold text-lg tracking-tight whitespace-nowrap">
-            Admin Agri-Peace
+            Admin APC
           </span>
         )}
       </div>

@@ -14,6 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const name = settings?.institution?.name || "Agri-Peace and Child";
     const acronym = settings?.institution?.acronym || "APC";
     
+    const faviconUrl = settings?.logo?.favicon || "/favicon.ico";
+
     return {
       title: {
         default: seo?.metaTitle || `${name} — Organisation Humanitaire en RDC`,
@@ -21,6 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
       },
       description: seo?.metaDescription || `${name} est une ONG humanitaire engagée pour la Protection, l'Agriculture, la Dignité et la Paix en République Démocratique du Congo.`,
       keywords: seo?.metaKeywords || [name, acronym, "ONG", "humanitaire", "Congo", "agriculture", "paix", "enfance"],
+      icons: {
+        icon: faviconUrl,
+        shortcut: faviconUrl,
+        apple: faviconUrl,
+      },
       openGraph: {
         type: "website",
         locale: "fr_FR",

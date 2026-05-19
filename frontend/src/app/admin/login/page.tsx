@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, AlertCircle, Leaf } from "lucide-react"
 import { Suspense } from "react"
@@ -16,6 +16,17 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [logo, setLogo] = useState<string | null>(null)
+
+  useEffect(() => {
+    import("@/lib/api/settings").then(({ settingsService }) => {
+      settingsService.get().then(data => {
+        if (data?.logo?.logoHeader) {
+          setLogo(data.logo.logoHeader);
+        }
+      }).catch(err => console.error("Failed to load login logo", err));
+    });
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,8 +47,14 @@ function LoginForm() {
     <div className="w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-apc-green shadow-lg mb-4">
-          <Leaf className="w-8 h-8 text-white" />
+        <div className="inline-flex items-center justify-center mb-4">
+          {logo ? (
+            <img src={logo} alt="APC" className="h-16 w-auto object-contain select-none transition-transform duration-300 hover:scale-105 filter drop-shadow-md" />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-apc-green shadow-lg flex items-center justify-center">
+              <Leaf className="w-8 h-8 text-white" />
+            </div>
+          )}
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">Espace Admin</h1>
         <p className="text-white/60 text-sm">
