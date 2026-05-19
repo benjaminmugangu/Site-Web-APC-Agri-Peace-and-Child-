@@ -61,6 +61,7 @@ export interface TeamMember {
   photo?: string
   photoUrl?: string
   bio?: string
+  linkedinUrl?: string
   status: "active" | "suspended" | "pending"
   order: number
   createdAt: string
