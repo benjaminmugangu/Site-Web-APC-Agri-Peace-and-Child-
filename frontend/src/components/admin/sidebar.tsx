@@ -27,6 +27,7 @@ const menuItems = [
   { icon: Briefcase, label: "Réalisations", href: "/admin/projets" },
   { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres" },
   { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois" },
+  { icon: FileText, label: "Candidatures", href: "/admin/candidatures" },
   { icon: Users, label: "Experts / Équipe", href: "/admin/equipe" },
   { icon: Handshake, label: "Partenaires", href: "/admin/partenaires" },
   { icon: MessageSquare, label: "Messages", href: "/admin/messages" },
