@@ -19,6 +19,7 @@ export default function AdminEquipePage() {
   const [editingMember, setEditingMember] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState("")
@@ -83,6 +84,7 @@ export default function AdminEquipePage() {
 
   const handleAdd = () => {
     setEditingMember(null)
+    setErrorMsg(null)
     setFormData({ 
       name: "", 
       role: "", 
@@ -101,6 +103,7 @@ export default function AdminEquipePage() {
 
   const handleEdit = async (id: string) => {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const member = await getTeamMember(id)
       if (!member) {
@@ -132,12 +135,21 @@ export default function AdminEquipePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setErrorMsg(null)
     
     // Ensure both photo and photoUrl are synced
-    const payload = {
+    const payload: any = {
       ...formData,
       photoUrl: formData.photo
     }
+
+    // Clean up empty strings to avoid DTO validation errors on backend
+    if (payload.email === "") payload.email = null;
+    if (payload.linkedinUrl === "") payload.linkedinUrl = null;
+    if (payload.phone === "") payload.phone = null;
+    if (payload.bio === "") payload.bio = null;
+    if (payload.photo === "") payload.photo = null;
+    if (payload.photoUrl === "") payload.photoUrl = null;
 
     try {
       if (editingMember) {
@@ -150,7 +162,11 @@ export default function AdminEquipePage() {
       setShowForm(false)
       load()
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'enregistrement")
+      const serverMessage = err.errors && Array.isArray(err.errors)
+        ? err.errors.map((e: any) => `${e.property}: ${e.constraints.join(', ')}`).join('\n')
+        : (err.message || "Erreur lors de l'enregistrement");
+      setErrorMsg(serverMessage);
+      toast.error("Erreur de validation. Veuillez vérifier les champs.");
     } finally {
       setLoading(false)
     }
@@ -171,6 +187,7 @@ export default function AdminEquipePage() {
   const handleCancel = () => {
     setShowForm(false)
     setEditingMember(null)
+    setErrorMsg(null)
   }
 
   const getDeptColor = (dept: string) => {
@@ -375,6 +392,15 @@ export default function AdminEquipePage() {
       ) : (
         /* FORMULAIRE D'EDITION */
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+          {errorMsg && (
+            <div className="mx-8 mt-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600 text-sm font-semibold">
+              <AlertCircle size={18} className="shrink-0 mt-0.5" />
+              <div className="flex flex-col whitespace-pre-line">
+                <span className="font-bold mb-1">Échec de validation :</span>
+                <span>{errorMsg}</span>
+              </div>
+            </div>
+          )}
           <div className="p-8">
             <div className="flex flex-col md:flex-row gap-10">
               {/* Photo Upload Zone */}
