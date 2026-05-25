@@ -9,6 +9,7 @@ export default async function AdminLayout({
   // Lire le pathname injecté par le middleware
   const headersList = headers()
   const pathname = headersList.get("x-pathname") ?? ""
+  const userRole = headersList.get("x-user-role") ?? "ADMIN"
   const isLoginPage = pathname === "/admin/login"
 
   // Page de connexion : pas de sidebar, pas de header
@@ -34,7 +35,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-[#f3f4f6]">
       {/* Sidebar fixe à gauche */}
-      <Sidebar />
+      <Sidebar userRole={userRole} />
 
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -49,7 +50,9 @@ export default async function AdminLayout({
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-gray-900 leading-none">Admin Agri-Peace and Child</p>
-              <p className="text-xs text-gray-500 mt-1">Directeur Technique</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {userRole === 'ADMIN_RH' ? 'Ressources Humaines' : 'Directeur Technique'}
+              </p>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#1a472a] flex items-center justify-center text-white font-bold text-sm">
               AD

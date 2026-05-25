@@ -35,25 +35,14 @@ const menuItems = [
   { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
 ]
 
-export function Sidebar() {
+export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [logo, setLogo] = useState<string | null>(null)
-  const [userRole, setUserRole] = useState<string>("ADMIN")
 
   useEffect(() => {
-    // Lire le rôle depuis le cookie
-    const match = document.cookie.match(new RegExp('(^| )apc_admin_session=([^;]+)'))
-    if (match && match[2]) {
-      try {
-        const payload = JSON.parse(atob(match[2].split('.')[1]))
-        if (payload.role) setUserRole(payload.role)
-      } catch(e) {}
-    }
-
     import("@/lib/api/settings").then(({ settingsService }) => {
-      settingsService.get().then(data => {
         if (data?.logo?.logoHeader) {
           setLogo(data.logo.logoHeader);
         }
