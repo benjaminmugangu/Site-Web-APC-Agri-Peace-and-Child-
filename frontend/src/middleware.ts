@@ -26,7 +26,9 @@ export function middleware(request: NextRequest) {
 
     // Décoder basiquement le JWT pour récupérer le rôle
     try {
-      const payloadBase64 = session.value.split('.')[1]
+      let payloadBase64 = session.value.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const pad = payloadBase64.length % 4
+      if (pad) payloadBase64 += '='.repeat(4 - pad)
       const payloadString = atob(payloadBase64)
       const payload = JSON.parse(payloadString)
       const role = payload.role || 'ADMIN'
@@ -63,7 +65,10 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get(SESSION_COOKIE)
   if (session?.value) {
     try {
-      const payload = JSON.parse(atob(session.value.split('.')[1]))
+      let payloadBase64 = session.value.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const pad = payloadBase64.length % 4
+      if (pad) payloadBase64 += '='.repeat(4 - pad)
+      const payload = JSON.parse(atob(payloadBase64))
       if (payload.role) {
         response.headers.set("x-user-role", payload.role)
       }
