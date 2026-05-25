@@ -40,8 +40,18 @@ export function Sidebar() {
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [logo, setLogo] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>("ADMIN")
 
   useEffect(() => {
+    // Lire le rôle depuis le cookie
+    const match = document.cookie.match(new RegExp('(^| )apc_admin_session=([^;]+)'))
+    if (match && match[2]) {
+      try {
+        const payload = JSON.parse(atob(match[2].split('.')[1]))
+        if (payload.role) setUserRole(payload.role)
+      } catch(e) {}
+    }
+
     import("@/lib/api/settings").then(({ settingsService }) => {
       settingsService.get().then(data => {
         if (data?.logo?.logoHeader) {
@@ -93,7 +103,14 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
-        {menuItems.map((item) => {
+        {menuItems.filter(item => {
+          const isHRItem = ['/admin/emplois', '/admin/candidatures', '/admin/appels-d-offres', '/admin/equipe'].includes(item.href)
+          if (userRole === 'ADMIN_RH') {
+            return isHRItem
+          } else {
+            return !isHRItem
+          }
+        }).map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
