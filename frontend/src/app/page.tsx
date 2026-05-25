@@ -5,6 +5,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
 import { settingsService } from "@/lib/api/settings";
 import { listProjects } from "@/lib/api/projects";
+import { listPartners } from "@/lib/api/partners";
 
 export const dynamic = 'force-dynamic';
 
@@ -50,6 +51,7 @@ export default async function Home() {
   const settings = await settingsService.get();
   const projectsRes = await listProjects({ limit: 6, status: 'published' });
   const recentProjects = projectsRes.data || [];
+  const partners = await listPartners().catch(() => []);
 
   if (!settings) {
     return (
@@ -200,6 +202,39 @@ export default async function Home() {
                   </div>
                 </Link>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Partenaires Section */}
+      {partners && partners.length > 0 && (
+        <section className="py-20 bg-apc-bgLight border-t border-gray-100">
+          <div className="container px-4">
+            <FadeIn className="text-center mb-12">
+              <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-3">Ils nous font confiance</span>
+              <h2 className="text-3xl font-bold text-foreground">Nos Partenaires</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">Découvrez les organisations et institutions qui accompagnent nos actions sur le terrain.</p>
+            </FadeIn>
+            
+            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-80">
+              {partners.map(partner => (
+                <Link key={partner.id} href={`/partenaires`} title={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 hover:scale-105">
+                  {partner.logoUrl ? (
+                    <div className="relative w-32 h-16 flex items-center justify-center">
+                      <Image src={partner.logoUrl} alt={partner.name} fill className="object-contain" />
+                    </div>
+                  ) : (
+                    <div className="text-xl font-extrabold text-gray-400 tracking-tight">{partner.name}</div>
+                  )}
+                </Link>
+              ))}
+            </div>
+            
+            <div className="text-center mt-12">
+              <Link href="/partenaires" className="inline-flex items-center gap-1 text-sm font-semibold text-apc-green hover:underline">
+                Voir tous nos partenaires <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </section>
