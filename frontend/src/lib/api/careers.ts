@@ -40,3 +40,21 @@ export const bulkSetStatusCareers = async (ids: string[], status: string) => {
   const response = await api.patch<ApiResponse<any>>("/careers/bulk-status", { ids, status });
   return response.data;
 };
+
+// --- Applications ---
+
+export const listApplications = async (options?: any) => {
+  const response = await api.get<ApiResponse<any[]>>("/careers/admin/applications", options);
+  return response.data || [];
+};
+
+export const updateApplicationStatus = async (id: string, status: string) => {
+  const response = await api.patch<ApiResponse<any>>(`/careers/admin/applications/${id}/status`, { status });
+  return response.data;
+};
+
+export const deleteApplication = async (id: string) => {
+  const response = await api.delete<ApiResponse<any>>(`/careers/admin/applications/${id}`);
+  return response.data;
+};
+
