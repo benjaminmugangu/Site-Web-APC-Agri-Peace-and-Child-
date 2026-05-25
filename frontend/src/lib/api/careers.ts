@@ -6,6 +6,11 @@ export const listCareers = async (options?: any): Promise<Career[]> => {
   return response.data || [];
 };
 
+export const listAdminCareers = async (options?: any): Promise<Career[]> => {
+  const response = await api.get<ApiResponse<Career[]>>("/careers/admin/all", options);
+  return response.data || [];
+};
+
 export const getCareer = async (id: string) => {
   const response = await api.get<ApiResponse<Career>>(`/careers/${id}`);
   return response.data;

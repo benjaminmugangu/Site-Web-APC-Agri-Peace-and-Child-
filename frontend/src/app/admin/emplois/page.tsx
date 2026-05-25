@@ -20,7 +20,7 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-import { listCareers, createCareer, updateCareer, deleteCareer, getCareer } from "@/lib/api/careers"
+import { listCareers, listAdminCareers, createCareer, updateCareer, deleteCareer, getCareer } from "@/lib/api/careers"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
@@ -45,7 +45,7 @@ export default function AdminEmploisPage() {
   async function load() {
     setFetching(true)
     try {
-      const result = await listCareers()
+      const result = await listAdminCareers()
       setEmplois(result || [])
     } catch (error) {
       toast.error("Erreur chargement carrières")
@@ -94,21 +94,30 @@ export default function AdminEmploisPage() {
     e.preventDefault()
     setLoading(true)
     try {
+      const payload: any = { ...formData }
+      // Clean empty strings to avoid DTO validation errors
+      if (payload.content === "") payload.content = null;
+      if (payload.description === "") payload.description = null;
+      if (payload.deadline === "") payload.deadline = null;
+      if (payload.location === "") payload.location = null;
+
       if (editingJob) {
-        await updateCareer(editingJob.id, formData)
+        await updateCareer(editingJob.id, payload)
         toast.success("Offre mise à jour")
       } else {
-        await createCareer(formData)
+        await createCareer(payload)
         toast.success("Offre publiée")
       }
       setShowForm(false)
       load()
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'enregistrement")
+      const msg = err?.errors?.map((e: any) => e.constraints ? Object.values(e.constraints).join(', ') : e).join('\n')
+      toast.error(msg || err.message || "Erreur lors de l'enregistrement")
     } finally {
       setLoading(false)
     }
   }
+
 
   const handleDelete = async (id: string) => {
     if (confirm("Supprimer cette offre d'emploi ?")) {
