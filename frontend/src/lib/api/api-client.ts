@@ -17,6 +17,17 @@ export type ApiResponse<T> = {
   };
 };
 
+export class ApiError extends Error {
+  errors?: any[];
+  status: number;
+  constructor(message: string, status: number, errors?: any[]) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.errors = errors;
+  }
+}
+
 class ApiClient {
   private getAuthToken(): string | null {
     if (typeof window === 'undefined') return null;
@@ -58,7 +69,7 @@ class ApiClient {
           }
         }
       }
-      throw new Error(result.message || 'Une erreur est survenue');
+      throw new ApiError(result.message || 'Une erreur est survenue', response.status, result.errors);
     }
 
     return result as T;

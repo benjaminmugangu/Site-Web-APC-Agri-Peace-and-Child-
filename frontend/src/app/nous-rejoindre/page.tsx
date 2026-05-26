@@ -5,7 +5,7 @@ import { listCareers } from "@/lib/api/careers"
 import { Users, Briefcase, GraduationCap, Send, HeartHandshake, MapPin, Calendar, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { CareerApplicationForm } from "@/components/forms/career-application-form"
-
+import { JobBoard } from "@/components/careers/job-board"
 
 export const metadata: Metadata = {
   title: "Nous Rejoindre (Bénévolat & Carrières) — APC",
@@ -93,41 +93,7 @@ export default async function NousRejoindrePage() {
               </span>
             </div>
 
-            {careers.length === 0 ? (
-              <div className="bg-white rounded-[2rem] p-12 text-center border border-dashed border-border/60">
-                <p className="text-gray-400 italic">Aucune offre d'emploi n'est publiée actuellement. N'hésitez pas à envoyer une candidature spontanée.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {careers.map((job) => (
-                  <div key={job.id} className="bg-white rounded-2xl p-6 md:p-8 border border-border/40 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group">
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-apc-alert/10 text-apc-alert rounded-full border border-apc-alert/20">
-                          {job.type}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-apc-green transition-colors">{job.title}</h3>
-                      <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        <span className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-apc-alert" />
-                          {job.location}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-apc-green" />
-                          Date limite : {new Date(job.deadline).toLocaleDateString('fr-FR')}
-                        </span>
-                      </div>
-                    </div>
-                    <Link href={`/contact?sujet=carrieres&poste=${encodeURIComponent(job.title)}`}>
-                      <Button className="rounded-xl h-12 px-8 font-bold bg-apc-green hover:bg-apc-green/90 shadow-lg shadow-apc-green/20 group-hover:scale-105 transition-transform">
-                        Postuler <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
+            <JobBoard initialCareers={careers} />
           </div>
 
           <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-border/40">

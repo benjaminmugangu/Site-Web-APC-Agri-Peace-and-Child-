@@ -46,24 +46,24 @@ function LoginForm() {
   return (
     <div className="w-full max-w-md">
       {/* Logo */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center mb-4">
+      <div className="text-center mb-6 sm:mb-8 md:mb-10">
+        <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
           {logo ? (
-            <img src={logo} alt="APC" className="h-16 w-auto object-contain select-none transition-transform duration-300 hover:scale-105 filter drop-shadow-md" />
+            <img src={logo} alt="APC" className="h-14 sm:h-16 w-auto object-contain select-none transition-transform duration-300 hover:scale-105 filter drop-shadow-md" />
           ) : (
-            <div className="w-16 h-16 rounded-2xl bg-apc-green shadow-lg flex items-center justify-center">
-              <Leaf className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-apc-green shadow-lg flex items-center justify-center">
+              <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
           )}
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Espace Admin</h1>
-        <p className="text-white/60 text-sm">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1.5 sm:mb-2">Espace Admin</h1>
+        <p className="text-white/60 text-xs sm:text-sm">
           Agri-Peace and Child — Accès réservé aux collaborateurs
         </p>
       </div>
 
       {/* Card de connexion */}
-      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl">
         {/* Erreur */}
         {error && (
           <div className="flex items-start gap-3 bg-red-500/20 border border-red-400/30 text-red-200 rounded-xl px-4 py-3 mb-6 text-sm">
@@ -157,8 +157,8 @@ export default function LoginPage() {
       {/* Arrière-plan décoratif */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#1a472a_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#2d6a4f_0%,transparent_50%)]" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-apc-green/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-apc-greenLight/5 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-apc-green/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-apc-greenLight/5 rounded-full blur-3xl" />
 
       {/* Grille subtile */}
       <div className="absolute inset-0 opacity-5 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />

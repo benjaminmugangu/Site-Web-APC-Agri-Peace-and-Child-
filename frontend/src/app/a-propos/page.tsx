@@ -229,7 +229,7 @@ export default async function AProposPage() {
                   : parts[0].slice(0, 2).toUpperCase();
 
                 return (
-                  <div key={member.id} className="group bg-apc-bgLight rounded-2xl p-6 text-center border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-in fade-in duration-500">
+                  <Link key={member.id} href={`/equipe/${member.id}`} className="group bg-apc-bgLight rounded-2xl p-6 text-center border border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-in fade-in duration-500 block">
                     {displayPhoto ? (
                       <div className="relative w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 shadow-md">
                         <Image src={displayPhoto} alt={fullName} fill className="object-cover" />
@@ -244,7 +244,10 @@ export default async function AProposPage() {
                     </h3>
                     <p className="text-apc-green text-xs font-medium mb-3">{displayRole}</p>
                     {member.bio && <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{member.bio}</p>}
-                  </div>
+                    <span className="inline-block mt-4 text-xs font-bold text-apc-green opacity-0 group-hover:opacity-100 transition-opacity">
+                      Voir le profil →
+                    </span>
+                  </Link>
                 );
               })}
             </div>
