@@ -43,6 +43,7 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
 
   useEffect(() => {
     import("@/lib/api/settings").then(({ settingsService }) => {
+      settingsService.get().then((data) => {
         if (data?.logo?.logoHeader) {
           setLogo(data.logo.logoHeader);
         }

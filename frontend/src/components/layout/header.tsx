@@ -14,6 +14,7 @@ const navLinks = [
   { label: "À Propos", href: "/a-propos" },
   { label: "Domaines", href: "/domaines" },
   { label: "Projets", href: "/projets" },
+  { label: "Partenaires", href: "/partenaires" },
   { label: "Actualités", href: "/actualites" },
   { label: "Appels d'Offres", href: "/appels-d-offres" },
   { label: "Contact", href: "/contact" },
@@ -24,6 +25,8 @@ export function Header() {
   const [scrolled, setScrolled] = React.useState(false)
   const [settings, setSettings] = React.useState<SiteSettings | null>(null)
   const pathname = usePathname()
+
+  if (pathname?.startsWith("/admin")) return null;
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
