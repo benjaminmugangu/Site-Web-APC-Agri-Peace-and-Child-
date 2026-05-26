@@ -5,7 +5,7 @@ export type User = {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'ADMIN';
+  role: 'ADMIN' | 'ADMIN_RH';
 };
 
 export type LoginResponse = {
@@ -25,8 +25,8 @@ export const authService = {
         localStorage.setItem('apc_refresh_token', refreshToken);
         localStorage.setItem('apc_user', JSON.stringify(response.data.user));
         
-        // Optionnel : Définir un cookie pour le middleware Next.js
-        document.cookie = `apc_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax`;
+        // Stocker le JWT dans le cookie pour que le middleware Next.js puisse décoder le rôle
+        document.cookie = `apc_admin_session=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
       }
       return response.data;
     }
