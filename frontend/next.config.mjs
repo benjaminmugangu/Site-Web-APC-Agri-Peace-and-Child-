@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/webmail',
+        destination: 'https://webmail.agri-peaceandchild.org',
+        permanent: true, // HTTP 308 - Redirection permanente (cache navigateur)
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
