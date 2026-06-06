@@ -241,3 +241,20 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
 }
+
+// --- TESTIMONIALS ---
+export type TestimonialStatus = "draft" | "published" | "archived";
+
+export interface BeneficiaryTestimonial {
+  id: string;
+  authorName: string;
+  authorRole?: string;
+  authorLocation?: string;
+  photoUrl?: string;
+  content: string;
+  projectName?: string;
+  status: TestimonialStatus;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}

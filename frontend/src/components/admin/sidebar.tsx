@@ -8,7 +8,7 @@ import {
   Briefcase, 
   Search, 
   Users, 
-  Handshake,
+  Newspaper,
   Settings, 
   LogOut,
   ChevronLeft,
@@ -22,17 +22,18 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin" },
-  { icon: Cog, label: "Nos Services", href: "/admin/services" },
-  { icon: Briefcase, label: "Réalisations", href: "/admin/projets" },
-  { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres" },
-  { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois" },
-  { icon: FileText, label: "Candidatures", href: "/admin/candidatures" },
-  { icon: Users, label: "Experts / Équipe", href: "/admin/equipe" },
-  { icon: Handshake, label: "Partenaires", href: "/admin/partenaires" },
-  { icon: MessageSquare, label: "Messages", href: "/admin/messages" },
-  { icon: ShieldCheck, label: "Utilisateurs", href: "/admin/utilisateurs" },
-  { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
+  { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: Cog, label: "Nos Services", href: "/admin/services", roles: ['ADMIN'] },
+  { icon: Briefcase, label: "Réalisations", href: "/admin/projets", roles: ['ADMIN'] },
+  { icon: Newspaper, label: "Actualités", href: "/admin/actualites", roles: ['ADMIN'] },
+  { icon: MessageSquare, label: "Témoignages", href: "/admin/temoignages", roles: ['ADMIN'] },
+  { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: FileText, label: "Candidatures", href: "/admin/candidatures", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: Users, label: "Experts / Équipe", href: "/admin/equipe", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: MessageSquare, label: "Messages", href: "/admin/messages", roles: ['ADMIN'] },
+  { icon: ShieldCheck, label: "Utilisateurs", href: "/admin/utilisateurs", roles: ['ADMIN'] },
+  { icon: Settings, label: "Paramètres", href: "/admin/parametres", roles: ['ADMIN'] },
 ]
 
 export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
@@ -94,12 +95,7 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {menuItems.filter(item => {
-          const isHRItem = ['/admin/emplois', '/admin/candidatures', '/admin/appels-d-offres', '/admin/equipe'].includes(item.href)
-          if (userRole === 'ADMIN_RH') {
-            return isHRItem
-          } else {
-            return !isHRItem
-          }
+          return item.roles.includes(userRole)
         }).map((item) => {
           const isActive = pathname === item.href
           return (

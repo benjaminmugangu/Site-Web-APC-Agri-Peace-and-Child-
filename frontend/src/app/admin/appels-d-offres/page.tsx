@@ -39,7 +39,8 @@ export default function AdminAppelsOffresPage() {
     description: "",
     content: "",
     fileUrl: "",
-    status: "OPEN"
+    status: "OPEN",
+    category: "Fournitures"
   })
 
   async function load() {
@@ -60,7 +61,7 @@ export default function AdminAppelsOffresPage() {
 
   const handleAdd = () => {
     setEditingAppel(null)
-    setFormData({ title: "", reference: `AAO-N°00${appels.length + 1}`, deadline: "", description: "", content: "", fileUrl: "", status: "OPEN" })
+    setFormData({ title: "", reference: `AAO-N°00${appels.length + 1}`, deadline: "", description: "", content: "", fileUrl: "", status: "OPEN", category: "Fournitures" })
     setShowForm(true)
   }
 
@@ -80,7 +81,8 @@ export default function AdminAppelsOffresPage() {
         description: appel.description || "",
         content: appel.content || "",
         fileUrl: appel.fileUrl || "",
-        status: appel.status
+        status: appel.status,
+        category: appel.category || "Fournitures"
       })
       setShowForm(true)
     } catch (error) {
@@ -267,6 +269,21 @@ export default function AdminAppelsOffresPage() {
                     <option value="OPEN">OUVERT</option>
                     <option value="CLOSED">FERMÉ</option>
                     <option value="ARCHIVED">ARCHIVÉ</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Catégorie *</label>
+                  <select 
+                    value={formData.category}
+                    onChange={e => setFormData({...formData, category: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none bg-white text-sm"
+                  >
+                    <option value="Fournitures">Fournitures</option>
+                    <option value="Services">Services</option>
+                    <option value="Construction">Construction / Travaux</option>
+                    <option value="Consultant">Consultant</option>
+                    <option value="Transport">Transport / Logistique</option>
+                    <option value="Autre">Autre</option>
                   </select>
                 </div>
                 <div className="space-y-2">
