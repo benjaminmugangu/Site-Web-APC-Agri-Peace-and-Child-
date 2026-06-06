@@ -93,9 +93,9 @@ export function Footer() {
             <li><Link href="/a-propos" className="hover:text-white transition-colors">À Propos</Link></li>
             <li><Link href="/domaines" className="hover:text-white transition-colors">Domaines d&apos;Action</Link></li>
             <li><Link href="/projets" className="hover:text-white transition-colors">Nos Projets</Link></li>
-            <li><Link href="/partenaires" className="hover:text-white transition-colors">Nos Partenaires</Link></li>
             <li><Link href="/actualites" className="hover:text-white transition-colors">Actualités</Link></li>
             <li><Link href="/appels-d-offres" className="hover:text-white transition-colors">Appels d&apos;Offres</Link></li>
+            <li><Link href="/nous-rejoindre" className="hover:text-white transition-colors">Nous Rejoindre</Link></li>
           </ul>
         </div>
 

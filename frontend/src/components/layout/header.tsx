@@ -14,9 +14,9 @@ const navLinks = [
   { label: "À Propos", href: "/a-propos" },
   { label: "Domaines", href: "/domaines" },
   { label: "Projets", href: "/projets" },
-  { label: "Partenaires", href: "/partenaires" },
   { label: "Actualités", href: "/actualites" },
   { label: "Appels d'Offres", href: "/appels-d-offres" },
+  { label: "Nous Rejoindre", href: "/nous-rejoindre" },
   { label: "Contact", href: "/contact" },
 ]
 

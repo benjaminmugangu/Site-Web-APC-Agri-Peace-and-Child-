@@ -4,7 +4,8 @@ import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { listArticles } from "@/lib/api/articles"
-import { Calendar, Clock, ChevronRight, ArrowRight } from "lucide-react"
+import { listTestimonials } from "@/lib/api/testimonials"
+import { Calendar, Clock, ChevronRight, ArrowRight, Quote, MapPin } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Actualités & Rapports — APC",
@@ -31,6 +32,7 @@ const categoryColors: Record<string, string> = {
 export default async function ActualitesPage() {
   const articlesRes = await listArticles({ status: 'published' });
   const articles = articlesRes.data;
+  const testimonials = await listTestimonials().catch(() => []);
 
   const featured = articles.find((a: any) => a.featured) || articles[0];
   const rest = articles.filter((a: any) => a.id !== featured?.id);
@@ -146,6 +148,74 @@ export default async function ActualitesPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* ── Testimonials Section ── */}
+          {testimonials && testimonials.length > 0 && (
+            <div className="mt-20 mb-24">
+              <div className="text-center max-w-2xl mx-auto space-y-4 mb-16 text-black">
+                <span className="text-xs font-bold text-[#1a472a] uppercase tracking-widest bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full">
+                  Impact & Témoignages
+                </span>
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                  Voix de nos Bénéficiaires
+                </h2>
+                <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+                  Découvrez l&apos;impact de nos actions à travers les récits des personnes et des communautés que nous accompagnons au quotidien.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {testimonials.map((testimonial: any) => (
+                  <div 
+                    key={testimonial.id}
+                    className="bg-white rounded-3xl p-8 shadow-sm border border-border/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative group overflow-hidden"
+                  >
+                    {/* Quote mark decoration */}
+                    <div className="absolute right-6 top-6 text-emerald-500/10 group-hover:text-emerald-500/20 transition-colors">
+                      <Quote size={56} />
+                    </div>
+
+                    <div className="flex-1 z-10">
+                      <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8 italic relative">
+                        &ldquo;{testimonial.content}&rdquo;
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-6 border-t border-gray-50 shrink-0">
+                      {testimonial.photoUrl ? (
+                        <img 
+                          src={testimonial.photoUrl} 
+                          alt={testimonial.authorName} 
+                          className="w-12 h-12 rounded-2xl object-cover border border-gray-100 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold border border-emerald-100 shadow-sm">
+                          {testimonial.authorName.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-bold text-gray-900 leading-snug">{testimonial.authorName}</h4>
+                        <p className="text-xs text-gray-500">{testimonial.authorRole || "Bénéficiaire"}</p>
+                        {testimonial.authorLocation && (
+                          <span className="text-[10px] text-gray-400 flex items-center gap-0.5 mt-0.5 animate-fade-in">
+                            <MapPin size={8} /> {testimonial.authorLocation}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {testimonial.projectName && (
+                      <div className="mt-4 pt-3 flex justify-between items-center text-[10px] text-gray-400 border-t border-gray-50/50">
+                        <span className="font-semibold uppercase tracking-wider text-emerald-600 bg-emerald-50/60 px-2 py-0.5 rounded">
+                          {testimonial.projectName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* ── Newsletter CTA ── */}
