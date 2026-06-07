@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/webmail',
-        destination: 'https://webmail.agri-peaceandchild.org',
+        destination: 'https://clouds.server223.com:2096',
         permanent: true, // HTTP 308 - Redirection permanente (cache navigateur)
       },
     ];
