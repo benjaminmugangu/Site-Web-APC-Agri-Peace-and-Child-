@@ -215,7 +215,15 @@ export interface ApiResponse<T> {
 
 // --- PROJECTS ---
 export type ProjectStatus = 'draft' | 'published' | 'archived';
-export type ProjectCategory = 'agriculture' | 'protection' | 'dignite' | 'paix';
+
+/** Catégorie dynamique : peut être un objet (avec join) ou une chaîne legacy */
+export interface ProjectCategoryObject {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  isActive: boolean;
+}
 
 export interface Project {
   id: string;
@@ -223,7 +231,8 @@ export interface Project {
   slug: string;
   description: string;
   content?: string;
-  category: ProjectCategory;
+  category: ProjectCategoryObject | null;
+  categoryId?: string;
   status: ProjectStatus;
   budget: number;
   currency: string;

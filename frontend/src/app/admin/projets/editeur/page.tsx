@@ -18,16 +18,10 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { createProject, updateProject, getProject } from "@/lib/api/projects"
+import { listProjectCategories, type ProjectCategory } from "@/lib/api/project-categories"
 import { toast } from "sonner"
 import { useRouter, useParams } from "next/navigation"
-import type { ProjectCategory, ProjectStatus } from "@/types"
-
-const CATEGORIES: { value: ProjectCategory; label: string }[] = [
-  { value: "agriculture", label: "Agriculture" },
-  { value: "protection", label: "Protection de l'Enfant" },
-  { value: "dignite",    label: "Dignité Humaine" },
-  { value: "paix",       label: "Consolidation de la Paix" },
-]
+import type { ProjectStatus } from "@/types"
 
 const PROVINCES = [
   "Nord-Kivu", "Sud-Kivu", "Maniema", "Ituri",
@@ -39,7 +33,7 @@ type FormData = {
   slug: string
   description: string
   content: string
-  category: ProjectCategory
+  categoryId: string
   status: ProjectStatus
   budget: number
   currency: string
@@ -60,7 +54,7 @@ const DEFAULT_FORM: FormData = {
   slug: "",
   description: "",
   content: "",
-  category: "agriculture",
+  categoryId: "",
   status: "draft",
   budget: 0,
   currency: "USD",
@@ -84,6 +78,18 @@ export default function AdminProjectEditor() {
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(false)
   const [formData, setFormData] = useState<FormData>(DEFAULT_FORM)
+  const [categories, setCategories] = useState<ProjectCategory[]>([])
+
+  // ── Load categories ─────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    listProjectCategories().then(cats => {
+      setCategories(cats)
+      // Si pas encore de catégorie sélectionnée, sélectionner la première
+      if (!formData.categoryId && cats.length > 0) {
+        setFormData(prev => ({ ...prev, categoryId: cats[0].id }))
+      }
+    }).catch(console.error)
+  }, [])
 
   // ── Load existing project if editing ──────────────────────────────────────
   useEffect(() => {
@@ -100,7 +106,7 @@ export default function AdminProjectEditor() {
           slug:         project.slug,
           description:  project.description,
           content:      project.content || "",
-          category:     project.category as ProjectCategory,
+          categoryId:     project.categoryId || project.category?.id || "",
           status:       project.status as ProjectStatus,
           budget:       Number(project.budget),
           currency:     project.currency || "USD",
@@ -363,28 +369,41 @@ export default function AdminProjectEditor() {
           {/* Catégorie */}
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
             <h3 className="font-bold flex items-center gap-2">Catégorie</h3>
-            <div className="space-y-2">
-              {CATEGORIES.map(cat => (
-                <label
-                  key={cat.value}
-                  className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all ${
-                    formData.category === cat.value
-                      ? "border-apc-green bg-apc-green/5"
-                      : "border-transparent hover:border-gray-100 hover:bg-gray-50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="category"
-                    value={cat.value}
-                    checked={formData.category === cat.value}
-                    onChange={() => set("category", cat.value)}
-                    className="accent-apc-green"
-                  />
-                  <span className="text-sm font-medium">{cat.label}</span>
-                </label>
-              ))}
-            </div>
+            {categories.length === 0 ? (
+              <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                Aucune catégorie disponible.{" "}
+                <a href="/admin/projets/categories" className="underline font-medium">Créer une catégorie</a>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {categories.map(cat => (
+                  <label
+                    key={cat.id}
+                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all ${
+                      formData.categoryId === cat.id
+                        ? "border-apc-green bg-apc-green/5"
+                        : "border-transparent hover:border-gray-100 hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="category"
+                      value={cat.id}
+                      checked={formData.categoryId === cat.id}
+                      onChange={() => set("categoryId", cat.id)}
+                      className="accent-apc-green"
+                    />
+                    <span className="text-sm font-medium">{cat.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <a
+              href="/admin/projets/categories"
+              className="text-xs text-apc-green underline flex items-center gap-1 mt-2"
+            >
+              + Gérer les catégories
+            </a>
           </div>
 
           {/* Image de couverture */}

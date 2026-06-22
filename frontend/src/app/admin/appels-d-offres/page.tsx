@@ -82,7 +82,7 @@ export default function AdminAppelsOffresPage() {
         content: appel.content || "",
         fileUrl: appel.fileUrl || "",
         status: appel.status,
-        category: appel.category || "Fournitures"
+        category: (appel as any).category || "Fournitures"
       })
       setShowForm(true)
     } catch (error) {

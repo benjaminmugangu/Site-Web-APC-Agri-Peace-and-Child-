@@ -10,26 +10,13 @@ import {
   type ListProjectsOptions
 } from "@/lib/api/projects"
 import type { Project, ProjectStatus } from "@/types"
+import { listProjectCategories, type ProjectCategory } from "@/lib/api/project-categories"
 
 // ── Labels & constantes ──────────────────────────────────────────────────────
 const statusLabels: Record<string, { label: string; color: string; dot: string }> = {
   published: { label: "Publié",    color: "bg-green-100 text-green-700", dot: "bg-green-500" },
   draft:     { label: "Brouillon", color: "bg-amber-100 text-amber-700", dot: "bg-amber-400" },
   archived:  { label: "Archivé",   color: "bg-gray-100 text-gray-500",   dot: "bg-gray-400"  },
-}
-
-const categoryLabels: Record<string, string> = {
-  agriculture: "Agriculture",
-  protection:  "Protection",
-  dignite:     "Dignité",
-  paix:        "Paix",
-}
-
-const categoryColors: Record<string, string> = {
-  agriculture: "bg-green-50 text-green-700",
-  protection:  "bg-blue-50 text-blue-700",
-  dignite:     "bg-purple-50 text-purple-700",
-  paix:        "bg-orange-50 text-orange-700",
 }
 
 const tabs: { label: string; value: ProjectStatus | "all" }[] = [
@@ -44,6 +31,7 @@ const PER_PAGE = 8
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminProjects() {
   const [projects,    setProjects]    = useState<Project[]>([])
+  const [categories,  setCategories]  = useState<ProjectCategory[]>([])
   const [meta,        setMeta]        = useState({ total: 0, page: 1, perPage: PER_PAGE, totalPages: 1 })
   const [activeTab,   setActiveTab]   = useState<ProjectStatus | "all">("all")
   const [search,      setSearch]      = useState("")
@@ -75,6 +63,11 @@ export default function AdminProjects() {
       setLoading(false)
     }
   }, [activeTab, search])
+
+  // Chargement des catégories
+  useEffect(() => {
+    listProjectCategories().then(setCategories).catch(console.error)
+  }, [])
 
   // Rechargement sur changement de tab
   useEffect(() => {
@@ -329,8 +322,8 @@ export default function AdminProjects() {
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[project.category] || "bg-gray-100 text-gray-600"}`}>
-                        {categoryLabels[project.category] || project.category}
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                        {project.category?.name || '—'}
                       </span>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">

@@ -59,8 +59,8 @@ export default async function ProjetsPage() {
                     ) : (
                       <span className="text-4xl opacity-20">🌿</span>
                     )}
-                    <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[project.category] || "bg-white text-gray-600"}`}>
-                      {project.category}
+                    <span className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm text-apc-green">
+                      {project.category?.name || '—'}
                     </span>
                   </div>
 
