@@ -18,6 +18,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { getArticle, createArticle, updateArticle } from "@/lib/api/articles"
+import { newsCategoriesApi } from "@/lib/api/news-categories"
+import type { NewsCategory } from "@/types"
 import { toast } from "sonner"
 
 // Helper to slugify text
@@ -45,7 +47,8 @@ export default function AdminArticleEditor() {
   const [slug, setSlug] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("Rapport")
+  const [categoryId, setCategoryId] = useState("")
+  const [categories, setCategories] = useState<NewsCategory[]>([])
   const [author, setAuthor] = useState("Admin APC")
   const [readTime, setReadTime] = useState(5)
   const [status, setStatus] = useState<"draft" | "published" | "scheduled">("draft")
@@ -62,6 +65,16 @@ export default function AdminArticleEditor() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
       const articleId = params.get("id")
+      
+      // Charger les catégories en parallèle avec l'article
+      newsCategoriesApi.getAll().then((data) => {
+        const activeCats = data.filter(c => c.isActive)
+        setCategories(activeCats)
+        if (!articleId && activeCats.length > 0) {
+          setCategoryId(activeCats[0].id)
+        }
+      }).catch(console.error)
+
       if (articleId) {
         setId(articleId)
         fetchArticle(articleId)
@@ -95,7 +108,9 @@ export default function AdminArticleEditor() {
         setSlug(article.slug)
         setExcerpt(article.excerpt || "")
         setContent(article.content || "")
-        setCategory(article.category || "Rapport")
+        if (article.categoryId) {
+          setCategoryId(article.categoryId)
+        }
         setAuthor(article.author || "Admin APC")
         setReadTime(article.readTime || 5)
         setStatus(article.status || "draft")
@@ -140,6 +155,10 @@ export default function AdminArticleEditor() {
       toast.error("Veuillez uploader une image de couverture")
       return
     }
+    if (!categoryId) {
+      toast.error("Veuillez sélectionner une catégorie")
+      return
+    }
 
     const targetStatus = customStatus || status
 
@@ -154,7 +173,7 @@ export default function AdminArticleEditor() {
       slug,
       excerpt,
       content,
-      category,
+      categoryId,
       author,
       readTime: Number(readTime),
       status: targetStatus,
@@ -335,18 +354,16 @@ export default function AdminArticleEditor() {
                   <Tag size={12} /> Catégorie
                 </label>
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all bg-white text-sm text-gray-700 font-medium"
                 >
-                  <option value="Rapport">Rapport</option>
-                  <option value="Terrain">Terrain</option>
-                  <option value="Impact">Impact</option>
-                  <option value="Éducation">Éducation</option>
-                  <option value="Agriculture">Agriculture</option>
-                  <option value="Protection">Protection</option>
-                  <option value="Partenariat">Partenariat</option>
-                  <option value="Événement">Événement</option>
+                  <option value="" disabled>Sélectionner une catégorie...</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

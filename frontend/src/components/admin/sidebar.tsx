@@ -28,6 +28,7 @@ const menuItems = [
   { icon: Briefcase, label: "Réalisations", href: "/admin/projets", roles: ['ADMIN'] },
   { icon: Tag, label: "Catégories Projets", href: "/admin/projets/categories", roles: ['ADMIN'], subItem: true },
   { icon: Newspaper, label: "Actualités", href: "/admin/actualites", roles: ['ADMIN'] },
+  { icon: Tag, label: "Catégories Actualités", href: "/admin/actualites/categories", roles: ['ADMIN'], subItem: true },
   { icon: MessageSquare, label: "Témoignages", href: "/admin/temoignages", roles: ['ADMIN'] },
   { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois", roles: ['ADMIN', 'ADMIN_RH'] },

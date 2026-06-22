@@ -49,7 +49,7 @@ export default function AdminActualites() {
 
   const filteredArticles = articles.filter(a => 
     a.title.toLowerCase().includes(search.toLowerCase()) ||
-    (a.category && a.category.toLowerCase().includes(search.toLowerCase()))
+    (a.category?.name && a.category.name.toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
@@ -113,7 +113,7 @@ export default function AdminActualites() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md font-medium">
-                      {article.category}
+                      {article.category?.name ?? <span className="text-gray-400 italic">—</span>}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm">{article.author || "Admin"}</td>

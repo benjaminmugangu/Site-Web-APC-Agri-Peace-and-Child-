@@ -3,7 +3,16 @@
  */
 
 // --- ARTICLES ---
-export type ArticleCategory = "Impact" | "Rapport" | "Paix" | "Agriculture" | "Protection" | "Partenariat" | "Événement"
+export interface NewsCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ArticleStatus = "draft" | "published" | "scheduled"
 
 export interface Article {
@@ -12,7 +21,8 @@ export interface Article {
   slug: string
   excerpt: string
   content: string
-  category: ArticleCategory
+  categoryId: string
+  category?: NewsCategory
   author: string
   authorId: string
   readTime: number
