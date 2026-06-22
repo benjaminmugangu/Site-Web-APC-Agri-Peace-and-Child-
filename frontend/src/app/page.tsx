@@ -188,7 +188,7 @@ export default async function Home() {
                     )}
                     <div className="absolute top-4 left-4">
                       <span className="bg-white/90 backdrop-blur-sm text-apc-green text-xs font-bold px-3 py-1 rounded-full uppercase">
-                        {project.category}
+                        {project.category?.name || ''}
                       </span>
                     </div>
                   </div>

@@ -46,7 +46,7 @@ export default async function ProjetDetailPage({
   if (!project) notFound();
 
   // Fetch related projects (same category)
-  const relatedRes = await listProjects({ category: project.category, limit: 3 }).catch(() => ({ data: [] }));
+  const relatedRes = await listProjects({ category: project.category?.id, limit: 3 }).catch(() => ({ data: [] }));
   const otherProjects = Array.isArray(relatedRes?.data)
     ? relatedRes.data.filter((p: any) => p.id !== project.id).slice(0, 2)
     : [];
@@ -60,7 +60,7 @@ export default async function ProjetDetailPage({
           { label: "Projets", href: "/projets" },
           { label: project.title },
         ]}
-        tag={project.category}
+        tag={project.category?.name || 'Projet'}
       />
 
       <section className="py-16 bg-apc-bgLight min-h-screen">
@@ -102,7 +102,7 @@ export default async function ProjetDetailPage({
               {/* Category badge */}
               <div className="flex flex-wrap gap-3">
                 <span className="px-5 py-2 bg-white border border-border/50 rounded-2xl text-xs text-gray-500 font-bold uppercase tracking-widest shadow-sm">
-                  #{project.category}
+                  #{project.category?.name || '—'}
                 </span>
                 {project.province && (
                   <span className="px-5 py-2 bg-white border border-border/50 rounded-2xl text-xs text-gray-500 font-bold uppercase tracking-widest shadow-sm">
@@ -126,8 +126,8 @@ export default async function ProjetDetailPage({
                     </div>
                     <div>
                       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Catégorie</div>
-                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full border uppercase tracking-wider ${categoryColors[project.category] || "bg-gray-100"}`}>
-                        {project.category}
+                      <span className="text-[10px] font-bold px-3 py-1 rounded-full border uppercase tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200">
+                        {project.category?.name || '—'}
                       </span>
                     </div>
                   </div>
@@ -230,8 +230,8 @@ export default async function ProjetDetailPage({
                         )}
                       </div>
                       <div className="p-6 md:p-8 flex-1">
-                        <span className={`text-[10px] font-bold px-3 py-1 rounded-full border uppercase tracking-wider ${categoryColors[p.category] || "bg-gray-100"}`}>
-                          {p.category}
+                        <span className="text-[10px] font-bold px-3 py-1 rounded-full border uppercase tracking-wider bg-emerald-50 text-emerald-700 border-emerald-200">
+                          {p.category?.name || '—'}
                         </span>
                         <h4 className="font-bold text-gray-900 text-lg mt-4 mb-2 group-hover:text-apc-green transition-colors line-clamp-2">
                           {p.title}

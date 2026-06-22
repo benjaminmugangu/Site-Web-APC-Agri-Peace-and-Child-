@@ -15,7 +15,8 @@ import {
   ChevronRight,
   FileText,
   MessageSquare,
-  ShieldCheck
+  ShieldCheck,
+  Tag
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Cog, label: "Nos Services", href: "/admin/services", roles: ['ADMIN'] },
   { icon: Briefcase, label: "Réalisations", href: "/admin/projets", roles: ['ADMIN'] },
+  { icon: Tag, label: "Catégories Projets", href: "/admin/projets/categories", roles: ['ADMIN'], subItem: true },
   { icon: Newspaper, label: "Actualités", href: "/admin/actualites", roles: ['ADMIN'] },
   { icon: MessageSquare, label: "Témoignages", href: "/admin/temoignages", roles: ['ADMIN'] },
   { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres", roles: ['ADMIN', 'ADMIN_RH'] },
@@ -97,13 +99,14 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
         {menuItems.filter(item => {
           return item.roles.includes(userRole)
         }).map((item) => {
-          const isActive = pathname === item.href
+          const isActive = item.href === '/admin' ? pathname === item.href : pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group",
+                item.subItem ? "ml-4" : "",
                 isActive 
                   ? "bg-white/10 text-apc-greenLight font-semibold" 
                   : "text-white/70 hover:bg-white/5 hover:text-white"
@@ -111,9 +114,10 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
             >
               <item.icon className={cn(
                 "w-5 h-5 transition-transform group-hover:scale-110",
+                item.subItem ? "w-4 h-4" : "",
                 isActive ? "text-apc-greenLight" : "text-white/60 group-hover:text-white"
               )} />
-              {!isCollapsed && <span className="text-sm">{item.label}</span>}
+              {!isCollapsed && <span className={cn("text-sm", item.subItem ? "text-xs" : "")}>{item.label}</span>}
             </Link>
           )
         })}
