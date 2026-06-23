@@ -34,6 +34,8 @@ const menuItems = [
   { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: FileText, label: "Candidatures", href: "/admin/candidatures", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Users, label: "Experts / Équipe", href: "/admin/equipe", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: ShieldCheck, label: "Partenaires", href: "/admin/partenaires", roles: ['ADMIN'] },
+  { icon: Tag, label: "Types Partenaires", href: "/admin/partenaires/categories", roles: ['ADMIN'], subItem: true },
   { icon: MessageSquare, label: "Messages", href: "/admin/messages", roles: ['ADMIN'] },
   { icon: ShieldCheck, label: "Utilisateurs", href: "/admin/utilisateurs", roles: ['ADMIN'] },
   { icon: Settings, label: "Paramètres", href: "/admin/parametres", roles: ['ADMIN'] },

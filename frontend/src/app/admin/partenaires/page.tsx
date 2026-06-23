@@ -21,18 +21,12 @@ import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { listPartners, createPartner, updatePartner, deletePartner, getPartner } from "@/lib/api/partners"
 import { toast } from "sonner"
-import { type Partner } from "@/types"
-
-const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  DONOR:     { label: "Bailleur de fonds",    color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  TECHNICAL: { label: "Partenaire Technique", color: "bg-blue-100 text-blue-700 border-blue-200" },
-  LOCAL:     { label: "Partenaire Local",     color: "bg-amber-100 text-amber-700 border-amber-200" },
-  STRATEGIC: { label: "Partenaire Stratégique", color: "bg-purple-100 text-purple-700 border-purple-200" },
-}
+import { partnerCategoriesApi } from "@/lib/api/partner-categories"
+import { type Partner, type PartnerCategory } from "@/types"
 
 const emptyForm = {
   name: "",
-  type: "TECHNICAL" as Partner["type"],
+  categoryId: "",
   logoUrl: "",
   websiteUrl: "",
   description: "",
@@ -45,6 +39,7 @@ const emptyForm = {
 
 export default function AdminPartenairesPage() {
   const [partenaires, setPartenaires] = useState<Partner[]>([])
+  const [categories, setCategories] = useState<PartnerCategory[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null)
   const [loading, setLoading] = useState(false)
@@ -57,8 +52,12 @@ export default function AdminPartenairesPage() {
     setFetching(true)
     setError(null)
     try {
-      const result = await listPartners()
-      setPartenaires(Array.isArray(result) ? result : [])
+      const [parts, cats] = await Promise.all([
+        listPartners(),
+        partnerCategoriesApi.getAll()
+      ])
+      setPartenaires(Array.isArray(parts) ? parts : [])
+      setCategories(cats)
     } catch (err: any) {
       setError("Impossible de charger la liste des partenaires. Veuillez réessayer.")
     } finally {
@@ -82,7 +81,7 @@ export default function AdminPartenairesPage() {
       setEditingPartner(partner)
       setFormData({
         name: partner.name,
-        type: partner.type,
+        categoryId: partner.categoryId || "",
         logoUrl: partner.logoUrl || "",
         websiteUrl: partner.websiteUrl || "",
         description: partner.description || "",
@@ -246,8 +245,8 @@ export default function AdminPartenairesPage() {
                       </td>
                       {/* Type */}
                       <td className="px-6 py-4">
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${TYPE_LABELS[p.type]?.color || "bg-gray-100 text-gray-600 border-gray-200"}`}>
-                          {TYPE_LABELS[p.type]?.label || p.type}
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-blue-50 text-blue-700 border-blue-200">
+                          {p.category?.name || "Non catégorisé"}
                         </span>
                       </td>
                       {/* Contact */}
@@ -321,14 +320,15 @@ export default function AdminPartenairesPage() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Type de Partenariat *</label>
                   <select
-                    value={formData.type}
-                    onChange={e => setFormData({ ...formData, type: e.target.value as any })}
+                    value={formData.categoryId}
+                    onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 bg-white text-sm font-medium"
+                    required
                   >
-                    <option value="DONOR">Bailleur de fonds (DONOR)</option>
-                    <option value="TECHNICAL">Partenaire Technique</option>
-                    <option value="LOCAL">Partenaire Local</option>
-                    <option value="STRATEGIC">Partenaire Stratégique</option>
+                    <option value="" disabled>Sélectionner un type...</option>
+                    {categories.filter(c => c.isActive).map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
