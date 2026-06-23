@@ -169,10 +169,21 @@ export interface SiteSettings {
 }
 
 // --- PARTNERS ---
+export interface PartnerCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Partner {
   id: string;
   name: string;
-  type: "DONOR" | "TECHNICAL" | "LOCAL" | "STRATEGIC";
+  categoryId?: string;
+  category?: PartnerCategory;
   logoUrl?: string;
   websiteUrl?: string;
   description?: string;
