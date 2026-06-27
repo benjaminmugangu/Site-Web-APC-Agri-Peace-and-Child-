@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, Loader2, Tag, ToggleLeft, ToggleRight, X, Check } f
 import { Button } from "@/components/ui/button"
 import { newsCategoriesApi } from "@/lib/api/news-categories"
 import type { NewsCategory } from "@/types"
+import { useRole } from "@/hooks/useRole"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function slugify(str: string) {
@@ -18,6 +19,8 @@ function slugify(str: string) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminNewsCategories() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [categories, setCategories] = useState<NewsCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
@@ -143,12 +146,19 @@ export default function AdminNewsCategories() {
             Gérez les thématiques et catégories des articles de blog et actualités.
           </p>
         </div>
-        <Button
-          onClick={openCreate}
-          className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white"
-        >
-          <Plus size={18} /> Nouvelle Catégorie
-        </Button>
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+          )}
+          {canEdit && (
+            <Button
+              onClick={openCreate}
+              className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white"
+            >
+              <Plus size={18} /> Nouvelle Catégorie
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Info banner */}
@@ -203,11 +213,12 @@ export default function AdminNewsCategories() {
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleToggle(cat)}
+                      disabled={!canEdit}
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
                         cat.isActive
                           ? "bg-green-100 text-green-700 hover:bg-green-200"
                           : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                      }`}
+                      } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {cat.isActive ? <ToggleRight size={13} /> : <ToggleLeft size={13} />}
                       {cat.isActive ? "Actif" : "Inactif"}
@@ -215,22 +226,26 @@ export default function AdminNewsCategories() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-8 w-8 text-apc-green hover:bg-green-50"
-                        title="Modifier"
-                        onClick={() => openEdit(cat)}
-                      >
-                        <Edit size={15} />
-                      </Button>
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-8 w-8 text-red-500 hover:bg-red-50"
-                        title="Supprimer"
-                        onClick={() => setDeleteModal(cat)}
-                      >
-                        <Trash2 size={15} />
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button
+                            variant="ghost" size="icon"
+                            className="h-8 w-8 text-apc-green hover:bg-green-50"
+                            title="Modifier"
+                            onClick={() => openEdit(cat)}
+                          >
+                            <Edit size={15} />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon"
+                            className="h-8 w-8 text-red-500 hover:bg-red-50"
+                            title="Supprimer"
+                            onClick={() => setDeleteModal(cat)}
+                          >
+                            <Trash2 size={15} />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

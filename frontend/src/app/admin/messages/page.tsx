@@ -19,8 +19,11 @@ import { listMessages, updateMessageStatus, deleteMessage } from "@/lib/api/mess
 import { type Message } from "@/types"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { useRole } from "@/hooks/useRole"
 
 export default function MessagesPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -86,6 +89,11 @@ export default function MessagesPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Messages & Contacts</h1>
           <p className="text-gray-500 text-sm mt-1">Gérez les demandes de contact, dons et partenariats.</p>
+        </div>
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+          )}
         </div>
       </div>
 
@@ -193,34 +201,38 @@ export default function MessagesPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {message.status === 'unread' && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-bold"
-                        onClick={() => handleStatusChange(message.id, 'read')}
-                      >
-                        Marquer comme lu
-                      </Button>
+                    {canEdit && (
+                      <>
+                        {message.status === 'unread' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-bold"
+                            onClick={() => handleStatusChange(message.id, 'read')}
+                          >
+                            Marquer comme lu
+                          </Button>
+                        )}
+                        {message.status !== 'replied' && message.status !== 'unread' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-bold"
+                            onClick={() => handleStatusChange(message.id, 'replied')}
+                          >
+                            Répondre
+                          </Button>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                          onClick={() => handleDelete(message.id)}
+                        >
+                          <Trash2 size={18} />
+                        </Button>
+                      </>
                     )}
-                    {message.status !== 'replied' && message.status !== 'unread' && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-bold"
-                        onClick={() => handleStatusChange(message.id, 'replied')}
-                      >
-                        Répondre
-                      </Button>
-                    )}
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                      onClick={() => handleDelete(message.id)}
-                    >
-                      <Trash2 size={18} />
-                    </Button>
                   </div>
                 </div>
               </div>

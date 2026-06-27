@@ -16,8 +16,11 @@ import {
   getTestimonial
 } from "@/lib/api/testimonials"
 import { toast } from "sonner"
+import { useRole } from "@/hooks/useRole"
 
 export default function AdminTestimonialPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [testimonials, setTestimonials] = useState<any[]>([])
   const [filteredTestimonials, setFilteredTestimonials] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
@@ -214,15 +217,21 @@ export default function AdminTestimonialPage() {
               : "Gérez les récits et témoignages de réussite des bénéficiaires pour le site public."}
           </p>
         </div>
-        {!showForm ? (
-          <Button onClick={handleAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-6 rounded-xl shadow-lg shadow-emerald-600/10">
-            <Plus size={18} /> Ajouter un Témoignage
-          </Button>
-        ) : (
-          <Button onClick={handleCancel} variant="outline" className="gap-2 border-gray-200 hover:bg-gray-50">
-            <ArrowLeft size={18} /> Retour à la liste
-          </Button>
-        )}
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium h-fit">👁️ Lecture seule</span>
+          )}
+          {!showForm && canEdit && (
+            <Button onClick={handleAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-6 rounded-xl shadow-lg shadow-emerald-600/10">
+              <Plus size={18} /> Ajouter un Témoignage
+            </Button>
+          )}
+          {showForm && (
+            <Button onClick={handleCancel} variant="outline" className="gap-2 border-gray-200 hover:bg-gray-50 h-fit">
+              <ArrowLeft size={18} /> Retour à la liste
+            </Button>
+          )}
+        </div>
       </div>
 
       {!showForm ? (
@@ -323,22 +332,26 @@ export default function AdminTestimonialPage() {
                               <Eye size={15} />
                             </Button>
                           </Link>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleEdit(testimonial.id)}
-                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          >
-                            <Edit size={15} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleDelete(testimonial.id)}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 size={15} />
-                          </Button>
+                          {canEdit && (
+                            <>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleEdit(testimonial.id)}
+                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              >
+                                <Edit size={15} />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleDelete(testimonial.id)}
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 size={15} />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -8,8 +8,11 @@ import { domainService } from "@/lib/api/services"
 import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import { useRole } from "@/hooks/useRole"
 
 export default function AdminServicesPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [services, setServices] = useState<Service[]>([])
   const [fetching, setFetching] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -169,16 +172,21 @@ export default function AdminServicesPage() {
               : "Configurez les domaines d'intervention d'Agri-Peace and Child."}
           </p>
         </div>
-        {!showForm && (
-          <Button onClick={handleAdd} className="gap-2 bg-apc-green hover:bg-green-700">
-            <Plus size={18} /> Ajouter un Service
-          </Button>
-        )}
-        {showForm && (
-          <Button onClick={handleCancel} variant="outline" className="gap-2">
-            <ArrowLeft size={18} /> Retour à la liste
-          </Button>
-        )}
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+          )}
+          {!showForm && canEdit && (
+            <Button onClick={handleAdd} className="gap-2 bg-apc-green hover:bg-green-700">
+              <Plus size={18} /> Ajouter un Service
+            </Button>
+          )}
+          {showForm && (
+            <Button onClick={handleCancel} variant="outline" className="gap-2">
+              <ArrowLeft size={18} /> Retour à la liste
+            </Button>
+          )}
+        </div>
       </div>
 
       {!showForm ? (
@@ -219,22 +227,26 @@ export default function AdminServicesPage() {
                           <Eye size={16} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleEdit(service)}
-                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleDelete(service.id)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleEdit(service)}
+                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleDelete(service.id)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
