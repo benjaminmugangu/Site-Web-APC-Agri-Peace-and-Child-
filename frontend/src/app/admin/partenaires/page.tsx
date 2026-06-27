@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { listPartners, createPartner, updatePartner, deletePartner, getPartner } from "@/lib/api/partners"
 import { toast } from "sonner"
+import { useRole } from "@/hooks/useRole"
 import { partnerCategoriesApi } from "@/lib/api/partner-categories"
 import { type Partner, type PartnerCategory } from "@/types"
 
@@ -38,6 +39,8 @@ const emptyForm = {
 }
 
 export default function AdminPartenairesPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [partenaires, setPartenaires] = useState<Partner[]>([])
   const [categories, setCategories] = useState<PartnerCategory[]>([])
   const [showForm, setShowForm] = useState(false)

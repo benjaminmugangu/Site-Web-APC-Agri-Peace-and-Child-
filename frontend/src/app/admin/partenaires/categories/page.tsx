@@ -161,7 +161,7 @@ export default function AdminPartnerCategories() {
       </div>
 
       {/* Category list */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[300px]">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="animate-spin text-apc-green" size={36} />
