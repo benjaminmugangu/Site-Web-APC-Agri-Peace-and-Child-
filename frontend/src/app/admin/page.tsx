@@ -9,67 +9,28 @@ import {
   Plus,
   Clock,
   FileText,
+  MessageSquare,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { listProjects } from "@/lib/api/projects"
-import { listTeam } from "@/lib/api/team"
-import { listMessages } from "@/lib/api/messages"
-import { listCareers } from "@/lib/api/careers"
-import { listArticles } from "@/lib/api/articles"
-import { listTenders } from "@/lib/api/tenders"
-import { domainService } from "@/lib/api/services"
+import { dashboardService, type DashboardStats, type DashboardStatsAdmin } from "@/lib/api/dashboard"
 import { useRole } from "@/hooks/useRole"
 
+function isAdmin(stats: DashboardStats): stats is DashboardStatsAdmin {
+  return stats.role === 'ADMIN'
+}
+
 export default function AdminDashboard() {
-  const { isAdmin } = useRole()
-  const [stats, setStats] = useState<any>(null)
+  const { isAdmin: userIsAdmin } = useRole()
+  const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function loadStats() {
-      try {
-        // Use Promise.allSettled so one failed API doesn't crash the entire dashboard
-        const results = await Promise.allSettled([
-          listProjects({ limit: 1 }),
-          listTeam(),
-          listMessages({ perPage: 1 }),
-          listCareers(),
-          listArticles({ perPage: 1 }),
-          listTenders(),
-          domainService.list()
-        ])
-
-        const getValue = (result: PromiseSettledResult<any>, fallback: any = []) => {
-          return result.status === 'fulfilled' ? result.value : fallback
-        }
-
-        const projects = getValue(results[0])
-        const team = getValue(results[1])
-        const messages = getValue(results[2])
-        const careers = getValue(results[3])
-        const articles = getValue(results[4])
-        const tenders = getValue(results[5])
-        const services = getValue(results[6])
-
-        setStats({
-          services: { value: Array.isArray(services) ? services.length : 0, label: "Nos Services", href: "/admin/services", description: "Gérer les services →" },
-          realisations: { value: projects?.meta?.total || 0, label: "Réalisations", href: "/admin/projets", description: "Voir les projets →" },
-          emplois: { value: Array.isArray(careers) ? careers.length : 0, label: "Offres d'Emploi", href: "/admin/emplois", description: "Recrutements →" },
-          equipe: { value: Array.isArray(team) ? team.length : 0, label: "Experts / Équipe", href: "/admin/equipe", description: "Gérer l'équipe →" },
-          actualites: { value: articles?.meta?.total || 0, label: "Actualités", href: "/admin/actualites", description: "Gérer les articles →" },
-          appels: { value: Array.isArray(tenders) ? tenders.length : 0, label: "Appels d'Offres", href: "/admin/appels-d-offres", description: "Marchés publics →" },
-          utilisateurs: { value: "👥", label: "Utilisateurs", href: "/admin/utilisateurs", description: "Gérer les accès →", adminOnly: true },
-          parametres: { value: "⚙️", label: "Paramètres", href: "/admin/parametres", description: "Configuration globale →", adminOnly: true }
-        })
-      } catch (error: any) {
-        console.error("Erreur chargement stats:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadStats()
+    dashboardService.getStats().then((data) => {
+      setStats(data)
+      setLoading(false)
+    })
   }, [])
 
   if (loading) {
@@ -80,33 +41,45 @@ export default function AdminDashboard() {
     )
   }
 
-  const baseCards = stats ? [
-    stats.services,
-    stats.realisations,
-    stats.emplois,
-    stats.equipe,
-    stats.actualites,
-    stats.appels
-  ] : []
-
-  if (stats && isAdmin) {
-    baseCards.push(stats.utilisateurs, stats.parametres)
+  // ─── Construction des cards dynamiques selon le rôle ──────────────────────
+  type CardDef = {
+    label: string
+    value: number | string
+    href: string
+    description: string
+    badge?: string
+    icon: React.ElementType
+    color: string
+    bg: string
   }
 
-  const adminCards = baseCards.map((s, i) => {
-    const configs = [
-      { icon: Cog, color: "text-blue-600", bg: "bg-blue-50" },
-      { icon: Briefcase, color: "text-emerald-600", bg: "bg-emerald-50" },
-      { icon: Search, color: "text-amber-600", bg: "bg-amber-50" },
-      { icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-      { icon: Newspaper, color: "text-cyan-600", bg: "bg-cyan-50" },
-      { icon: FileText, color: "text-red-600", bg: "bg-red-50" },
-      { icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
-      { icon: Cog, color: "text-slate-600", bg: "bg-slate-50" },
-    ]
-    return { ...s, ...configs[i] }
-  })
+  const cards: CardDef[] = []
 
+  if (stats && isAdmin(stats)) {
+    cards.push(
+      { label: stats.services.label, value: stats.services.total, href: stats.services.href, description: "Gérer les services →", icon: Cog, color: "text-blue-600", bg: "bg-blue-50" },
+      { label: stats.projets.label, value: stats.projets.total, href: stats.projets.href, description: `${stats.projets.publies} publiés →`, icon: Briefcase, color: "text-emerald-600", bg: "bg-emerald-50" },
+      { label: stats.actualites.label, value: stats.actualites.total, href: stats.actualites.href, description: `${stats.actualites.publiees} publiées →`, icon: Newspaper, color: "text-cyan-600", bg: "bg-cyan-50" },
+      { label: stats.messages.label, value: stats.messages.total, href: stats.messages.href, description: "Voir les messages →", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-50", badge: stats.messages.nonLus > 0 ? `${stats.messages.nonLus} non lu(s)` : undefined },
+    )
+  }
+
+  if (stats) {
+    cards.push(
+      { label: stats.emplois.label, value: stats.emplois.total, href: stats.emplois.href, description: `${stats.emplois.actifs} actif(s) →`, icon: Search, color: "text-amber-600", bg: "bg-amber-50" },
+      { label: stats.equipe.label, value: stats.equipe.total, href: stats.equipe.href, description: "Gérer l'équipe →", icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+      { label: stats.appels.label, value: stats.appels.total, href: stats.appels.href, description: `${stats.appels.actifs} actif(s) →`, icon: FileText, color: "text-red-600", bg: "bg-red-50" },
+    )
+  }
+
+  if (stats && isAdmin(stats) && userIsAdmin) {
+    cards.push(
+      { label: "Utilisateurs", value: "👥", href: "/admin/utilisateurs", description: "Gérer les accès →", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+      { label: "Paramètres", value: "⚙️", href: "/admin/parametres", description: "Configuration globale →", icon: Cog, color: "text-slate-600", bg: "bg-slate-50" },
+    )
+  }
+
+  const unreadMessages = stats && isAdmin(stats) ? stats.messages.nonLus : 0
 
   return (
     <div className="space-y-8">
@@ -116,20 +89,27 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Tableau de Bord Administration</h1>
           <p className="text-gray-500 text-sm mt-1">Gestion des contenus de la plateforme Agri-Peace and Child.</p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin/projets/editeur">
-            <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f]">
-              <Plus size={18} /> Nouveau Projet
-            </Button>
-          </Link>
-        </div>
+        {userIsAdmin && (
+          <div className="flex gap-3">
+            <Link href="/admin/projets/editeur">
+              <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f]">
+                <Plus size={18} /> Nouveau Projet
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* Admin Cards Grid — each card is fully clickable */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-5">
-        {adminCards.map((card) => (
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {cards.map((card) => (
           <Link key={card.label} href={card.href} className="block">
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group cursor-pointer h-full">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group cursor-pointer h-full relative">
+              {card.badge && (
+                <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {card.badge}
+                </span>
+              )}
               <div className={`w-12 h-12 rounded-xl ${card.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <card.icon size={24} className={card.color} />
               </div>
@@ -145,14 +125,16 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Main Grid / Notifications */}
+      {/* Notifications */}
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Clock size={18} className="text-apc-green" /> Notifications & Activités Récentes
+              <Clock size={18} className="text-apc-green" /> Notifications &amp; Activités Récentes
             </h3>
-            <span className="text-xs text-gray-400 font-medium px-2 py-1 bg-gray-100 rounded-full">0 nouvelles alertes</span>
+            <span className="text-xs text-gray-400 font-medium px-2 py-1 bg-gray-100 rounded-full">
+              {unreadMessages > 0 ? `${unreadMessages} message(s) non lu(s)` : "0 nouvelles alertes"}
+            </span>
           </div>
           <div className="p-12 text-center">
             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
