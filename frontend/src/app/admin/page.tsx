@@ -20,8 +20,10 @@ import { listCareers } from "@/lib/api/careers"
 import { listArticles } from "@/lib/api/articles"
 import { listTenders } from "@/lib/api/tenders"
 import { domainService } from "@/lib/api/services"
+import { useRole } from "@/hooks/useRole"
 
 export default function AdminDashboard() {
+  const { isAdmin } = useRole()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -58,6 +60,8 @@ export default function AdminDashboard() {
           equipe: { value: Array.isArray(team) ? team.length : 0, label: "Experts / Équipe", href: "/admin/equipe", description: "Gérer l'équipe →" },
           actualites: { value: articles?.meta?.total || 0, label: "Actualités", href: "/admin/actualites", description: "Gérer les articles →" },
           appels: { value: Array.isArray(tenders) ? tenders.length : 0, label: "Appels d'Offres", href: "/admin/appels-d-offres", description: "Marchés publics →" },
+          utilisateurs: { value: "👥", label: "Utilisateurs", href: "/admin/utilisateurs", description: "Gérer les accès →", adminOnly: true },
+          parametres: { value: "⚙️", label: "Paramètres", href: "/admin/parametres", description: "Configuration globale →", adminOnly: true }
         })
       } catch (error: any) {
         console.error("Erreur chargement stats:", error)
@@ -76,14 +80,20 @@ export default function AdminDashboard() {
     )
   }
 
-  const adminCards = stats ? [
+  const baseCards = stats ? [
     stats.services,
     stats.realisations,
     stats.emplois,
     stats.equipe,
     stats.actualites,
     stats.appels
-  ].map((s, i) => {
+  ] : []
+
+  if (stats && isAdmin) {
+    baseCards.push(stats.utilisateurs, stats.parametres)
+  }
+
+  const adminCards = baseCards.map((s, i) => {
     const configs = [
       { icon: Cog, color: "text-blue-600", bg: "bg-blue-50" },
       { icon: Briefcase, color: "text-emerald-600", bg: "bg-emerald-50" },
@@ -91,9 +101,11 @@ export default function AdminDashboard() {
       { icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
       { icon: Newspaper, color: "text-cyan-600", bg: "bg-cyan-50" },
       { icon: FileText, color: "text-red-600", bg: "bg-red-50" },
+      { icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+      { icon: Cog, color: "text-slate-600", bg: "bg-slate-50" },
     ]
     return { ...s, ...configs[i] }
-  }) : []
+  })
 
 
   return (
