@@ -11,6 +11,7 @@ import {
 } from "@/lib/api/projects"
 import type { Project, ProjectStatus } from "@/types"
 import { listProjectCategories, type ProjectCategory } from "@/lib/api/project-categories"
+import { useRole } from "@/hooks/useRole"
 
 // ── Labels & constantes ──────────────────────────────────────────────────────
 const statusLabels: Record<string, { label: string; color: string; dot: string }> = {
@@ -30,6 +31,8 @@ const PER_PAGE = 8
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminProjects() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [projects,    setProjects]    = useState<Project[]>([])
   const [categories,  setCategories]  = useState<ProjectCategory[]>([])
   const [meta,        setMeta]        = useState({ total: 0, page: 1, perPage: PER_PAGE, totalPages: 1 })

@@ -10,9 +10,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { listTeam, createTeamMember, updateTeamMember, deleteTeamMember, getTeamMember } from "@/lib/api/team"
+import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 
 export default function AdminEquipePage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('rh')
   const [team, setTeam] = useState<any[]>([])
   const [filteredTeam, setFilteredTeam] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
@@ -235,11 +238,15 @@ export default function AdminEquipePage() {
               : "Gérez les membres de l'organisation et les experts affichés sur le site."}
           </p>
         </div>
-        {!showForm ? (
+        {!showForm && canEdit && (
           <Button onClick={handleAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-6 rounded-xl shadow-lg shadow-emerald-600/10">
             <UserPlus size={18} /> Ajouter un Expert
           </Button>
-        ) : (
+        )}
+        {!showForm && !canEdit && (
+          <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+        )}
+        {showForm && (
           <Button onClick={handleCancel} variant="outline" className="gap-2 border-gray-200 hover:bg-gray-50">
             <ArrowLeft size={18} /> Retour à l'annuaire
           </Button>

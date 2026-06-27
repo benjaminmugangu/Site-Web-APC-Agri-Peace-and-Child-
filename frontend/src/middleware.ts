@@ -33,26 +33,23 @@ export function middleware(request: NextRequest) {
       const payload = JSON.parse(payloadString)
       const role = payload.role || 'ADMIN'
 
-      const isHRRoute = pathname.startsWith('/admin/emplois') || 
-                        pathname.startsWith('/admin/candidatures') || 
-                        pathname.startsWith('/admin/appels-d-offres') || 
-                        pathname.startsWith('/admin/equipe')
+      // Routes réservées exclusivement à l'ADMIN (zéro accès pour ADMIN_RH)
+      const adminOnlyRoutes = [
+        '/admin/utilisateurs',
+        '/admin/parametres',
+      ]
 
       if (role === 'ADMIN_RH') {
-        // ADMIN_RH n'a accès qu'aux routes RH et au Dashboard (optionnel)
-        if (!isHRRoute && pathname !== '/admin') {
+        // ADMIN_RH n'a pas accès aux routes admin-only
+        if (adminOnlyRoutes.some(r => pathname.startsWith(r))) {
           return NextResponse.redirect(new URL("/admin/emplois", request.url))
         }
-        // Si page d'accueil de l'admin, on le redirige vers sa section
+        // Rediriger /admin (dashboard) vers sa section RH
         if (pathname === '/admin' || pathname === '/admin/') {
           return NextResponse.redirect(new URL("/admin/emplois", request.url))
         }
-      } else {
-        // ADMIN (Tech) n'a pas accès aux routes RH
-        if (isHRRoute) {
-          return NextResponse.redirect(new URL("/admin/utilisateurs", request.url))
-        }
       }
+      // ADMIN peut accéder à tout — la restriction lecture/écriture est gérée côté page
     } catch (e) {
       // En cas d'erreur de parsing, on laisse passer, l'API bloquera si token invalide
     }

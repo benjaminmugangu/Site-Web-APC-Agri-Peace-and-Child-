@@ -21,10 +21,13 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 import { listTenders, createTender, updateTender, deleteTender, getTender } from "@/lib/api/tenders"
+import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
 export default function AdminAppelsOffresPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('rh')
   const [appels, setAppels] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingAppel, setEditingAppel] = useState<any>(null)
@@ -145,10 +148,13 @@ export default function AdminAppelsOffresPage() {
               : "Publiez des dossiers d'appels d'offres et suivez les soumissions des prestataires."}
           </p>
         </div>
-        {!showForm && (
+        {!showForm && canEdit && (
           <Button onClick={handleAdd} className="gap-2 bg-apc-blue hover:bg-blue-700 shadow-lg shadow-apc-blue/20 text-white font-bold">
             <Plus size={18} /> Nouvel Appel d&apos;Offres
           </Button>
+        )}
+        {!showForm && !canEdit && (
+          <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
         )}
         {showForm && (
           <Button onClick={handleCancel} variant="outline" className="gap-2">

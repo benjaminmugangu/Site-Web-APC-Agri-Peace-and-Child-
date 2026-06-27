@@ -21,10 +21,13 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 import { listCareers, listAdminCareers, createCareer, updateCareer, deleteCareer, getCareer } from "@/lib/api/careers"
+import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
 export default function AdminEmploisPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('rh')
   const [emplois, setEmplois] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingJob, setEditingJob] = useState<any>(null)
@@ -160,10 +163,13 @@ export default function AdminEmploisPage() {
               : "Publiez et gérez les opportunités de carrière au sein d'Agri-Peace and Child."}
           </p>
         </div>
-        {!showForm && (
+        {!showForm && canEdit && (
           <Button onClick={handleAdd} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
             <Plus size={18} /> Publier une Offre
           </Button>
+        )}
+        {!showForm && !canEdit && (
+          <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
         )}
         {showForm && (
           <Button onClick={handleCancel} variant="outline" className="gap-2">
@@ -225,6 +231,8 @@ export default function AdminEmploisPage() {
                           size="sm" 
                           onClick={() => handleEdit(offre.id)}
                           className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          disabled={!canEdit}
+                          style={!canEdit ? {display:'none'} : {}}
                         >
                           <Edit size={16} />
                         </Button>
@@ -233,6 +241,8 @@ export default function AdminEmploisPage() {
                         size="sm" 
                         onClick={() => handleDelete(offre.id)}
                         className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={!canEdit}
+                        style={!canEdit ? {display:'none'} : {}}
                       >
                         <Trash2 size={16} />
                       </Button>

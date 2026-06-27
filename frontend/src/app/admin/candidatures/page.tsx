@@ -17,11 +17,14 @@ import {
 import { Button } from "@/components/ui/button"
 
 import { listApplications, updateApplicationStatus, deleteApplication } from "@/lib/api/careers"
+import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 
 export default function AdminCandidaturesPage() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('rh')
   const [applications, setApplications] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
