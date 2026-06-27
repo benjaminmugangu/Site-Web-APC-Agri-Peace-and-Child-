@@ -56,8 +56,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Injecter le pathname et le rôle dans les headers pour le layout (Server Component)
-  const response = NextResponse.next()
-  response.headers.set("x-pathname", pathname)
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", pathname)
   
   const session = request.cookies.get(SESSION_COOKIE)
   if (session?.value) {
@@ -67,12 +67,16 @@ export function middleware(request: NextRequest) {
       if (pad) payloadBase64 += '='.repeat(4 - pad)
       const payload = JSON.parse(atob(payloadBase64))
       if (payload.role) {
-        response.headers.set("x-user-role", payload.role)
+        requestHeaders.set("x-user-role", payload.role)
       }
     } catch(e) {}
   }
   
-  return response
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    }
+  })
 }
 
 export const config = {
