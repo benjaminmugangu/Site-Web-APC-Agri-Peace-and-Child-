@@ -219,11 +219,18 @@ export default function AdminProjects() {
             {loading ? "Chargement..." : `${meta.total} projet(s) au total`}
           </p>
         </div>
-        <Link href="/admin/projets/editeur">
-          <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white">
-            <Plus size={18} /> Nouveau Projet
-          </Button>
-        </Link>
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+          )}
+          {canEdit && (
+            <Link href="/admin/projets/editeur">
+              <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white">
+                <Plus size={18} /> Nouveau Projet
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Onglets statuts */}
@@ -256,7 +263,7 @@ export default function AdminProjects() {
           />
         </div>
 
-        {selectedIds.length > 0 && (
+        {canEdit && selectedIds.length > 0 && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
             <span className="text-sm text-red-700 font-medium">{selectedIds.length} sélectionné(s)</span>
             <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-100 h-7 text-xs gap-1" onClick={handleBulkDelete}>
@@ -345,55 +352,59 @@ export default function AdminProjects() {
                             <Eye size={15} />
                           </Button>
                         </Link>
-                        <Link href={`/admin/projets/${project.id}/edit`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-apc-green hover:bg-green-50" title="Modifier">
-                            <Edit size={15} />
-                          </Button>
-                        </Link>
-                        <div className="relative">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => setOpenMenuId(openMenuId === project.id ? null : project.id)}
-                          >
-                            <MoreVertical size={15} />
-                          </Button>
-                          {openMenuId === project.id && (
-                            <div className="absolute right-0 top-9 z-20 bg-white border border-gray-100 rounded-xl shadow-xl w-48 py-1 text-sm">
-                              <button
-                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                                onClick={() => handleTogglePublish(project)}
-                              >
-                                {project.status === "published"
-                                  ? <><ToggleLeft size={15} className="text-amber-500" /> Dépublier</>
-                                  : <><ToggleRight size={15} className="text-green-500" /> Publier</>
-                                }
-                              </button>
-                              <button
-                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                                onClick={() => handleDuplicate(project)}
-                              >
-                                <Copy size={15} className="text-purple-500" /> Dupliquer
-                              </button>
-                              {project.status !== "archived" && (
+                        {canEdit && (
+                          <Link href={`/admin/projets/${project.id}/edit`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-apc-green hover:bg-green-50" title="Modifier">
+                              <Edit size={15} />
+                            </Button>
+                          </Link>
+                        )}
+                        {canEdit && (
+                          <div className="relative">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setOpenMenuId(openMenuId === project.id ? null : project.id)}
+                            >
+                              <MoreVertical size={15} />
+                            </Button>
+                            {openMenuId === project.id && (
+                              <div className="absolute right-0 top-9 z-20 bg-white border border-gray-100 rounded-xl shadow-xl w-48 py-1 text-sm">
                                 <button
                                   className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                                  onClick={() => handleArchive(project)}
+                                  onClick={() => handleTogglePublish(project)}
                                 >
-                                  <Archive size={15} className="text-gray-500" /> Archiver
+                                  {project.status === "published"
+                                    ? <><ToggleLeft size={15} className="text-amber-500" /> Dépublier</>
+                                    : <><ToggleRight size={15} className="text-green-500" /> Publier</>
+                                  }
                                 </button>
-                              )}
-                              <div className="border-t border-gray-100 my-1" />
-                              <button
-                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600"
-                                onClick={() => { setDeleteModal(project); setOpenMenuId(null) }}
-                              >
-                                <Trash2 size={15} /> Supprimer
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                                <button
+                                  className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
+                                  onClick={() => handleDuplicate(project)}
+                                >
+                                  <Copy size={15} className="text-purple-500" /> Dupliquer
+                                </button>
+                                {project.status !== "archived" && (
+                                  <button
+                                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-gray-700"
+                                    onClick={() => handleArchive(project)}
+                                  >
+                                    <Archive size={15} className="text-gray-500" /> Archiver
+                                  </button>
+                                )}
+                                <div className="border-t border-gray-100 my-1" />
+                                <button
+                                  className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600"
+                                  onClick={() => { setDeleteModal(project); setOpenMenuId(null) }}
+                                >
+                                  <Trash2 size={15} /> Supprimer
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -14,8 +14,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { listArticles, deleteArticle, bulkDeleteArticles } from "@/lib/api/articles"
 import { toast } from "sonner"
+import { useRole } from "@/hooks/useRole"
 
 export default function AdminActualites() {
+  const { canWrite } = useRole()
+  const canEdit = canWrite('tech')
   const [articles, setArticles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -59,11 +62,18 @@ export default function AdminActualites() {
           <h1 className="text-2xl font-bold">Gestion des Actualités</h1>
           <p className="text-gray-500 text-sm">Publiez des articles, des rapports et des histoires de réussite.</p>
         </div>
-        <Link href="/admin/actualites/editeur">
-          <Button className="gap-2 bg-apc-green">
-            <Plus size={18} /> Nouvel Article
-          </Button>
-        </Link>
+        <div className="flex gap-2 items-center">
+          {!canEdit && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">👁️ Lecture seule</span>
+          )}
+          {canEdit && (
+            <Link href="/admin/actualites/editeur">
+              <Button className="gap-2 bg-apc-green">
+                <Plus size={18} /> Nouvel Article
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
@@ -137,20 +147,24 @@ export default function AdminActualites() {
                           <Eye size={16} />
                         </Button>
                       </Link>
-                      <Link href={`/admin/actualites/editeur?id=${article.id}`}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600 hover:bg-amber-50" title="Modifier l'article">
-                          <Edit size={16} />
+                      {canEdit && (
+                        <Link href={`/admin/actualites/editeur?id=${article.id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600 hover:bg-amber-50" title="Modifier l'article">
+                            <Edit size={16} />
+                          </Button>
+                        </Link>
+                      )}
+                      {canEdit && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-red-600 hover:bg-red-50"
+                          onClick={() => handleDelete(article.id)}
+                          title="Supprimer l'article"
+                        >
+                          <Trash2 size={16} />
                         </Button>
-                      </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-red-600 hover:bg-red-50"
-                        onClick={() => handleDelete(article.id)}
-                        title="Supprimer l'article"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
