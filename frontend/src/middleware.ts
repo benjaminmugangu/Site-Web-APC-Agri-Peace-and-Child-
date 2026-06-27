@@ -44,10 +44,7 @@ export function middleware(request: NextRequest) {
         if (adminOnlyRoutes.some(r => pathname.startsWith(r))) {
           return NextResponse.redirect(new URL("/admin/emplois", request.url))
         }
-        // Rediriger /admin (dashboard) vers sa section RH
-        if (pathname === '/admin' || pathname === '/admin/') {
-          return NextResponse.redirect(new URL("/admin/emplois", request.url))
-        }
+        // ADMIN_RH peut accéder au dashboard /admin — les cards sont filtrées côté page
       }
       // ADMIN peut accéder à tout — la restriction lecture/écriture est gérée côté page
     } catch (e) {

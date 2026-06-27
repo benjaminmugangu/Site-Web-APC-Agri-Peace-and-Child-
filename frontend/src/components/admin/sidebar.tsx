@@ -23,7 +23,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin", roles: ['ADMIN'] },
+  { icon: LayoutDashboard, label: "Tableau de Bord", href: "/admin", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Cog, label: "Nos Services", href: "/admin/services", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Briefcase, label: "Réalisations", href: "/admin/projets", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Tag, label: "Catégories Projets", href: "/admin/projets/categories", roles: ['ADMIN', 'ADMIN_RH'], subItem: true },
@@ -98,7 +98,7 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
         {menuItems.filter(item => {
           return item.roles.includes(userRole)
         }).map((item) => {
