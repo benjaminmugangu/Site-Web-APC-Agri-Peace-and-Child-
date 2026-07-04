@@ -27,10 +27,6 @@ export async function createMessage(payload: any): Promise<ApiResponse<Message>>
   // on les mappe vers les colonnes attendues par l'API du backend ('sender', 'content').
   const senderName = payload.sender || payload.name || `${payload.firstName || ''} ${payload.lastName || ''}`.trim() || 'Anonyme';
   
-  const normalizedPayload = {
-    sender: senderName,
-    email: payload.email,
-    phone: payload.phone || undefined,
   const isSubjectUuid = payload.subject && payload.subject.length === 36 && payload.subject.includes('-');
 
   const normalizedPayload = {
