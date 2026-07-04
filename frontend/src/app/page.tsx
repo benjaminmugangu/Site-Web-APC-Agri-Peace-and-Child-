@@ -49,8 +49,13 @@ const piliers = [
 
 export default async function Home() {
   const settings = await settingsService.get();
-  const projectsRes = await listProjects({ limit: 6, status: 'published' });
-  const recentProjects = projectsRes.data || [];
+  let recentProjects: any[] = [];
+  try {
+    const projectsRes = await listProjects({ limit: 6, status: 'published' });
+    recentProjects = projectsRes.data || [];
+  } catch (err) {
+    console.error('Failed to fetch recent projects:', err);
+  }
   const partners = await listPartners().catch(() => []);
 
   if (!settings) {
