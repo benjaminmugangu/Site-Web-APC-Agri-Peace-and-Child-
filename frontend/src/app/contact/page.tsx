@@ -291,25 +291,47 @@ export default function ContactPage() {
 function SubjectSelect({ value, onChange }: { value: string, onChange: (val: string) => void }) {
   const searchParams = useSearchParams()
   const isDonation = searchParams.get("sujet") === "don"
+  const [subjects, setSubjects] = useState<{id: string, name: string}[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    import("@/lib/api/message-subjects").then(({ messageSubjectsApi }) => {
+      messageSubjectsApi.getMessageSubjects().then(data => {
+        setSubjects(data)
+        setLoading(false)
+      })
+    })
+  }, [])
 
   // Initialize value if empty and we have a param
   React.useEffect(() => {
-    if (!value && isDonation) {
-      onChange("don")
+    if (!value && isDonation && subjects.length > 0) {
+      // Find donation subject if it exists, otherwise keep 'don' as fallback
+      const donSubject = subjects.find(s => s.name.toLowerCase().includes('don'))
+      if (donSubject) {
+        onChange(donSubject.id)
+      } else {
+        onChange("don")
+      }
     }
-  }, [isDonation, value, onChange])
+  }, [isDonation, value, onChange, subjects])
+
+  if (loading) {
+    return <div className="h-14 w-full bg-gray-50 animate-pulse rounded-2xl" />
+  }
 
   return (
     <select
-      value={value || (isDonation ? "don" : "")}
+      value={value}
       onChange={e => onChange(e.target.value)}
       className="w-full h-14 px-6 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium text-gray-900"
     >
-      <option value="">Information Générale</option>
-      <option value="don">Faire un don</option>
-      <option value="partenariat">Partenariat</option>
-      <option value="carrieres">Carrières</option>
-      <option value="presse">Média & Presse</option>
+      <option value="">Information Générale (Par défaut)</option>
+      {subjects.map(subject => (
+        <option key={subject.id} value={subject.id}>
+          {subject.name}
+        </option>
+      ))}
       <option value="autre">Autre</option>
     </select>
   )

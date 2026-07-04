@@ -178,7 +178,7 @@ export default function MessagesPage() {
                           {message.name}
                         </h3>
                         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-black uppercase tracking-wider flex items-center gap-1">
-                          <Tag size={10} /> {message.type}
+                          <Tag size={10} /> {message.messageSubject?.name || message.type || 'Message'}
                         </span>
                         {message.status === 'replied' && (
                           <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-600 font-black uppercase tracking-wider flex items-center gap-1">

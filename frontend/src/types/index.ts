@@ -80,7 +80,17 @@ export interface TeamMember {
 
 // --- MESSAGES ---
 export type MessageStatus = "unread" | "read" | "replied" | "archived"
-export type MessageType = "contact" | "donation" | "partnership" | "volunteer"
+export type MessageType = "contact" | "donation" | "partnership" | "volunteer" // deprecated, replaced by MessageSubject
+
+export interface MessageSubject {
+  id: string
+  name: string
+  nameEn?: string
+  isActive: boolean
+  order: number
+  createdAt: string
+  updatedAt: string
+}
 
 export interface Message {
   id: string
@@ -89,7 +99,9 @@ export interface Message {
   phone?: string
   subject: string
   content: string
-  type: MessageType
+  type?: MessageType
+  messageSubjectId?: string
+  messageSubject?: MessageSubject
   status: MessageStatus
   repliedBy?: string
   replyContent?: string

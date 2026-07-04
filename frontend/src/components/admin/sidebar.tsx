@@ -37,6 +37,7 @@ const menuItems = [
   { icon: ShieldCheck, label: "Partenaires", href: "/admin/partenaires", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Tag, label: "Types Partenaires", href: "/admin/partenaires/categories", roles: ['ADMIN', 'ADMIN_RH'], subItem: true },
   { icon: MessageSquare, label: "Messages", href: "/admin/messages", roles: ['ADMIN', 'ADMIN_RH'] },
+  { icon: Tag, label: "Sujets de contact", href: "/admin/messages/sujets", roles: ['ADMIN'], subItem: true },
   { icon: ShieldCheck, label: "Utilisateurs", href: "/admin/utilisateurs", roles: ['ADMIN'] },
   { icon: Settings, label: "Paramètres", href: "/admin/parametres", roles: ['ADMIN'] },
 ]

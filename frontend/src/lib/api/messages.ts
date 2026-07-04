@@ -31,9 +31,17 @@ export async function createMessage(payload: any): Promise<ApiResponse<Message>>
     sender: senderName,
     email: payload.email,
     phone: payload.phone || undefined,
-    subject: payload.subject || 'Information Générale',
+  const isSubjectUuid = payload.subject && payload.subject.length === 36 && payload.subject.includes('-');
+
+  const normalizedPayload = {
+    sender: senderName,
+    email: payload.email,
+    phone: payload.phone || undefined,
+    // On garde le subject texte, mais on met 'Information Générale' si c'est un UUID (pour garder un titre lisible si le backend ne le fait pas)
+    subject: isSubjectUuid ? 'Information Générale' : (payload.subject || 'Information Générale'),
     content: payload.content || payload.message || '',
-    type: payload.type || (payload.subject === 'don' ? 'donation' : payload.subject === 'partenariat' ? 'partnership' : 'contact')
+    type: isSubjectUuid ? undefined : (payload.type || (payload.subject === 'don' ? 'donation' : payload.subject === 'partenariat' ? 'partnership' : 'contact')),
+    messageSubjectId: isSubjectUuid ? payload.subject : undefined
   };
 
   const response = await apiClient.post<ApiResponse<any>>('/contact', normalizedPayload);
