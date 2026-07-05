@@ -75,7 +75,7 @@ export default function DomainesPage() {
         domaines.map((d, i) => {
           const isEven = i % 2 === 0
           const Icon = iconMap[d.iconName || 'Globe'] || Globe
-          const color = d.accentClass?.includes('text-') ? (d.accentClass.split(' ')[0] === 'text-emerald-700' ? '#047857' : '#1a472a') : '#1a472a'
+          const color = d.colorHex || '#1a472a'
           
           return (
             <section
@@ -124,14 +124,17 @@ export default function DomainesPage() {
                     {/* Icon + number */}
                     <div className="flex items-center gap-3 mb-5">
                       <div
-                        className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-md ${d.bgClass || 'bg-emerald-50'}`}
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md"
+                        style={{ backgroundColor: `${color}1A` }}
                       >
                         <Icon
-                          className={`w-7 h-7 ${d.accentClass || 'text-emerald-700'}`}
+                          className="w-7 h-7"
+                          style={{ color: color }}
                         />
                       </div>
                       <span
-                        className={`text-5xl font-black opacity-10 ${d.accentClass || 'text-emerald-700'}`}
+                        className="text-5xl font-black opacity-10"
+                        style={{ color: color }}
                       >
                         0{i + 1}
                       </span>
@@ -150,9 +153,10 @@ export default function DomainesPage() {
                         {d.actions.map((action, ai) => (
                           <li key={ai} className="flex items-start gap-3">
                             <div
-                              className={`w-5 h-5 rounded-full ${d.bgClass || 'bg-emerald-100'} flex items-center justify-center mt-0.5 shrink-0`}
+                              className="w-5 h-5 rounded-full flex items-center justify-center mt-0.5 shrink-0"
+                              style={{ backgroundColor: `${color}1A` }}
                             >
-                              <Check className={`w-3 h-3 ${d.accentClass || 'text-emerald-700'}`} />
+                              <Check className="w-3 h-3" style={{ color: color }} />
                             </div>
                             <span className="text-foreground/80 text-sm leading-snug">
                               {action}

@@ -46,8 +46,7 @@ export interface Service {
   description: string;
   descriptionEn?: string;
   iconName?: string;
-  bgClass?: string;
-  accentClass?: string;
+  colorHex: string;
   mainImage?: string;
   actions?: string[];
   stats?: { value: string; label: string }[];

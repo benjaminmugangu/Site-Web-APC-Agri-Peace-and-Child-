@@ -28,8 +28,7 @@ export default function AdminServicesPage() {
     description: "",
     descriptionEn: "",
     iconName: "Heart",
-    bgClass: "bg-emerald-500",
-    accentClass: "text-emerald-700",
+    colorHex: "#1a472a",
     mainImage: ""
   })
 
@@ -60,8 +59,7 @@ export default function AdminServicesPage() {
       description: "",
       descriptionEn: "",
       iconName: "Heart",
-      bgClass: "bg-emerald-500",
-      accentClass: "text-emerald-700",
+      colorHex: "#1a472a",
       mainImage: ""
     })
     setErrors({})
@@ -78,8 +76,7 @@ export default function AdminServicesPage() {
       description: service.description || "",
       descriptionEn: service.descriptionEn || "", 
       iconName: service.iconName || "Heart",
-      bgClass: service.bgClass || "bg-emerald-500",
-      accentClass: service.accentClass || "text-emerald-700",
+      colorHex: service.colorHex || "#1a472a",
       mainImage: service.mainImage || ""
     })
     setErrors({})
@@ -110,8 +107,7 @@ export default function AdminServicesPage() {
         description: formData.description,
         descriptionEn: formData.descriptionEn,
         iconName: formData.iconName,
-        bgClass: formData.bgClass,
-        accentClass: formData.accentClass,
+        colorHex: formData.colorHex,
         mainImage: formData.mainImage,
         isActive: true,
         order: editingService ? editingService.order : services.length,
@@ -207,7 +203,10 @@ export default function AdminServicesPage() {
                 return (
                 <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className={`w-10 h-10 rounded-lg ${service.bgClass || 'bg-emerald-500'} flex items-center justify-center text-white`}>
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
+                      style={{ backgroundColor: service.colorHex || '#1a472a' }}
+                    >
                       <IconComponent size={20} />
                     </div>
                   </td>
@@ -349,27 +348,26 @@ export default function AdminServicesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400">Couleur d&apos;accentuation (Classe Tailwind Text)</label>
-                  <input 
-                    type="text" 
-                    value={formData.accentClass}
-                    onChange={e => setFormData({ ...formData, accentClass: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none font-mono text-sm" 
-                    placeholder="Ex: text-emerald-700"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400">Couleur de fond (Classe Tailwind Bg)</label>
-                  <div className="flex gap-3 flex-wrap">
-                    {["bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-rose-500", "bg-apc-green", "bg-apc-blue", "bg-indigo-500"].map((color) => (
-                      <button 
-                        key={color} 
-                        type="button"
-                        onClick={() => setFormData({ ...formData, bgClass: color })}
-                        className={`w-8 h-8 rounded-full ${color} ring-offset-2 transition-all ${formData.bgClass === color ? 'ring-2 ring-gray-900 scale-110' : 'hover:ring-2 ring-gray-300'}`} 
-                        title={color}
-                      />
-                    ))}
+                  <label className="text-xs font-bold text-gray-400">Couleur Principale (Hexadécimal)</label>
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="color" 
+                      value={formData.colorHex}
+                      onChange={e => setFormData({ ...formData, colorHex: e.target.value })}
+                      className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0" 
+                    />
+                    <div className="flex gap-2 flex-wrap">
+                      {["#10b981", "#3b82f6", "#f59e0b", "#f43f5e", "#1a472a", "#1e3a8a", "#6366f1"].map((color) => (
+                        <button 
+                          key={color} 
+                          type="button"
+                          onClick={() => setFormData({ ...formData, colorHex: color })}
+                          style={{ backgroundColor: color }}
+                          className={`w-8 h-8 rounded-full ring-offset-2 transition-all ${formData.colorHex === color ? 'ring-2 ring-gray-900 scale-110' : 'hover:ring-2 ring-gray-300'}`} 
+                          title={color}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
