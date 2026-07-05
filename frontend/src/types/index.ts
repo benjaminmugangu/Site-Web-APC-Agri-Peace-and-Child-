@@ -259,6 +259,23 @@ export interface Career {
   updatedAt: string;
 }
 
+export interface Application {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  type?: string;
+  careerTypeId?: string;
+  careerType?: CareerType;
+  motivation?: string;
+  cvUrl?: string;
+  status: "PENDING" | "REVIEWING" | "ACCEPTED" | "REJECTED";
+  careerId?: string;
+  career?: Career;
+  createdAt: string;
+}
+
 
 export interface ApiResponse<T> {
   success: boolean

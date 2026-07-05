@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Send, Loader2, CheckCircle2, Upload, X, AlertCircle, Briefcase } from "lucide-react"
+import { type CareerType } from "@/types"
 
 interface CareerApplicationFormProps {
   /** ID de l'offre d'emploi ciblée (candidature directe) */
@@ -11,9 +12,11 @@ interface CareerApplicationFormProps {
   jobTitle?: string
   /** Callback appelé après une soumission réussie */
   onSuccess?: () => void
+  /** Types de contrats dynamiques (pour candidature spontanée) */
+  careerTypes?: CareerType[]
 }
 
-export function CareerApplicationForm({ careerId, jobTitle, onSuccess }: CareerApplicationFormProps = {}) {
+export function CareerApplicationForm({ careerId, jobTitle, onSuccess, careerTypes = [] }: CareerApplicationFormProps = {}) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [cv, setCv] = useState<File | null>(null)
@@ -23,7 +26,8 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess }: CareerA
     lastName: "",
     email: "",
     phone: "",
-    type: careerId ? "job" : "job",
+    type: "",
+    careerTypeId: careerTypes.length > 0 ? careerTypes[0].id : "",
     motivation: ""
   })
 
@@ -69,7 +73,7 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess }: CareerA
           ? `Votre candidature pour le poste « ${jobTitle} » a été transmise ! Notre équipe RH l'étudiera avec attention.`
           : "Votre candidature spontanée a été transmise ! Notre équipe RH l'étudiera avec attention."
       })
-      setFormData({ firstName: "", lastName: "", email: "", phone: "", type: "job", motivation: "" })
+      setFormData({ firstName: "", lastName: "", email: "", phone: "", type: "", careerTypeId: careerTypes.length > 0 ? careerTypes[0].id : "", motivation: "" })
       setCv(null)
       onSuccess?.()
     } catch (err: any) {
@@ -172,14 +176,20 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess }: CareerA
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Type d&apos;engagement</label>
           <select
-            value={formData.type}
-            onChange={e => setFormData({ ...formData, type: e.target.value })}
+            value={formData.careerTypeId || formData.type}
+            onChange={e => setFormData({ ...formData, careerTypeId: e.target.value, type: "" })}
             className="w-full h-13 px-5 py-3 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-apc-green/20 transition-all font-medium text-gray-900 text-sm"
           >
-            <option value="volunteer">Bénévolat</option>
-            <option value="internship">Stage</option>
-            <option value="job">Emploi</option>
-            <option value="consultant">Expertise Conseil</option>
+            {careerTypes.length === 0 ? (
+              <option value="">Sélectionnez un type</option>
+            ) : (
+              careerTypes.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))
+            )}
+            {formData.type && !formData.careerTypeId && (
+              <option value={formData.type}>{formData.type}</option>
+            )}
           </select>
         </div>
       )}

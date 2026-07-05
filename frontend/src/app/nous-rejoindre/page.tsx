@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { listCareers } from "@/lib/api/careers"
+import { listAllCareerTypes } from "@/lib/api/career-types"
 import { Users, Briefcase, GraduationCap, Send, HeartHandshake, MapPin, Calendar, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { CareerApplicationForm } from "@/components/forms/career-application-form"
@@ -48,6 +49,9 @@ const engagementTypes = [
 export default async function NousRejoindrePage() {
   const careersRes = await listCareers({ status: 'open' }).catch(() => []);
   const careers = Array.isArray(careersRes) ? careersRes : [];
+  
+  const typesRes = await listAllCareerTypes().catch(() => []);
+  const careerTypes = Array.isArray(typesRes) ? typesRes : [];
 
   return (
     <div className="flex flex-col">
@@ -105,7 +109,7 @@ export default async function NousRejoindrePage() {
                   Vous partagez nos valeurs et souhaitez contribuer à notre mission ? Envoyez-nous votre profil et précisez votre domaine d'expertise.
                 </p>
 
-                <CareerApplicationForm />
+                <CareerApplicationForm careerTypes={careerTypes} />
               </div>
 
 

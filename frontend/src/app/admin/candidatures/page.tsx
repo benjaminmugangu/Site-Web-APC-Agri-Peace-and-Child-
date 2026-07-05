@@ -201,7 +201,7 @@ export default function AdminCandidaturesPage() {
                           <span className="text-gray-400 italic">Candidature spontanée</span>
                         )}
                         <span className="text-xs text-gray-500 uppercase tracking-wider mt-1">
-                          {getTypeLabel(app.type)}
+                          {app.careerType?.name || getTypeLabel(app.type)}
                         </span>
                       </div>
                     </td>
@@ -288,7 +288,7 @@ export default function AdminCandidaturesPage() {
                     <p className="text-sm font-medium text-gray-900">
                       {selectedApp.career ? selectedApp.career.title : "Candidature spontanée"}
                     </p>
-                    <p className="text-sm text-gray-600">Type: {getTypeLabel(selectedApp.type)}</p>
+                    <p className="text-sm text-gray-600">Type: {selectedApp.careerType?.name || getTypeLabel(selectedApp.type)}</p>
                   </div>
                 </div>
               </div>
