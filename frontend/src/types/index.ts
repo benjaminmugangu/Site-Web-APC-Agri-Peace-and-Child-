@@ -58,6 +58,17 @@ export interface Service {
 }
 
 
+// --- DEPARTMENTS ---
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- TEAM ---
 export type TeamRole = "Directeur" | "Agronome" | "Logistique" | "Finance" | "Protection" | "Communication" | "Admin"
 
@@ -66,6 +77,8 @@ export interface TeamMember {
   name: string
   role: string
   department?: string
+  departmentId?: string | null
+  departmentRelation?: Department | null
   email: string
   phone?: string
   photo?: string

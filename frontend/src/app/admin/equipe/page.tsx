@@ -10,6 +10,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { listTeam, createTeamMember, updateTeamMember, deleteTeamMember, getTeamMember } from "@/lib/api/team"
+import { listAllDepartments, type Department } from "@/lib/api/departments"
 import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 
@@ -18,6 +19,7 @@ export default function AdminEquipePage() {
   const canEdit = canWrite('rh')
   const [team, setTeam] = useState<any[]>([])
   const [filteredTeam, setFilteredTeam] = useState<any[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingMember, setEditingMember] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -47,11 +49,15 @@ export default function AdminEquipePage() {
   async function load() {
     setFetching(true)
     try {
-      const result = await listTeam({ adminMode: true })
-      setTeam(result || [])
-      setFilteredTeam(result || [])
+      const [members, depts] = await Promise.all([
+        listTeam({ adminMode: true }),
+        listAllDepartments()
+      ])
+      setTeam(members || [])
+      setFilteredTeam(members || [])
+      setDepartments(depts || [])
     } catch (error) {
-      toast.error("Erreur de chargement des membres de l'équipe")
+      toast.error("Erreur de chargement des données")
     } finally {
       setFetching(false)
     }
@@ -278,11 +284,9 @@ export default function AdminEquipePage() {
                   className="px-3 py-1.5 text-xs rounded-xl border border-gray-200 focus:outline-none"
                 >
                   <option value="ALL">Tous les départements</option>
-                  <option value="Direction">Direction</option>
-                  <option value="Programmes">Programmes & Opérations</option>
-                  <option value="Agriculture">Agriculture & Dev</option>
-                  <option value="Protection">Protection</option>
-                  <option value="Finance">Finances</option>
+                  {departments.map(d => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -453,11 +457,13 @@ export default function AdminEquipePage() {
                       onChange={e => setFormData({ ...formData, department: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"
                     >
-                      <option value="Direction">Direction & Administration</option>
-                      <option value="Programmes">Programmes & Opérations</option>
-                      <option value="Agriculture">Agriculture & Développement</option>
-                      <option value="Protection">Protection de l'Enfance</option>
-                      <option value="Finance">Finances & Logistique</option>
+                      {departments.length === 0 ? (
+                        <option value="Programmes">Programmes (par défaut)</option>
+                      ) : (
+                        departments.map(d => (
+                          <option key={d.id} value={d.name}>{d.name}</option>
+                        ))
+                      )}
                     </select>
                   </div>
 

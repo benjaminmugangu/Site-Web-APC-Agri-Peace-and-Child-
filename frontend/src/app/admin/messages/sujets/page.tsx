@@ -18,7 +18,7 @@ import { useRole } from "@/hooks/useRole"
 export default function MessageSubjectsPage() {
   const { isAdmin } = useRole()
   // Seul l'admin tech (isAdmin) peut gérer la structure des formulaires (pas l'admin RH)
-  const canEdit = isAdmin()
+  const canEdit = isAdmin
   
   const [subjects, setSubjects] = useState<MessageSubject[]>([])
   const [loading, setLoading] = useState(true)
@@ -126,7 +126,7 @@ export default function MessageSubjectsPage() {
       setTimeout(() => setSuccess(null), 3000)
     } catch (err: any) {
       console.error("Failed to save subject:", err)
-      setError("Erreur lors de la sauvegarde du sujet.")
+      setError(err.message || err.response?.data?.message || "Erreur lors de la sauvegarde du sujet.")
     }
   }
 
