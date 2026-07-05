@@ -21,6 +21,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 import { listCareers, listAdminCareers, createCareer, updateCareer, deleteCareer, getCareer } from "@/lib/api/careers"
+import { listAllCareerTypes, type CareerType } from "@/lib/api/career-types"
 import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -33,11 +34,12 @@ export default function AdminEmploisPage() {
   const [editingJob, setEditingJob] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [careerTypes, setCareerTypes] = useState<CareerType[]>([])
 
-  // Form State
   const [formData, setFormData] = useState({
     title: "",
-    type: "FULL_TIME",
+    type: "",
+    careerTypeId: "",
     location: "Goma",
     deadline: "",
     description: "",
@@ -48,8 +50,12 @@ export default function AdminEmploisPage() {
   async function load() {
     setFetching(true)
     try {
-      const result = await listAdminCareers()
-      setEmplois(result || [])
+      const [careersRes, typesRes] = await Promise.all([
+        listAdminCareers(),
+        listAllCareerTypes()
+      ])
+      setEmplois(careersRes || [])
+      setCareerTypes(typesRes || [])
     } catch (error) {
       toast.error("Erreur chargement carrières")
     } finally {
@@ -63,7 +69,7 @@ export default function AdminEmploisPage() {
 
   const handleAdd = () => {
     setEditingJob(null)
-    setFormData({ title: "", type: "FULL_TIME", location: "Goma", deadline: "", description: "", content: "", status: "OPEN" })
+    setFormData({ title: "", type: "", careerTypeId: careerTypes.length > 0 ? careerTypes[0].id : "", location: "Goma", deadline: "", description: "", content: "", status: "OPEN" })
     setShowForm(true)
   }
 
@@ -78,7 +84,8 @@ export default function AdminEmploisPage() {
       setEditingJob(job)
       setFormData({
         title: job.title,
-        type: job.type,
+        type: job.type || "",
+        careerTypeId: job.careerTypeId || (careerTypes.length > 0 ? careerTypes[0].id : ""),
         location: job.location,
         deadline: job.deadline ? format(new Date(job.deadline), 'yyyy-MM-dd') : "",
         description: job.description || "",
@@ -204,7 +211,7 @@ export default function AdminEmploisPage() {
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1">
                       <span className="w-fit px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700">
-                        {typeLabels[offre.type] || offre.type}
+                        {offre.careerType?.name || typeLabels[offre.type] || offre.type || "Non défini"}
                       </span>
                       <div className="text-xs text-gray-500 flex items-center gap-1">
                         <MapPin size={10} /> {offre.location}
@@ -296,15 +303,21 @@ export default function AdminEmploisPage() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Type de Contrat</label>
                   <select 
-                    value={formData.type}
-                    onChange={e => setFormData({...formData, type: e.target.value as any})}
+                    value={formData.careerTypeId || formData.type}
+                    onChange={e => setFormData({...formData, careerTypeId: e.target.value, type: ""})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   >
-                    <option value="FULL_TIME">CDI (Plein temps)</option>
-                    <option value="PART_TIME">Temps Partiel</option>
-                    <option value="CONTRACT">Contractuel / CDD</option>
-                    <option value="INTERNSHIP">Stage</option>
-                    <option value="VOLUNTEER">Bénévole</option>
+                    {careerTypes.length === 0 ? (
+                      <option value="">Aucun type configuré</option>
+                    ) : (
+                      careerTypes.map(t => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))
+                    )}
+                    {/* Fallback old type values if modifying an old job without id */}
+                    {formData.type && !formData.careerTypeId && (
+                      <option value={formData.type}>{typeLabels[formData.type] || formData.type}</option>
+                    )}
                   </select>
                 </div>
                 <div className="space-y-2">

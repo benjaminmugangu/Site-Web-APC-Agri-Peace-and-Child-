@@ -233,15 +233,28 @@ export interface PaginatedResult<T> {
 }
 
 // --- CAREERS ---
+export interface CareerType {
+  id: string;
+  name: string;
+  nameEn?: string;
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Career {
   id: string;
   title: string;
-  type: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP" | "VOLUNTEER";
+  type?: string;
+  careerTypeId?: string;
+  careerType?: CareerType;
   location: string;
   description: string;
   content?: string;
   deadline: string;
   status: "OPEN" | "CLOSED" | "ARCHIVED";
+  isOpen?: boolean;
   createdAt: string;
   updatedAt: string;
 }
