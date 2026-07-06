@@ -84,7 +84,7 @@ export default async function Home() {
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
               {hero.title.split(' et ').map((part: string, i: number) => (
-                <span key={i}>
+                <span key={`${part}-${i}`}>
                   {i > 0 && " et "}
                   <span className={i % 2 === 0 ? "" : "text-apc-greenLight"}>{part}</span>
                 </span>
@@ -277,7 +277,7 @@ export default async function Home() {
 
               <ul className="space-y-4 mb-10">
                 {(supportSection.bulletPoints || []).map((point: string, i: number) => (
-                  <li key={i} className="flex items-center gap-3">
+                  <li key={point} className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full ${i === 0 ? 'bg-apc-green/10' : 'bg-apc-blue/10'} flex items-center justify-center shrink-0`}>
                       <CheckCircle2 className={`w-5 h-5 ${i === 0 ? 'text-apc-green' : 'text-apc-blue'}`} />
                     </div>

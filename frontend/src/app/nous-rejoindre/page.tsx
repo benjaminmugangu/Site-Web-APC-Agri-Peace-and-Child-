@@ -1,11 +1,9 @@
 import type { Metadata } from "next"
 import { PageHero } from "@/components/ui/page-hero"
-import { Button } from "@/components/ui/button"
 import { listCareers } from "@/lib/api/careers"
 import { listAllCareerTypes } from "@/lib/api/career-types"
 import { settingsService } from "@/lib/api/settings"
 import { Users, Briefcase, GraduationCap, HeartHandshake } from "lucide-react"
-import Link from "next/link"
 import { CareerApplicationForm } from "@/components/forms/career-application-form"
 import { JobBoard } from "@/components/careers/job-board"
 
@@ -67,10 +65,10 @@ export default async function NousRejoindrePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
-            {engagementTypes.map((type: any, i: number) => {
+            {engagementTypes.map((type: any) => {
               const Icon = iconMap[type.icon] || HeartHandshake;
               return (
-                <div key={i} className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm hover:shadow-xl transition-all group">
+                <div key={type.title} className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm hover:shadow-xl transition-all group">
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${type.bg}`}>
                     <Icon className={`w-8 h-8 ${type.color}`} />
                   </div>
@@ -93,7 +91,7 @@ export default async function NousRejoindrePage() {
               </span>
             </div>
 
-            <JobBoard initialCareers={careers} />
+            <JobBoard initialCareers={careers.map((c: any) => ({ ...c, type: c.type || '' })) as any} />
           </div>
 
           <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-border/40">
@@ -115,7 +113,7 @@ export default async function NousRejoindrePage() {
                   <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter">{reasonsTitle}</h3>
                   <div className="space-y-10">
                     {reasons.map((reason: any, i: number) => (
-                      <div key={i}>
+                      <div key={reason.title}>
                         <h4 className="font-bold text-apc-greenLight text-xs uppercase tracking-widest mb-3">0{i + 1}. {reason.title}</h4>
                         <p className="text-apc-bgLight/70 text-sm leading-relaxed">
                           {reason.description}

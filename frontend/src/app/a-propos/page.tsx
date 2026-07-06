@@ -71,8 +71,6 @@ export default async function AProposPage() {
     ]
   };
 
-  const name = inst.name;
-  const acronym = inst.acronym;
   const foundationYear = inst.foundationYear;
   const mission = inst.mission;
   const vision = inst.vision;
@@ -96,8 +94,8 @@ export default async function AProposPage() {
                 {historySection.title || 'Une organisation née de la nécessité du terrain'}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                {(historySection.paragraphs || []).map((para: string, i: number) => (
-                  <p key={i} dangerouslySetInnerHTML={{ __html: para }} />
+                {(historySection.paragraphs || []).map((p: string, i: number) => (
+                  <p key={`hist-p-${i}`} className="text-lg text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: p }} />
                 ))}
               </div>
 
@@ -106,7 +104,7 @@ export default async function AProposPage() {
                   <Calendar className="w-5 h-5 text-apc-green mt-0.5 shrink-0" />
                   <div>
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Année de Fondation</div>
-                    <div className="font-semibold text-sm text-foreground">{foundationYear}</div>
+                    <div className="font-semibold text-sm text-foreground">{inst.foundationYear}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-apc-bgLight border border-border/50">
@@ -134,7 +132,6 @@ export default async function AProposPage() {
         </div>
       </section>
 
-      {/* ── Mission & Vision ── */}
       <section id="mission" className="py-24 bg-apc-bgLight">
         <div className="container px-4">
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -149,7 +146,7 @@ export default async function AProposPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Notre Mission</h3>
                 <p className="text-white/85 leading-relaxed text-sm md:text-base">
-                  {mission}
+                  {inst.mission}
                 </p>
               </div>
             </div>
@@ -161,7 +158,7 @@ export default async function AProposPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Notre Vision</h3>
                 <p className="text-white/85 leading-relaxed italic text-sm md:text-base">
-                  « {vision} »
+                  « {inst.vision} »
                 </p>
               </div>
             </div>
@@ -169,7 +166,6 @@ export default async function AProposPage() {
         </div>
       </section>
 
-      {/* ── Objectifs ── */}
       <section className="py-24 bg-white">
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -177,10 +173,10 @@ export default async function AProposPage() {
               <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-4">Ce que nous faisons</span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Nos Objectifs Spécifiques</h2>
               <div className="space-y-4">
-                {(historySection.objectives || []).map((obj: any, i: number) => {
-                  const Icon = iconMap[obj.icon] || Globe;
+                {(historySection.objectives || []).map((obj: any) => {
+                  const Icon = iconMap[obj.icon] || Heart;
                   return (
-                    <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-apc-green/30 hover:shadow-sm transition-all group">
+                    <div key={obj.label} className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-apc-green/30 hover:shadow-sm transition-all group">
                       <div className={`w-10 h-10 ${obj.bg} rounded-xl flex items-center justify-center shrink-0`}>
                         <Icon className={`w-5 h-5 ${obj.color}`} />
                       </div>
