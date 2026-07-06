@@ -28,13 +28,8 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-const objectifs = [
-  { icon: Sprout, color: "text-apc-green", bg: "bg-apc-green/10", label: "Promouvoir l'agriculture durable et la sécurité alimentaire" },
-  { icon: Handshake, color: "text-apc-blue", bg: "bg-apc-blue/10", label: "Consolider la paix et la cohésion sociale" },
-  { icon: ShieldCheck, color: "text-apc-alert", bg: "bg-apc-alert/10", label: "Protéger et promouvoir les droits des enfants" },
-  { icon: Users, color: "text-purple-600", bg: "bg-purple-100", label: "Autonomiser les femmes et les jeunes" },
-  { icon: Heart, color: "text-rose-600", bg: "bg-rose-100", label: "Améliorer l'accès aux services sociaux de base" },
-]
+// Mapping icon name → lucide component
+const iconMap: Record<string, any> = { Sprout, Handshake, ShieldCheck, Users, Heart, Globe };
 
 export default async function AProposPage() {
   const settings = await settingsService.get();
@@ -57,6 +52,25 @@ export default async function AProposPage() {
     vision: "Un pays où les enfants et les personnes vulnérables vivent dans la dignité, jouissent pleinement de leurs droits fondamentaux, bénéficient d'une sécurité alimentaire durable et évoluent dans un environnement pacifique et résilient."
   };
 
+  // Section histoire dynamique
+  const historySection = settings?.historySection || {
+    title: "Une organisation née de la nécessité du terrain",
+    subtitle: "Notre Histoire",
+    paragraphs: [
+      `Fondée en ${inst.foundationYear}, <strong>${inst.name} (${inst.acronym})</strong> est une Organisation Non Gouvernementale humanitaire dont le siège est établi à <strong>Goma, Nord-Kivu, RD Congo</strong>.`,
+      "Face aux crises récurrentes qui frappent l'Est de la RDC, nos fondateurs ont décidé d'agir localement avec une approche intégrée conjuguant agriculture durable, protection sociale et consolidation de la paix.",
+      `Aujourd'hui, nous intervenons dans plusieurs provinces de l'Est, touchant plus de <strong>${stats.beneficiaries} bénéficiaires directs</strong>.`
+    ],
+    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop",
+    objectives: [
+      { label: "Promouvoir l'agriculture durable et la sécurité alimentaire", icon: "Sprout", color: "text-apc-green", bg: "bg-apc-green/10" },
+      { label: "Consolider la paix et la cohésion sociale", icon: "Handshake", color: "text-apc-blue", bg: "bg-apc-blue/10" },
+      { label: "Protéger et promouvoir les droits des enfants", icon: "ShieldCheck", color: "text-apc-alert", bg: "bg-apc-alert/10" },
+      { label: "Autonomiser les femmes et les jeunes", icon: "Users", color: "text-purple-600", bg: "bg-purple-100" },
+      { label: "Améliorer l'accès aux services sociaux de base", icon: "Heart", color: "text-rose-600", bg: "bg-rose-100" }
+    ]
+  };
+
   const name = inst.name;
   const acronym = inst.acronym;
   const foundationYear = inst.foundationYear;
@@ -77,20 +91,14 @@ export default async function AProposPage() {
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <FadeIn direction="right">
-              <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-4">Notre Histoire</span>
+              <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-4">{historySection.subtitle || 'Notre Histoire'}</span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
-                Une organisation née de la <span className="text-gradient">nécessité du terrain</span>
+                {historySection.title || 'Une organisation née de la nécessité du terrain'}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  Fondée en <strong className="text-foreground">{foundationYear}</strong>, <strong className="text-apc-green">{name} ({acronym})</strong> est une Organisation Non Gouvernementale humanitaire dont le siège est établi à <strong className="text-foreground">Goma, Nord-Kivu, RD Congo</strong>.
-                </p>
-                <p>
-                  Face aux crises récurrentes qui frappent l&apos;Est de la RDC, nos fondateurs ont décidé d&apos;agir localement avec une approche intégrée conjuguant agriculture durable, protection sociale et consolidation de la paix.
-                </p>
-                <p>
-                  Aujourd&apos;hui, nous intervenons dans plusieurs provinces de l&apos;Est, touchant plus de <strong className="text-foreground">{stats.beneficiaries} bénéficiaires directs</strong>.
-                </p>
+                {(historySection.paragraphs || []).map((para: string, i: number) => (
+                  <p key={i} dangerouslySetInnerHTML={{ __html: para }} />
+                ))}
               </div>
 
               <div className="mt-8 grid grid-cols-2 gap-4">
@@ -114,7 +122,7 @@ export default async function AProposPage() {
             <FadeIn direction="left" delay={0.15}>
               <div className="relative h-[480px] rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
+                  src={historySection.imageUrl || "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"}
                   alt="Équipe Agri-Peace and Child sur le terrain"
                   fill
                   className="object-cover"
@@ -169,14 +177,17 @@ export default async function AProposPage() {
               <span className="inline-block text-apc-green font-semibold text-sm tracking-widest uppercase mb-4">Ce que nous faisons</span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Nos Objectifs Spécifiques</h2>
               <div className="space-y-4">
-                {objectifs.map((obj, i) => (
-                  <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-apc-green/30 hover:shadow-sm transition-all group">
-                    <div className={`w-10 h-10 ${obj.bg} rounded-xl flex items-center justify-center shrink-0`}>
-                      <obj.icon className={`w-5 h-5 ${obj.color}`} />
+                {(historySection.objectives || []).map((obj: any, i: number) => {
+                  const Icon = iconMap[obj.icon] || Globe;
+                  return (
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-apc-green/30 hover:shadow-sm transition-all group">
+                      <div className={`w-10 h-10 ${obj.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-5 h-5 ${obj.color}`} />
+                      </div>
+                      <span className="text-foreground font-medium leading-snug group-hover:text-apc-green transition-colors">{obj.label}</span>
                     </div>
-                    <span className="text-foreground font-medium leading-snug group-hover:text-apc-green transition-colors">{obj.label}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

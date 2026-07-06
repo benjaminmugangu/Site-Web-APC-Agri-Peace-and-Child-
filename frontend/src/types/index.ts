@@ -190,6 +190,33 @@ export interface SiteSettings {
     logoDark?: string;
     favicon?: string;
   };
+  // Sections dynamiques (issues #33 / #44 / #45 / #46)
+  supportSection?: {
+    title: string;
+    subtitle: string;
+    description: string;
+    imageUrl: string;
+    bulletPoints: string[];
+  };
+  historySection?: {
+    title: string;
+    subtitle: string;
+    paragraphs: string[];
+    imageUrl: string;
+    objectives: { label: string; icon: string; color: string; bg: string }[];
+  };
+  engagementSection?: {
+    title: string;
+    subtitle: string;
+    engagementTypes: { title: string; description: string; icon: string; color: string; bg: string }[];
+    reasonsTitle: string;
+    reasons: { title: string; description: string }[];
+  };
+  donationMessage?: string;
+  transparencyMessage?: {
+    title: string;
+    description: string;
+  };
 }
 
 // --- PARTNERS ---

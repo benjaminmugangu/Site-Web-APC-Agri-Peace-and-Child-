@@ -3,7 +3,8 @@ import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { listCareers } from "@/lib/api/careers"
 import { listAllCareerTypes } from "@/lib/api/career-types"
-import { Users, Briefcase, GraduationCap, Send, HeartHandshake, MapPin, Calendar, ArrowRight } from "lucide-react"
+import { settingsService } from "@/lib/api/settings"
+import { Users, Briefcase, GraduationCap, HeartHandshake } from "lucide-react"
 import Link from "next/link"
 import { CareerApplicationForm } from "@/components/forms/career-application-form"
 import { JobBoard } from "@/components/careers/job-board"
@@ -15,36 +16,21 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-const engagementTypes = [
-  {
-    title: "Bénévolat sur le terrain",
-    icon: HeartHandshake,
-    color: "text-apc-green",
-    bg: "bg-apc-green/10",
-    description: "Appuyez nos équipes dans les distributions, les formations agricoles ou l'animation psychosociale des enfants."
-  },
-  {
-    title: "Bénévolat de compétences",
-    icon: GraduationCap,
-    color: "text-apc-blue",
-    bg: "bg-apc-blue/10",
-    description: "Offrez votre expertise technique : communication, plaidoyer, rédaction de projets subventionnés, etc."
-  },
-  {
-    title: "Stage Professionnel",
-    icon: Users,
-    color: "text-purple-600",
-    bg: "bg-purple-100",
-    description: "Intégrez APC dans le cadre de vos études supérieures pour une expérience pratique en action humanitaire."
-  },
-  {
-    title: "Expertise Conseil",
-    icon: Briefcase,
-    color: "text-apc-alert",
-    bg: "bg-apc-alert/10",
-    description: "Apportez votre regard d'expert sur des missions ponctuelles de monitoring ou d'évaluation d'impact."
-  }
-]
+// Mapping icon name → lucide component
+const iconMap: Record<string, any> = { HeartHandshake, GraduationCap, Users, Briefcase };
+
+const defaultEngagementTypes = [
+  { title: "Bénévolat sur le terrain", icon: "HeartHandshake", color: "text-apc-green", bg: "bg-apc-green/10", description: "Appuyez nos équipes dans les distributions, les formations agricoles ou l'animation psychosociale des enfants." },
+  { title: "Bénévolat de compétences", icon: "GraduationCap", color: "text-apc-blue", bg: "bg-apc-blue/10", description: "Offrez votre expertise technique : communication, plaidoyer, rédaction de projets subventionnés, etc." },
+  { title: "Stage Professionnel", icon: "Users", color: "text-purple-600", bg: "bg-purple-100", description: "Intégrez APC dans le cadre de vos études supérieures pour une expérience pratique en action humanitaire." },
+  { title: "Expertise Conseil", icon: "Briefcase", color: "text-apc-alert", bg: "bg-apc-alert/10", description: "Apportez votre regard d'expert sur des missions ponctuelles de monitoring ou d'évaluation d'impact." }
+];
+
+const defaultReasons = [
+  { title: "Impact Terrain", description: "Nos équipes sont aux premières lignes au Nord-Kivu, Ituri et Tanganyika. Votre expertise sauve des vies." },
+  { title: "Expertise Intégrée", description: "Collaborez avec des experts en agronomie, psychosocial et consolidation de la paix." },
+  { title: "Culture d'Intégrité", description: "La transparence et le professionnalisme sont les piliers de notre organisation." }
+];
 
 export default async function NousRejoindrePage() {
   const careersRes = await listCareers({ status: 'open' }).catch(() => []);
@@ -52,6 +38,14 @@ export default async function NousRejoindrePage() {
   
   const typesRes = await listAllCareerTypes().catch(() => []);
   const careerTypes = Array.isArray(typesRes) ? typesRes : [];
+
+  const settings = await settingsService.get().catch(() => null);
+  const eng = settings?.engagementSection;
+  const engagementTypes = eng?.engagementTypes || defaultEngagementTypes;
+  const reasons = eng?.reasons || defaultReasons;
+  const engagementTitle = eng?.title || "Comment vous engager ?";
+  const engagementSubtitle = eng?.subtitle || "Nous croyons fermement que c'est l'addition des volontés locales et internationales qui permet la pérennité de l'action humanitaire. Explorez les opportunités ci-dessous.";
+  const reasonsTitle = eng?.reasonsTitle || "Pourquoi APC ?";
 
   return (
     <div className="flex flex-col">
@@ -66,23 +60,25 @@ export default async function NousRejoindrePage() {
         <div className="container px-4">
           
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 uppercase tracking-tighter">Comment vous engager ?</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 uppercase tracking-tighter">{engagementTitle}</h2>
             <p className="text-gray-500 text-lg leading-relaxed">
-              Nous croyons fermement que c'est l'addition des volontés locales et internationales 
-              qui permet la pérennité de l'action humanitaire. Explorez les opportunités ci-dessous.
+              {engagementSubtitle}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
-            {engagementTypes.map((type, i) => (
-              <div key={i} className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm hover:shadow-xl transition-all group">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${type.bg}`}>
-                  <type.icon className={`w-8 h-8 ${type.color}`} />
+            {engagementTypes.map((type: any, i: number) => {
+              const Icon = iconMap[type.icon] || HeartHandshake;
+              return (
+                <div key={i} className="bg-white rounded-[2rem] p-8 border border-border/40 shadow-sm hover:shadow-xl transition-all group">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${type.bg}`}>
+                    <Icon className={`w-8 h-8 ${type.color}`} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">{type.title}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{type.description}</p>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{type.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{type.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* ── Offres d'emploi Actives ── */}
@@ -116,27 +112,16 @@ export default async function NousRejoindrePage() {
               <div className="lg:col-span-2 bg-[#1a472a] p-10 md:p-16 text-white flex flex-col justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px]" />
                 <div className="relative z-10">
-                  <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter">Pourquoi APC ?</h3>
+                  <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter">{reasonsTitle}</h3>
                   <div className="space-y-10">
-                    <div>
-                      <h4 className="font-bold text-apc-greenLight text-xs uppercase tracking-widest mb-3">01. Impact Terrain</h4>
-                      <p className="text-apc-bgLight/70 text-sm leading-relaxed">
-                        Nos équipes sont aux premières lignes au Nord-Kivu, Ituri et Tanganyika. 
-                        Votre expertise sauve des vies.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-apc-greenLight text-xs uppercase tracking-widest mb-3">02. Expertise Intégrée</h4>
-                      <p className="text-apc-bgLight/70 text-sm leading-relaxed">
-                        Collaborez avec des experts en agronomie, psychosocial et consolidation de la paix.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-apc-greenLight text-xs uppercase tracking-widest mb-3">03. Culture d&apos;Intégrité</h4>
-                      <p className="text-apc-bgLight/70 text-sm leading-relaxed">
-                        La transparence et le professionnalisme sont les piliers de notre organisation.
-                      </p>
-                    </div>
+                    {reasons.map((reason: any, i: number) => (
+                      <div key={i}>
+                        <h4 className="font-bold text-apc-greenLight text-xs uppercase tracking-widest mb-3">0{i + 1}. {reason.title}</h4>
+                        <p className="text-apc-bgLight/70 text-sm leading-relaxed">
+                          {reason.description}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

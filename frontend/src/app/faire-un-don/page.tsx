@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, MapPin, Phone, Mail, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { apc } from "@/lib/data"
+import { settingsService } from "@/lib/api/settings"
 
 export const metadata: Metadata = {
   title: "Faire un Don",
@@ -11,7 +12,13 @@ export const metadata: Metadata = {
     "Soutenez les actions d'Agri-Peace and Child en RD Congo. Découvrez comment contribuer directement à nos projets.",
 }
 
-export default function FaireUnDonPage() {
+export default async function FaireUnDonPage() {
+  const settings = await settingsService.get().catch(() => null);
+  const donationMessage = settings?.donationMessage || "Pour garantir la sécurité et la traçabilité de votre contribution, nous privilégions actuellement les dons par contact direct. Notre équipe est à votre disposition pour vous orienter selon votre mode de paiement préféré.";
+  const transparencyMessage = settings?.transparencyMessage || {
+    title: "Engagement Transparence",
+    description: "Agri-Peace and Child s'engage à fournir un reçu officiel pour chaque don reçu. Vos fonds sont directement alloués aux projets terrain de votre choix ou à nos programmes prioritaires en cours."
+  };
   return (
     <div className="flex flex-col">
       <PageHero
@@ -39,9 +46,7 @@ export default function FaireUnDonPage() {
                 </h2>
                 
                 <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-                  Pour garantir la sécurité et la traçabilité de votre contribution, nous privilégions 
-                  actuellement les dons par contact direct. Notre équipe est à votre disposition pour 
-                  vous orienter selon votre mode de paiement préféré.
+                  {donationMessage}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -95,11 +100,9 @@ export default function FaireUnDonPage() {
                 <Heart className="w-5 h-5 text-apc-blue" />
               </div>
               <div>
-                <h4 className="font-bold text-apc-blue text-sm mb-1">Engagement Transparence</h4>
+                <h4 className="font-bold text-apc-blue text-sm mb-1">{transparencyMessage.title}</h4>
                 <p className="text-xs text-blue-800/70 leading-relaxed">
-                  Agri-Peace and Child s'engage à fournir un reçu officiel pour chaque don reçu. 
-                  Vos fonds sont directement alloués aux projets terrain de votre choix ou à nos 
-                  programmes prioritaires en cours.
+                  {transparencyMessage.description}
                 </p>
               </div>
             </div>

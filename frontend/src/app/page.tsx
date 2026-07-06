@@ -6,56 +6,31 @@ import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } fro
 import { settingsService } from "@/lib/api/settings";
 import { listProjects } from "@/lib/api/projects";
 import { listPartners } from "@/lib/api/partners";
+import { domainService } from "@/lib/api/services";
 
 export const dynamic = 'force-dynamic';
 
-const pilierLinks: Record<string, string> = {
-  Protection: "/domaines#protection",
-  Agriculture: "/domaines#agriculture",
-  Dignité: "/domaines#dignite",
-  Paix: "/domaines#paix",
-};
-
-const piliers = [
-  {
-    title: "Protection",
-    desc: "Assurer un environnement sûr et protecteur pour les enfants et les personnes vulnérables.",
-    icon: ShieldCheck,
-    color: "#ef4444",
-    lightColor: "#fee2e2"
-  },
-  {
-    title: "Agriculture",
-    desc: "Promouvoir des techniques durables pour garantir la sécurité alimentaire des ménages.",
-    icon: Sprout,
-    color: "#22c55e",
-    lightColor: "#dcfce7"
-  },
-  {
-    title: "Dignité",
-    desc: "Restaurer l'espoir et le respect de soi à travers l'autonomisation et l'accès aux soins.",
-    icon: Heart,
-    color: "#3b82f6",
-    lightColor: "#dbeafe"
-  },
-  {
-    title: "Paix",
-    desc: "Bâtir des ponts entre les communautés pour une coexistence pacifique et durable.",
-    icon: Handshake,
-    color: "#8b5cf6",
-    lightColor: "#ede9fe"
-  }
-];
+// Mapping icon name → Lucide component (pour les domaines depuis l'API)
+const iconMap: Record<string, any> = { ShieldCheck, Sprout, Heart, Handshake };
 
 export default async function Home() {
   const settings = await settingsService.get();
   let recentProjects: any[] = [];
+  let domaines: any[] = [];
+
   try {
     const projectsRes = await listProjects({ limit: 6, status: 'published' });
     recentProjects = projectsRes.data || [];
   } catch (err) {
     console.error('Failed to fetch recent projects:', err);
   }
+
+  try {
+    domaines = await domainService.list();
+  } catch (err) {
+    console.error('Failed to fetch domains:', err);
+  }
+
   const partners = await listPartners().catch(() => []);
 
   if (!settings) {
@@ -66,9 +41,26 @@ export default async function Home() {
     );
   }
 
-  const hero = settings?.hero || { title: "Agri-Peace and Child", subtitle: "Soutenir la RDC et l'Afrique", imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop" };
+  const hero = settings?.hero || {
+    title: "Agri-Peace and Child",
+    subtitle: "Soutenir la RDC et l'Afrique",
+    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
+  };
   const stats = settings?.stats || { beneficiaries: "15 000+", projects: "32", provinces: "4" };
+  const supportSection = settings?.supportSection || {
+    title: "Chaque action compte dans la reconstruction de notre communauté.",
+    subtitle: "Pourquoi nous soutenir ?",
+    description: "Depuis notre création, nous avons constaté que l'engagement local couplé au soutien international crée une force imparable. En nous soutenant, vous ne donnez pas seulement, vous investissez dans l'autonomie et la dignité de milliers de familles.",
+    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop",
+    bulletPoints: [
+      "Transparence totale des fonds",
+      "Impact direct sur le terrain (sans intermédiaire)",
+      "Projets ancrés dans les réalités locales"
+    ]
+  };
 
+  const domainColors = ["#ef4444", "#22c55e", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"];
+  const domainLightColors = ["#fee2e2", "#dcfce7", "#dbeafe", "#ede9fe", "#fef3c7", "#cffafe"];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -91,7 +83,7 @@ export default async function Home() {
               Soutenir la RDC et l&apos;Afrique
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
-              {hero.title.split(' et ').map((part, i) => (
+              {hero.title.split(' et ').map((part: string, i: number) => (
                 <span key={i}>
                   {i > 0 && " et "}
                   <span className={i % 2 === 0 ? "" : "text-apc-greenLight"}>{part}</span>
@@ -117,34 +109,41 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Nos Domaines d'Action */}
-      <section id="piliers" className="py-24 bg-white">
-        <div className="container px-4">
-          <FadeIn className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Nos Domaines d&apos;Action</h2>
-            <p className="text-muted-foreground text-lg">
-              Nos actions sont structurées autour de quatre axes fondamentaux pour garantir un développement durable et équitable.
-            </p>
-          </FadeIn>
+      {/* Nos Domaines d'Action — données dynamiques depuis l'API */}
+      {domaines.length > 0 && (
+        <section id="piliers" className="py-24 bg-white">
+          <div className="container px-4">
+            <FadeIn className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Nos Domaines d&apos;Action</h2>
+              <p className="text-muted-foreground text-lg">
+                Nos actions sont structurées autour d&apos;axes fondamentaux pour garantir un développement durable et équitable.
+              </p>
+            </FadeIn>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {piliers.map((pilier) => (
-              <StaggerItem key={pilier.title}>
-                <div className="group rounded-3xl p-8 bg-apc-bgLight border border-border/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm" style={{ backgroundColor: pilier.lightColor }}>
-                    <pilier.icon className="h-7 w-7" style={{ color: pilier.color }} strokeWidth={2} />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">{pilier.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{pilier.desc}</p>
-                  <Link href={pilierLinks[pilier.title] ?? "/domaines"} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color: pilier.color }}>
-                    En savoir plus <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
+            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {domaines.slice(0, 4).map((domaine: any, i: number) => {
+                const color = domaine.colorHex || domainColors[i % domainColors.length];
+                const lightColor = domainLightColors[i % domainLightColors.length];
+                const Icon = iconMap[domaine.iconName] || ShieldCheck;
+                return (
+                  <StaggerItem key={domaine.id}>
+                    <div className="group rounded-3xl p-8 bg-apc-bgLight border border-border/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm" style={{ backgroundColor: lightColor }}>
+                        <Icon className="h-7 w-7" style={{ color }} strokeWidth={2} />
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground mb-4">{domaine.name}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{domaine.description}</p>
+                      <Link href={`/domaines#${domaine.slug}`} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color }}>
+                        En savoir plus <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerContainer>
+          </div>
+        </section>
+      )}
 
       {/* Impact Section */}
       <section id="impact" className="py-20 relative overflow-hidden bg-[#1a472a]">
@@ -221,10 +220,10 @@ export default async function Home() {
               <h2 className="text-3xl font-bold text-foreground">Nos Partenaires</h2>
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">Découvrez les organisations et institutions qui accompagnent nos actions sur le terrain.</p>
             </FadeIn>
-            
+
             <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-80">
-              {partners.map(partner => (
-                <Link key={partner.id} href={`/partenaires`} title={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 hover:scale-105">
+              {partners.map((partner: any) => (
+                <Link key={partner.id} href="/partenaires" title={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 hover:scale-105">
                   {partner.logoUrl ? (
                     <div className="relative w-32 h-16 flex items-center justify-center">
                       <Image src={partner.logoUrl} alt={partner.name} fill className="object-contain" />
@@ -235,7 +234,7 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
-            
+
             <div className="text-center mt-12">
               <Link href="/partenaires" className="inline-flex items-center gap-1 text-sm font-semibold text-apc-green hover:underline">
                 Voir tous nos partenaires <ChevronRight className="w-4 h-4" />
@@ -245,13 +244,13 @@ export default async function Home() {
         </section>
       )}
 
-      {/* CTA Section */}
+      {/* CTA "Pourquoi nous soutenir ?" — 100% DYNAMIQUE */}
       <section className="py-24 bg-white">
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative h-[500px] w-full rounded-3xl overflow-hidden shadow-2xl">
               <Image
-                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
+                src={supportSection.imageUrl || "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"}
                 alt="Enfants souriants RDC"
                 fill
                 className="object-cover"
@@ -261,36 +260,30 @@ export default async function Home() {
 
             <FadeIn direction="left">
               <span className="inline-block px-4 py-1.5 rounded-full bg-apc-blue/10 text-apc-blue font-semibold text-sm mb-6">
-                Pourquoi nous soutenir ?
+                {supportSection.subtitle}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
-                Chaque action compte dans la <span className="text-apc-green">reconstruction</span> de notre communauté.
+                {supportSection.title.includes('reconstruction') ? (
+                  <>
+                    {supportSection.title.split('reconstruction')[0]}
+                    <span className="text-apc-green">reconstruction</span>
+                    {supportSection.title.split('reconstruction')[1]}
+                  </>
+                ) : supportSection.title}
               </h2>
               <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                Depuis notre création, nous avons constaté que l&apos;engagement local couplé au soutien
-                international crée une force imparable. En nous soutenant, vous ne donnez pas seulement,
-                vous investissez dans l&apos;autonomie et la dignité de milliers de familles.
+                {supportSection.description}
               </p>
 
               <ul className="space-y-4 mb-10">
-                <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-apc-green/10 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-5 h-5 text-apc-green" />
-                  </div>
-                  <span className="text-foreground font-medium">Transparence totale des fonds</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-apc-blue/10 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-5 h-5 text-apc-blue" />
-                  </div>
-                  <span className="text-foreground font-medium">Impact direct sur le terrain (sans intermédiaire)</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-apc-blue/10 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-5 h-5 text-apc-blue" />
-                  </div>
-                  <span className="text-foreground font-medium">Projets ancrés dans les réalités locales</span>
-                </li>
+                {(supportSection.bulletPoints || []).map((point: string, i: number) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full ${i === 0 ? 'bg-apc-green/10' : 'bg-apc-blue/10'} flex items-center justify-center shrink-0`}>
+                      <CheckCircle2 className={`w-5 h-5 ${i === 0 ? 'text-apc-green' : 'text-apc-blue'}`} />
+                    </div>
+                    <span className="text-foreground font-medium">{point}</span>
+                  </li>
+                ))}
               </ul>
 
               <div className="flex items-center gap-4">
@@ -312,4 +305,3 @@ export default async function Home() {
     </div>
   );
 }
-
