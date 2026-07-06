@@ -21,13 +21,14 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess, careerTyp
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [cv, setCv] = useState<File | null>(null)
 
+  // Ne pré-remplir careerTypeId que s'il y a des types ET que c'est une candidature spontanée (pas une candidature directe à un poste)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     type: "",
-    careerTypeId: careerTypes.length > 0 ? careerTypes[0].id : "",
+    careerTypeId: (!careerId && careerTypes.length > 0) ? careerTypes[0].id : "",
     motivation: ""
   })
 
@@ -53,7 +54,11 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess, careerTyp
 
     try {
       const data = new FormData()
-      Object.entries(formData).forEach(([key, value]) => data.append(key, value))
+      Object.entries(formData).forEach(([key, value]) => {
+        // N'envoyer careerTypeId/careerId que s'ils sont non-vides (évite l'erreur @IsUUID sur chaîne vide)
+        if ((key === 'careerTypeId' || key === 'careerId') && !value) return;
+        data.append(key, value)
+      })
       if (cv) data.append("cv", cv)
       if (careerId) data.append("careerId", careerId)
 
@@ -73,7 +78,7 @@ export function CareerApplicationForm({ careerId, jobTitle, onSuccess, careerTyp
           ? `Votre candidature pour le poste « ${jobTitle} » a été transmise ! Notre équipe RH l'étudiera avec attention.`
           : "Votre candidature spontanée a été transmise ! Notre équipe RH l'étudiera avec attention."
       })
-      setFormData({ firstName: "", lastName: "", email: "", phone: "", type: "", careerTypeId: careerTypes.length > 0 ? careerTypes[0].id : "", motivation: "" })
+      setFormData({ firstName: "", lastName: "", email: "", phone: "", type: "", careerTypeId: (!careerId && careerTypes.length > 0) ? careerTypes[0].id : "", motivation: "" })
       setCv(null)
       onSuccess?.()
     } catch (err: any) {
