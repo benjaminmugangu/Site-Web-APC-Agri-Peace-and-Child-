@@ -13,6 +13,41 @@ export const dynamic = 'force-dynamic';
 // Mapping icon name → Lucide component (pour les domaines depuis l'API)
 const iconMap: Record<string, any> = { ShieldCheck, Sprout, Heart, Handshake };
 
+const fallbackPiliers = [
+  {
+    id: 'fallback-protection',
+    name: "Protection",
+    slug: 'protection',
+    description: "Assurer un environnement sûr et protecteur pour les enfants et les personnes vulnérables.",
+    iconName: 'ShieldCheck',
+    colorHex: "#ef4444",
+  },
+  {
+    id: 'fallback-agriculture',
+    name: "Agriculture",
+    slug: 'agriculture',
+    description: "Promouvoir des techniques durables pour garantir la sécurité alimentaire des ménages.",
+    iconName: 'Sprout',
+    colorHex: "#22c55e",
+  },
+  {
+    id: 'fallback-dignite',
+    name: "Dignité",
+    slug: 'dignite',
+    description: "Restaurer l'espoir et le respect de soi à travers l'autonomisation et l'accès aux soins.",
+    iconName: 'Heart',
+    colorHex: "#3b82f6",
+  },
+  {
+    id: 'fallback-paix',
+    name: "Paix",
+    slug: 'paix',
+    description: "Bâtir des ponts entre les communautés pour une coexistence pacifique et durable.",
+    iconName: 'Handshake',
+    colorHex: "#8b5cf6",
+  }
+];
+
 export default async function Home() {
   const settings = await settingsService.get();
   let recentProjects: any[] = [];
@@ -109,41 +144,39 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Nos Domaines d'Action — données dynamiques depuis l'API */}
-      {domaines.length > 0 && (
-        <section id="piliers" className="py-24 bg-white">
-          <div className="container px-4">
-            <FadeIn className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Nos Domaines d&apos;Action</h2>
-              <p className="text-muted-foreground text-lg">
-                Nos actions sont structurées autour d&apos;axes fondamentaux pour garantir un développement durable et équitable.
-              </p>
-            </FadeIn>
+      {/* Nos Domaines d'Action — données dynamiques depuis l'API, avec fallback */}
+      <section id="piliers" className="py-24 bg-white">
+        <div className="container px-4">
+          <FadeIn className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Nos Domaines d&apos;Action</h2>
+            <p className="text-muted-foreground text-lg">
+              Nos actions sont structurées autour d&apos;axes fondamentaux pour garantir un développement durable et équitable.
+            </p>
+          </FadeIn>
 
-            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {domaines.slice(0, 4).map((domaine: any, i: number) => {
-                const color = domaine.colorHex || domainColors[i % domainColors.length];
-                const lightColor = domainLightColors[i % domainLightColors.length];
-                const Icon = iconMap[domaine.iconName] || ShieldCheck;
-                return (
-                  <StaggerItem key={domaine.id}>
-                    <div className="group rounded-3xl p-8 bg-apc-bgLight border border-border/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm" style={{ backgroundColor: lightColor }}>
-                        <Icon className="h-7 w-7" style={{ color }} strokeWidth={2} />
-                      </div>
-                      <h3 className="text-xl font-bold text-foreground mb-4">{domaine.name}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{domaine.description}</p>
-                      <Link href={`/domaines#${domaine.slug}`} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color }}>
-                        En savoir plus <ChevronRight className="w-4 h-4" />
-                      </Link>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {(domaines.length > 0 ? domaines : fallbackPiliers).slice(0, 4).map((domaine: any, i: number) => {
+              const color = domaine.colorHex || domainColors[i % domainColors.length];
+              const lightColor = domainLightColors[i % domainLightColors.length];
+              const Icon = iconMap[domaine.iconName] || ShieldCheck;
+              return (
+                <StaggerItem key={domaine.id}>
+                  <div className="group rounded-3xl p-8 bg-apc-bgLight border border-border/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm" style={{ backgroundColor: lightColor }}>
+                      <Icon className="h-7 w-7" style={{ color }} strokeWidth={2} />
                     </div>
-                  </StaggerItem>
-                );
-              })}
-            </StaggerContainer>
-          </div>
-        </section>
-      )}
+                    <h3 className="text-xl font-bold text-foreground mb-4">{domaine.name}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{domaine.description}</p>
+                    <Link href={`/domaines#${domaine.slug}`} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color }}>
+                      En savoir plus <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
 
       {/* Impact Section */}
       <section id="impact" className="py-20 relative overflow-hidden bg-[#1a472a]">
