@@ -6,13 +6,19 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 export const settingsService = {
   async get(): Promise<SiteSettings | null> {
     try {
-      // Uses Next.js native cache: revalidation every 60 seconds
-      // Avoids a backend call on every SSR page render
-      // Note: This intentionally uses raw fetch (not apiClient) for SSR
-      // revalidation support, which apiClient doesn't offer.
-      const response = await fetch(`${API_BASE_URL}/settings`, {
-        next: { revalidate: 60 },
-      });
+      const isServer = typeof window === 'undefined';
+
+      const fetchOptions: RequestInit = isServer
+        ? {
+            // Côté serveur (SSR/Next.js) : mise en cache avec revalidation toutes les 60s
+            next: { revalidate: 60 },
+          } as RequestInit
+        : {
+            // Côté client (navigateur admin) : JAMAIS de cache, toujours les données fraîches
+            cache: 'no-store',
+          };
+
+      const response = await fetch(`${API_BASE_URL}/settings`, fetchOptions);
       if (!response.ok) return null;
       const result: TypeApiResponse<SiteSettings> = await response.json();
       return result.data || null;
@@ -27,3 +33,4 @@ export const settingsService = {
     return response.data || null;
   }
 };
+
