@@ -15,7 +15,10 @@ import {
   HelpCircle,
   Link2,
   Briefcase,
-  Share2
+  Share2,
+  FileText,
+  Plus,
+  Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
@@ -23,7 +26,7 @@ import { settingsService } from "@/lib/api/settings"
 import { type SiteSettings } from "@/types"
 import { toast } from "sonner"
 
-type TabType = "institution" | "hero" | "contact" | "stats" | "seo"
+type TabType = "institution" | "hero" | "contact" | "stats" | "seo" | "contents"
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false)
@@ -60,7 +63,13 @@ export default function AdminSettingsPage() {
           },
           institution: data.institution || { name: "", acronym: "", foundationYear: "", vision: "", mission: "" },
           seo: data.seo || { metaTitle: "", metaDescription: "", metaKeywords: "", ogImage: "" },
-          logo: data.logo || { logoHeader: "", logoFooter: "", logoDark: "", favicon: "" }
+          logo: data.logo || { logoHeader: "", logoFooter: "", logoDark: "", favicon: "" },
+          // Contenus CMS (issue #47)
+          supportSection: data.supportSection || { title: "", subtitle: "", description: "", imageUrl: "", bulletPoints: [] },
+          historySection: data.historySection || { title: "", subtitle: "", paragraphs: [""], imageUrl: "", objectives: [] },
+          engagementSection: data.engagementSection || { title: "", subtitle: "", engagementTypes: [], reasonsTitle: "", reasons: [] },
+          donationMessage: data.donationMessage || "",
+          transparencyMessage: data.transparencyMessage || { title: "", description: "" }
         })
       }
     } catch (err) {
@@ -118,6 +127,7 @@ export default function AdminSettingsPage() {
   const tabs = [
     { id: "institution" as TabType, label: "Institutionnel", icon: Building2 },
     { id: "hero" as TabType, label: "Accueil & Hero", icon: Layout },
+    { id: "contents" as TabType, label: "Contenus des Pages", icon: FileText },
     { id: "contact" as TabType, label: "Coordonnées & Réseaux", icon: Mail },
     { id: "stats" as TabType, label: "Statistiques d'impact", icon: BarChart3 },
     { id: "seo" as TabType, label: "SEO & Identité Visuelle", icon: Search }
@@ -292,6 +302,269 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Tab X: Contenus des Pages (CMS) */}
+        {activeTab === "contents" && (
+          <div className="space-y-12 animate-in fade-in-50 duration-200">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Contenus des Pages (CMS)</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Modifiez les textes, images et listes dynamiques des différentes sections publiques.</p>
+            </div>
+
+            {/* --- ACCUEIL --- */}
+            <div className="space-y-6 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+              <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">1. Page d'Accueil : Pourquoi nous soutenir ?</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Titre de la section</label>
+                    <input 
+                      type="text" 
+                      value={settings.supportSection?.title || ""}
+                      onChange={e => setSettings({...settings, supportSection: {...settings.supportSection!, title: e.target.value}})}
+                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sous-titre / Description</label>
+                    <textarea 
+                      rows={3}
+                      value={settings.supportSection?.description || ""}
+                      onChange={e => setSettings({...settings, supportSection: {...settings.supportSection!, description: e.target.value}})}
+                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Points Forts (Bullet points)</label>
+                    <div className="space-y-2">
+                      {(settings.supportSection?.bulletPoints || []).map((point, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input 
+                            type="text"
+                            value={point}
+                            onChange={(e) => {
+                              const newPoints = [...settings.supportSection!.bulletPoints];
+                              newPoints[index] = e.target.value;
+                              setSettings({...settings, supportSection: {...settings.supportSection!, bulletPoints: newPoints}});
+                            }}
+                            className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm"
+                          />
+                          <Button 
+                            variant="outline" size="icon" className="text-red-500 border-red-100 hover:bg-red-50"
+                            onClick={() => {
+                              const newPoints = settings.supportSection!.bulletPoints.filter((_, i) => i !== index);
+                              setSettings({...settings, supportSection: {...settings.supportSection!, bulletPoints: newPoints}});
+                            }}
+                          ><Trash2 size={14} /></Button>
+                        </div>
+                      ))}
+                      <Button 
+                        variant="outline" size="sm" className="w-full gap-2 text-emerald-600 border-dashed"
+                        onClick={() => {
+                          const newPoints = [...(settings.supportSection?.bulletPoints || []), "Nouveau point"];
+                          setSettings({...settings, supportSection: {...settings.supportSection!, bulletPoints: newPoints}});
+                        }}
+                      ><Plus size={14} /> Ajouter un point fort</Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="md:col-span-1">
+                  <ImageUploader 
+                    value={settings.supportSection?.imageUrl || ""}
+                    onChange={url => setSettings({...settings, supportSection: {...settings.supportSection!, imageUrl: url}})}
+                    label="Image illustrative"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* --- A PROPOS --- */}
+            <div className="space-y-6 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+              <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">2. Page À Propos : Notre Histoire</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Titre de la section</label>
+                    <input 
+                      type="text" 
+                      value={settings.historySection?.title || ""}
+                      onChange={e => setSettings({...settings, historySection: {...settings.historySection!, title: e.target.value}})}
+                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paragraphes d'histoire</label>
+                    <div className="space-y-2">
+                      {(settings.historySection?.paragraphs || []).map((paragraph, index) => (
+                        <div key={index} className="flex gap-2 items-start">
+                          <textarea 
+                            rows={3}
+                            value={paragraph}
+                            onChange={(e) => {
+                              const newParagraphs = [...settings.historySection!.paragraphs];
+                              newParagraphs[index] = e.target.value;
+                              setSettings({...settings, historySection: {...settings.historySection!, paragraphs: newParagraphs}});
+                            }}
+                            className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm"
+                          />
+                          <Button 
+                            variant="outline" size="icon" className="text-red-500 border-red-100 hover:bg-red-50 mt-1"
+                            onClick={() => {
+                              const newParagraphs = settings.historySection!.paragraphs.filter((_, i) => i !== index);
+                              setSettings({...settings, historySection: {...settings.historySection!, paragraphs: newParagraphs}});
+                            }}
+                          ><Trash2 size={14} /></Button>
+                        </div>
+                      ))}
+                      <Button 
+                        variant="outline" size="sm" className="w-full gap-2 text-emerald-600 border-dashed"
+                        onClick={() => {
+                          const newParagraphs = [...(settings.historySection?.paragraphs || []), "Nouveau paragraphe..."];
+                          setSettings({...settings, historySection: {...settings.historySection!, paragraphs: newParagraphs}});
+                        }}
+                      ><Plus size={14} /> Ajouter un paragraphe</Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="md:col-span-1">
+                  <ImageUploader 
+                    value={settings.historySection?.imageUrl || ""}
+                    onChange={url => setSettings({...settings, historySection: {...settings.historySection!, imageUrl: url}})}
+                    label="Image de l'histoire"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* --- NOUS REJOINDRE --- */}
+            <div className="space-y-6 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+              <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">3. Page Nous Rejoindre : S'engager & Pourquoi APC</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Types d'engagement */}
+                <div className="space-y-4">
+                  <h5 className="text-xs font-bold text-slate-500 uppercase">Types d'engagement</h5>
+                  <div className="space-y-3">
+                    {(settings.engagementSection?.engagementTypes || []).map((type, index) => (
+                      <div key={index} className="p-3 bg-white border border-slate-200 rounded-xl space-y-2 relative">
+                        <Button 
+                          variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6 text-red-500 hover:bg-red-50"
+                          onClick={() => {
+                            const newTypes = settings.engagementSection!.engagementTypes.filter((_, i) => i !== index);
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, engagementTypes: newTypes}});
+                          }}
+                        ><Trash2 size={12} /></Button>
+                        <input 
+                          type="text" placeholder="Titre (ex: Bénévolat)" value={type.title}
+                          onChange={(e) => {
+                            const newTypes = [...settings.engagementSection!.engagementTypes];
+                            newTypes[index].title = e.target.value;
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, engagementTypes: newTypes}});
+                          }}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-sm font-bold"
+                        />
+                        <textarea 
+                          rows={2} placeholder="Description courte..." value={type.description}
+                          onChange={(e) => {
+                            const newTypes = [...settings.engagementSection!.engagementTypes];
+                            newTypes[index].description = e.target.value;
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, engagementTypes: newTypes}});
+                          }}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-xs"
+                        />
+                      </div>
+                    ))}
+                    <Button 
+                      variant="outline" size="sm" className="w-full gap-2 text-emerald-600 border-dashed"
+                      onClick={() => {
+                        const newTypes = [...(settings.engagementSection?.engagementTypes || []), { title: "Nouveau", description: "...", icon: "Users", color: "text-emerald-600", bg: "bg-emerald-100" }];
+                        setSettings({...settings, engagementSection: {...settings.engagementSection!, engagementTypes: newTypes}});
+                      }}
+                    ><Plus size={14} /> Ajouter un type d'engagement</Button>
+                  </div>
+                </div>
+
+                {/* Raisons */}
+                <div className="space-y-4">
+                  <h5 className="text-xs font-bold text-slate-500 uppercase">Pourquoi rejoindre APC ? (Raisons)</h5>
+                  <div className="space-y-3">
+                    {(settings.engagementSection?.reasons || []).map((reason, index) => (
+                      <div key={index} className="p-3 bg-white border border-slate-200 rounded-xl space-y-2 relative">
+                        <Button 
+                          variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6 text-red-500 hover:bg-red-50"
+                          onClick={() => {
+                            const newReasons = settings.engagementSection!.reasons.filter((_, i) => i !== index);
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, reasons: newReasons}});
+                          }}
+                        ><Trash2 size={12} /></Button>
+                        <input 
+                          type="text" placeholder="Titre (ex: Impact Terrain)" value={reason.title}
+                          onChange={(e) => {
+                            const newReasons = [...settings.engagementSection!.reasons];
+                            newReasons[index].title = e.target.value;
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, reasons: newReasons}});
+                          }}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-sm font-bold"
+                        />
+                        <textarea 
+                          rows={2} placeholder="Description..." value={reason.description}
+                          onChange={(e) => {
+                            const newReasons = [...settings.engagementSection!.reasons];
+                            newReasons[index].description = e.target.value;
+                            setSettings({...settings, engagementSection: {...settings.engagementSection!, reasons: newReasons}});
+                          }}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-xs"
+                        />
+                      </div>
+                    ))}
+                    <Button 
+                      variant="outline" size="sm" className="w-full gap-2 text-emerald-600 border-dashed"
+                      onClick={() => {
+                        const newReasons = [...(settings.engagementSection?.reasons || []), { title: "Nouvelle raison", description: "..." }];
+                        setSettings({...settings, engagementSection: {...settings.engagementSection!, reasons: newReasons}});
+                      }}
+                    ><Plus size={14} /> Ajouter une raison</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* --- FAIRE UN DON --- */}
+            <div className="space-y-6 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+              <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">4. Page Faire un Don</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Message Principal de Don</label>
+                  <textarea 
+                    rows={4}
+                    value={settings.donationMessage || ""}
+                    onChange={e => setSettings({...settings, donationMessage: e.target.value})}
+                    placeholder="Texte remerciant et incitant au don..."
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm" 
+                  />
+                </div>
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Encadré Transparence</label>
+                  <input 
+                    type="text" 
+                    value={settings.transparencyMessage?.title || ""}
+                    onChange={e => setSettings({...settings, transparencyMessage: {...settings.transparencyMessage!, title: e.target.value}})}
+                    placeholder="Titre (ex: Notre engagement de transparence)"
+                    className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold" 
+                  />
+                  <textarea 
+                    rows={2}
+                    value={settings.transparencyMessage?.description || ""}
+                    onChange={e => setSettings({...settings, transparencyMessage: {...settings.transparencyMessage!, description: e.target.value}})}
+                    placeholder="Description de la transparence..."
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm" 
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
