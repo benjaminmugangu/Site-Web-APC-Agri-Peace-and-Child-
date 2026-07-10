@@ -217,6 +217,10 @@ export interface SiteSettings {
     title: string;
     description: string;
   };
+  legalSection?: {
+    privacyPolicy: string;
+    legalNotices: string;
+  };
 }
 
 // --- PARTNERS ---
