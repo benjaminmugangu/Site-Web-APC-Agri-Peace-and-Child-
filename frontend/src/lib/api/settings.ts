@@ -3,6 +3,14 @@ import { type SiteSettings, type ApiResponse as TypeApiResponse } from "@/types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
+type DeepPartial<T> = T extends Array<infer U>
+  ? U[]
+  : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
+
+export type SettingsUpdatePayload = DeepPartial<SiteSettings>;
+
 export const settingsService = {
   async get(): Promise<SiteSettings | null> {
     try {
@@ -27,7 +35,7 @@ export const settingsService = {
     }
   },
 
-  async update(payload: SiteSettings): Promise<SiteSettings | null> {
+  async update(payload: SettingsUpdatePayload): Promise<SiteSettings | null> {
     // Uses apiClient so the JWT token is automatically attached
     const response = await apiClient.put<ApiResponse<SiteSettings>>('/settings', payload);
     return response.data || null;

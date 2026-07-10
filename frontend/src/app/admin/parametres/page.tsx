@@ -22,11 +22,74 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
-import { settingsService } from "@/lib/api/settings"
+import { settingsService, type SettingsUpdatePayload } from "@/lib/api/settings"
 import { type SiteSettings } from "@/types"
 import { toast } from "sonner"
 
 type TabType = "institution" | "hero" | "contact" | "stats" | "seo" | "contents"
+
+const normalizeSettings = (data: SiteSettings): SiteSettings => ({
+  ...data,
+  hero: data.hero || { title: "", subtitle: "", imageUrl: "" },
+  stats: data.stats || { beneficiaries: "", projects: "", provinces: "", partners: "", teamMembers: "" },
+  contact: data.contact || {
+    address: "",
+    phone1: "",
+    phone2: "",
+    whatsapp: "",
+    email: "",
+    emailSupport: "",
+    emailCareers: "",
+    socials: { facebook: "", twitter: "", linkedin: "", instagram: "", youtube: "" }
+  },
+  institution: data.institution || { name: "", acronym: "", foundationYear: "", vision: "", mission: "" },
+  seo: data.seo || { metaTitle: "", metaDescription: "", metaKeywords: "", ogImage: "" },
+  logo: data.logo || { logoHeader: "", logoFooter: "", logoDark: "", favicon: "" },
+  // Contenus CMS (issue #47)
+  supportSection: data.supportSection || { title: "", subtitle: "", description: "", imageUrl: "", bulletPoints: [] },
+  historySection: data.historySection || { title: "", subtitle: "", paragraphs: [""], imageUrl: "", objectives: [] },
+  engagementSection: data.engagementSection || { title: "", subtitle: "", engagementTypes: [], reasonsTitle: "", reasons: [] },
+  donationMessage: data.donationMessage || "",
+  transparencyMessage: data.transparencyMessage || { title: "", description: "" }
+})
+
+const cloneSettings = (settings: SiteSettings): SiteSettings =>
+  JSON.parse(JSON.stringify(settings)) as SiteSettings
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value)
+
+const valuesAreEqual = (left: unknown, right: unknown) =>
+  JSON.stringify(left) === JSON.stringify(right)
+
+const diffSettings = (current: unknown, original: unknown): unknown => {
+  if (Array.isArray(current) || Array.isArray(original)) {
+    return valuesAreEqual(current, original) ? undefined : current
+  }
+
+  if (isPlainObject(current) && isPlainObject(original)) {
+    const patch: Record<string, unknown> = {}
+
+    for (const key of Object.keys(current)) {
+      const diff = diffSettings(current[key], original[key])
+      if (diff !== undefined) {
+        patch[key] = diff
+      }
+    }
+
+    return Object.keys(patch).length > 0 ? patch : undefined
+  }
+
+  return Object.is(current, original) ? undefined : current
+}
+
+const buildSettingsPatch = (
+  current: SiteSettings,
+  original: SiteSettings
+): SettingsUpdatePayload => {
+  const patch = diffSettings(current, original)
+  return isPlainObject(patch) ? (patch as SettingsUpdatePayload) : {}
+}
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false)
@@ -36,6 +99,7 @@ export default function AdminSettingsPage() {
   
   // State for the settings data
   const [settings, setSettings] = useState<SiteSettings | null>(null)
+  const [originalSettings, setOriginalSettings] = useState<SiteSettings | null>(null)
 
   useEffect(() => {
     fetchSettings()
@@ -46,31 +110,9 @@ export default function AdminSettingsPage() {
     try {
       const data = await settingsService.get()
       if (data) {
-        // Ensure defaults are populated in case some keys were missing
-        setSettings({
-          ...data,
-          hero: data.hero || { title: "", subtitle: "", imageUrl: "" },
-          stats: data.stats || { beneficiaries: "", projects: "", provinces: "", partners: "", teamMembers: "" },
-          contact: data.contact || {
-            address: "",
-            phone1: "",
-            phone2: "",
-            whatsapp: "",
-            email: "",
-            emailSupport: "",
-            emailCareers: "",
-            socials: { facebook: "", twitter: "", linkedin: "", instagram: "", youtube: "" }
-          },
-          institution: data.institution || { name: "", acronym: "", foundationYear: "", vision: "", mission: "" },
-          seo: data.seo || { metaTitle: "", metaDescription: "", metaKeywords: "", ogImage: "" },
-          logo: data.logo || { logoHeader: "", logoFooter: "", logoDark: "", favicon: "" },
-          // Contenus CMS (issue #47)
-          supportSection: data.supportSection || { title: "", subtitle: "", description: "", imageUrl: "", bulletPoints: [] },
-          historySection: data.historySection || { title: "", subtitle: "", paragraphs: [""], imageUrl: "", objectives: [] },
-          engagementSection: data.engagementSection || { title: "", subtitle: "", engagementTypes: [], reasonsTitle: "", reasons: [] },
-          donationMessage: data.donationMessage || "",
-          transparencyMessage: data.transparencyMessage || { title: "", description: "" }
-        })
+        const normalized = normalizeSettings(data)
+        setSettings(normalized)
+        setOriginalSettings(cloneSettings(normalized))
       }
     } catch (err) {
       console.error("Failed to fetch settings", err)
@@ -86,10 +128,23 @@ export default function AdminSettingsPage() {
     setStatus(null)
     
     try {
-      await settingsService.update(settings)
+      const payload = originalSettings
+        ? buildSettingsPatch(settings, originalSettings)
+        : settings
+
+      if (originalSettings && Object.keys(payload).length === 0) {
+        setStatus({ type: 'success', message: "Aucune modification à enregistrer." })
+        toast.success("Aucune modification à enregistrer")
+        return
+      }
+
+      const updatedSettings = await settingsService.update(payload)
+      const normalized = normalizeSettings(updatedSettings || settings)
+      setSettings(normalized)
+      setOriginalSettings(cloneSettings(normalized))
       setStatus({ type: 'success', message: "Paramètres mis à jour avec succès !" })
       toast.success("Paramètres enregistrés avec succès")
-    } catch (err) {
+    } catch {
       setStatus({ type: 'error', message: "Erreur lors de la mise à jour des paramètres." })
       toast.error("Erreur lors de la sauvegarde")
     } finally {
