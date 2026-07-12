@@ -18,8 +18,8 @@ export const settingsService = {
 
       const fetchOptions: RequestInit = isServer
         ? {
-            // Côté serveur (SSR/Next.js) : mise en cache avec revalidation toutes les 60s
-            next: { revalidate: 60 },
+            // Côté serveur (SSR/Next.js) : PAS de cache pour éviter la réinitialisation
+            cache: 'no-store',
           } as RequestInit
         : {
             // Côté client (navigateur admin) : JAMAIS de cache, toujours les données fraîches
