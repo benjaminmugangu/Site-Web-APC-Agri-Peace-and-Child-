@@ -66,10 +66,10 @@ export default async function ArticleDetailPage({
         subtitle={article.excerpt}
         breadcrumbs={[
           { label: "Actualités", href: "/actualites" },
-          { label: article.category, href: "/actualites" },
+          { label: article.category?.name || "Actualités", href: "/actualites" },
           { label: article.title },
         ]}
-        tag={article.category}
+        tag={article.category?.name}
       />
 
       <section className="py-16 bg-apc-bgLight min-h-screen">
@@ -88,10 +88,10 @@ export default async function ArticleDetailPage({
                 />
                 <span
                   className={`absolute top-6 left-6 text-[10px] font-bold uppercase tracking-[0.2em] px-5 py-2 rounded-full backdrop-blur-md bg-white/90 shadow-xl ${
-                    categoryColors[article.category] || "text-gray-900"
+                    categoryColors[article.category?.name || ""] || "text-gray-900"
                   }`}
                 >
-                  {article.category}
+                  {article.category?.name}
                 </span>
               </div>
 
@@ -209,8 +209,8 @@ export default async function ArticleDetailPage({
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${categoryColors[a.category] || "bg-gray-100"}`}>
-                            {a.category}
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${categoryColors[a.category?.name || ""] || "bg-gray-100"}`}>
+                            {a.category?.name}
                           </span>
                           <p className="text-sm font-bold text-gray-900 mt-2 line-clamp-2 group-hover:text-apc-green transition-colors leading-snug">
                             {a.title}

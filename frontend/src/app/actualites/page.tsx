@@ -68,8 +68,8 @@ export default async function ActualitesPage() {
 
                   <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
                     <div className="flex items-center gap-4 mb-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full backdrop-blur-md bg-white/90 ${categoryColors[featured.category] || "text-gray-900"}`}>
-                        {featured.category}
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full backdrop-blur-md bg-white/90 ${categoryColors[featured.category?.name || ""] || "text-gray-900"}`}>
+                        {featured.category?.name}
                       </span>
                       <span className="text-white/70 text-xs flex items-center gap-1.5 font-medium">
                         <Calendar className="w-3.5 h-3.5" />
@@ -113,8 +113,8 @@ export default async function ActualitesPage() {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
-                          <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[article.category] || "text-gray-900"}`}>
-                            {article.category}
+                          <span className={`absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-sm ${categoryColors[article.category?.name || ""] || "text-gray-900"}`}>
+                            {article.category?.name}
                           </span>
                         </div>
 
