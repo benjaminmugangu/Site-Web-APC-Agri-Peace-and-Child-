@@ -37,6 +37,13 @@ function formatDate(dateStr: string) {
   })
 }
 
+function getCategoryName(category: any): string {
+  if (!category) return "Actualité";
+  if (typeof category === "string") return category;
+  if (typeof category === "object" && category.name) return category.name;
+  return "Actualité";
+}
+
 const categoryColors: Record<string, string> = {
   "Rapport": "bg-apc-green/10 text-apc-green border-apc-green/20",
   "Terrain": "bg-amber-100 text-amber-700 border-amber-200",
@@ -59,6 +66,8 @@ export default async function ArticleDetailPage({
     ? recentRes.data.filter((a: any) => a.id !== article.id).slice(0, 3)
     : [];
 
+  const categoryName = getCategoryName(article.category);
+
   return (
     <div className="flex flex-col">
       <PageHero
@@ -66,10 +75,10 @@ export default async function ArticleDetailPage({
         subtitle={article.excerpt}
         breadcrumbs={[
           { label: "Actualités", href: "/actualites" },
-          { label: article.category?.name || "Actualités", href: "/actualites" },
+          { label: categoryName, href: "/actualites" },
           { label: article.title },
         ]}
-        tag={article.category?.name}
+        tag={categoryName}
       />
 
       <section className="py-16 bg-apc-bgLight min-h-screen">
@@ -88,10 +97,10 @@ export default async function ArticleDetailPage({
                 />
                 <span
                   className={`absolute top-6 left-6 text-[10px] font-bold uppercase tracking-[0.2em] px-5 py-2 rounded-full backdrop-blur-md bg-white/90 shadow-xl ${
-                    categoryColors[article.category?.name || ""] || "text-gray-900"
+                    categoryColors[categoryName] || "text-gray-900"
                   }`}
                 >
-                  {article.category?.name}
+                  {categoryName}
                 </span>
               </div>
 
@@ -209,8 +218,8 @@ export default async function ArticleDetailPage({
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${categoryColors[a.category?.name || ""] || "bg-gray-100"}`}>
-                            {a.category?.name}
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${categoryColors[getCategoryName(a.category)] || "bg-gray-100"}`}>
+                            {getCategoryName(a.category)}
                           </span>
                           <p className="text-sm font-bold text-gray-900 mt-2 line-clamp-2 group-hover:text-apc-green transition-colors leading-snug">
                             {a.title}

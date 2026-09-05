@@ -78,7 +78,8 @@ export default function AdminPartnerDetailPage() {
     )
   }
 
-  const typeInfo = TYPE_LABELS[partner.type] || { label: partner.type, color: "bg-gray-100 text-gray-600" }
+  const partnerType = (partner as any).type || partner.category?.name || "";
+  const typeInfo = TYPE_LABELS[partnerType] || { label: partnerType || "Partenaire", color: "bg-gray-100 text-gray-600" }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 text-black">

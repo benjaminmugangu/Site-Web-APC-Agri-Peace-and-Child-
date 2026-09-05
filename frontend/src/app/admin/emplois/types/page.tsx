@@ -8,8 +8,9 @@ import {
 import { Button } from "@/components/ui/button"
 import {
   listAllCareerTypes, createCareerType, updateCareerType,
-  deleteCareerType, toggleCareerType, type CareerType
+  deleteCareerType, toggleCareerType
 } from "@/lib/api/career-types"
+import type { CareerType } from "@/types"
 import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 
