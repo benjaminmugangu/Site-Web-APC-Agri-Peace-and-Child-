@@ -25,6 +25,34 @@ import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
+/** Slugs exacts attendus par l'API (POST/PUT /api/v1/tenders) */
+const TENDER_STATUSES = [
+  { value: "open", label: "OUVERT" },
+  { value: "closed", label: "FERMÉ" },
+  { value: "cancelled", label: "ANNULÉ" },
+  { value: "archived", label: "ARCHIVÉ" }
+] as const
+
+/** Anciens libellés tolérés en entrée (majuscules, français, variantes) */
+const TENDER_STATUS_ALIASES: Record<string, string> = {
+  open: "open", ouvert: "open", active: "open", publie: "open", publiee: "open",
+  closed: "closed", ferme: "closed", cloture: "closed", cloturee: "closed",
+  cancelled: "cancelled", annule: "cancelled", annulee: "cancelled",
+  archived: "archived", archive: "archived", archivee: "archived"
+}
+
+/** Normalise toute valeur (OPEN, Ouvert, FERMÉ...) vers un slug API valide */
+function normalizeTenderStatus(value: unknown): string {
+  const slug = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // "FERMÉ" -> "ferme"
+  const resolved = TENDER_STATUS_ALIASES[slug] ?? slug
+  // Dernière garantie : seul un slug accepté par l'API peut sortir d'ici
+  return TENDER_STATUSES.some(s => s.value === resolved) ? resolved : "open"
+}
+
 export default function AdminAppelsOffresPage() {
   const { canWrite } = useRole()
   const canEdit = canWrite('rh')
@@ -42,7 +70,7 @@ export default function AdminAppelsOffresPage() {
     description: "",
     content: "",
     fileUrl: "",
-    status: "OPEN",
+    status: "open",
     category: "Fournitures"
   })
 
@@ -64,7 +92,7 @@ export default function AdminAppelsOffresPage() {
 
   const handleAdd = () => {
     setEditingAppel(null)
-    setFormData({ title: "", reference: `AAO-N°00${appels.length + 1}`, deadline: "", description: "", content: "", fileUrl: "", status: "OPEN", category: "Fournitures" })
+    setFormData({ title: "", reference: `AAO-N°00${appels.length + 1}`, deadline: "", description: "", content: "", fileUrl: "", status: "open", category: "Fournitures" })
     setShowForm(true)
   }
 
@@ -84,7 +112,7 @@ export default function AdminAppelsOffresPage() {
         description: appel.description || "",
         content: appel.content || "",
         fileUrl: appel.fileUrl || "",
-        status: appel.status,
+        status: normalizeTenderStatus(appel.status),
         category: (appel as any).category || "Fournitures"
       })
       setShowForm(true)
@@ -99,11 +127,13 @@ export default function AdminAppelsOffresPage() {
     e.preventDefault()
     setLoading(true)
     try {
+      // Mapping de sécurité : l'API n'accepte que open | closed | cancelled | archived
+      const payload = { ...formData, status: normalizeTenderStatus(formData.status) }
       if (editingAppel) {
-        await updateTender(editingAppel.id, formData)
+        await updateTender(editingAppel.id, payload)
         toast.success("Appel d'offres mis à jour")
       } else {
-        await createTender(formData)
+        await createTender(payload)
         toast.success("Appel d'offres publié")
       }
       setShowForm(false)
@@ -188,7 +218,7 @@ export default function AdminAppelsOffresPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        appel.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        normalizeTenderStatus(appel.status) === 'open' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                       }`}>
                         {appel.status}
                       </span>
@@ -272,9 +302,9 @@ export default function AdminAppelsOffresPage() {
                     onChange={e => setFormData({...formData, status: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none bg-white text-sm"
                   >
-                    <option value="OPEN">OUVERT</option>
-                    <option value="CLOSED">FERMÉ</option>
-                    <option value="ARCHIVED">ARCHIVÉ</option>
+                    {TENDER_STATUSES.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
