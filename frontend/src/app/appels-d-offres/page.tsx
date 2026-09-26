@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in"
 import { listTenders } from "@/lib/api/tenders"
 import { Tender } from "@/types"
@@ -258,9 +259,9 @@ export default function AppelsDOffresPage() {
 
                   <div className="p-12">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Description du marché</h3>
-                    <div 
-                      className="prose prose-apc max-w-none text-gray-600 mb-12 leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: selectedTender.content || selectedTender.description }}
+                    <MarkdownContent
+                      content={selectedTender.content || selectedTender.description}
+                      className="mb-12"
                     />
 
                     {selectedTender.documents && selectedTender.documents.length > 0 ? (
