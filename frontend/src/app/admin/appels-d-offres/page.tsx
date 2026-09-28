@@ -131,11 +131,13 @@ export default function AdminAppelsOffresPage() {
     try {
       // Sanitizer le contenu HTML pour éviter XSS
       const sanitizedContent = sanitizeHTMLServer(formData.content)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
       
       // Mapping de sécurité : l'API n'accepte que open | closed | cancelled | archived
       const payload = { 
         ...formData, 
         content: sanitizedContent,
+        description: sanitizedDescription,
         status: normalizeTenderStatus(formData.status) 
       }
       
@@ -334,11 +336,11 @@ export default function AdminAppelsOffresPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description brève</label>
-                  <textarea 
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 h-24 text-sm" 
+                    onChange={(value) => setFormData({...formData, description: value})}
                     placeholder="Résumé de l'appel d'offres..."
+                    minHeight="100px"
                   />
                 </div>
               </div>

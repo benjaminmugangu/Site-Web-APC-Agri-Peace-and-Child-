@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { MarkdownContent } from "@/components/ui/markdown-content"
+import HTMLContent from "@/components/ui/html-content"
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in"
 import { listTenders } from "@/lib/api/tenders"
 import { Tender } from "@/types"
@@ -259,10 +260,17 @@ export default function AppelsDOffresPage() {
 
                   <div className="p-12">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Description du marché</h3>
-                    <MarkdownContent
-                      content={selectedTender.content || selectedTender.description}
-                      className="mb-12"
-                    />
+                    {selectedTender.content && selectedTender.content.includes('<') ? (
+                      <HTMLContent
+                        content={selectedTender.content}
+                        className="mb-12"
+                      />
+                    ) : (
+                      <MarkdownContent
+                        content={selectedTender.content || selectedTender.description}
+                        className="mb-12"
+                      />
+                    )}
 
                     {selectedTender.documents && selectedTender.documents.length > 0 ? (
                       <>

@@ -169,11 +169,10 @@ export default function RichTextEditor({
         contentEditable
         onInput={handleContentChange}
         suppressContentEditableWarning
-        className="px-4 py-3 outline-none min-h-[200px] bg-white relative"
+        className="px-4 py-3 outline-none min-h-[200px] bg-white"
         style={{ minHeight }}
-      >
-        {!value && <span className="text-gray-400 pointer-events-none">{placeholder}</span>}
-      </div>
+        data-placeholder={placeholder}
+      />
     </div>
   )
 }
