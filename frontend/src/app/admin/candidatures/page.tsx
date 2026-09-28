@@ -129,7 +129,7 @@ export default function AdminCandidaturesPage() {
               placeholder="Rechercher par nom, email, poste..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a472a]/20 focus:border-[#1a472a] transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all"
             />
           </div>
           <div className="relative sm:min-w-[180px]">
@@ -137,7 +137,7 @@ export default function AdminCandidaturesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1a472a]/20 focus:border-[#1a472a] transition-all appearance-none"
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all appearance-none"
             >
               <option value="all">Tous les statuts</option>
               <option value="pending">En attente</option>
@@ -153,7 +153,7 @@ export default function AdminCandidaturesPage() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {fetching ? (
           <div className="p-12 flex flex-col items-center justify-center text-gray-500">
-            <Loader2 className="w-8 h-8 animate-spin mb-4 text-[#1a472a]" />
+            <Loader2 className="w-8 h-8 animate-spin mb-4 text-apc-green" />
             <p>Chargement des candidatures...</p>
           </div>
         ) : applications.length === 0 ? (
@@ -234,7 +234,7 @@ export default function AdminCandidaturesPage() {
                         <select
                           value={app.status}
                           onChange={(e) => handleUpdateStatus(app.id, e.target.value)}
-                          className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#1a472a]"
+                          className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-apc-green"
                         >
                           <option value="pending">En attente</option>
                           <option value="reviewing">En cours</option>

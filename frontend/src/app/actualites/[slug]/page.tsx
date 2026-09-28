@@ -4,6 +4,7 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { getArticleBySlug, listArticles } from "@/lib/api/articles"
 import {
   Calendar,
@@ -124,9 +125,9 @@ export default async function ArticleDetailPage({
                 </p>
 
                 {/* Content from CMS */}
-                <div 
+                <MarkdownContent
+                  content={article.content}
                   className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
-                  dangerouslySetInnerHTML={{ __html: article.content }}
                 />
 
                 {/* Tags */}
@@ -145,7 +146,7 @@ export default async function ArticleDetailPage({
               </div>
 
               {/* Share / CTA */}
-              <div className="bg-[#1a472a] rounded-[2rem] p-8 md:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-apc-green rounded-[2rem] p-8 md:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
                 <div className="relative z-10 text-center md:text-left">
                   <h3 className="font-bold text-xl md:text-2xl mb-2">

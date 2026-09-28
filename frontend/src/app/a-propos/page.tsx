@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { FadeIn } from "@/components/ui/fade-in"
 import { settingsService } from "@/lib/api/settings"
 import { listTeam } from "@/lib/api/team"
@@ -95,7 +96,7 @@ export default async function AProposPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 {(historySection.paragraphs || []).map((p: string, i: number) => (
-                  <p key={`hist-p-${i}`} className="text-lg text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: p }} />
+                  <MarkdownContent key={`hist-p-${i}`} content={p} className="text-lg text-gray-600 leading-relaxed" />
                 ))}
               </div>
 
@@ -201,7 +202,7 @@ export default async function AProposPage() {
                   <div className="text-5xl font-bold text-apc-alert mb-2">{stats.projects}</div>
                   <div className="text-muted-foreground text-sm">Projets réalisés</div>
                 </div>
-                <div className="bg-[#1a472a] rounded-3xl p-8 text-white text-center">
+                <div className="bg-apc-green rounded-3xl p-8 text-white text-center">
                   <div className="text-5xl font-bold mb-2 text-apc-greenLight">{stats.provinces}</div>
                   <div className="text-white/80 text-sm">Provinces couvertes</div>
                 </div>

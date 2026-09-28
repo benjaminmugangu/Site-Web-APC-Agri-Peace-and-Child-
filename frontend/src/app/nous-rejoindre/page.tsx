@@ -107,7 +107,7 @@ export default async function NousRejoindrePage() {
               </div>
 
 
-              <div className="lg:col-span-2 bg-[#1a472a] p-10 md:p-16 text-white flex flex-col justify-center relative overflow-hidden">
+              <div className="lg:col-span-2 bg-apc-green p-10 md:p-16 text-white flex flex-col justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px]" />
                 <div className="relative z-10">
                   <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter">{reasonsTitle}</h3>

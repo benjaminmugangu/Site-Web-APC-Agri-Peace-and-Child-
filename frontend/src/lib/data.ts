@@ -275,7 +275,7 @@ export const teamMembers: TeamMember[] = [
     role: "Direction Générale & Stratégie",
     bio: "Fondateur d'APC avec plus de 10 ans d'expérience dans l'humanitaire et le développement communautaire en RDC.",
     initials: "DE",
-    color: "#2E7D32",
+    color: "#059b5e",
   },
   {
     id: "2",
@@ -283,7 +283,7 @@ export const teamMembers: TeamMember[] = [
     role: "Gestion & Suivi des Projets",
     bio: "Spécialiste en gestion de projets humanitaires, avec une expertise en protection de l'enfance et en questions de genre.",
     initials: "CP",
-    color: "#1565C0",
+    color: "#2596be",
   },
   {
     id: "3",

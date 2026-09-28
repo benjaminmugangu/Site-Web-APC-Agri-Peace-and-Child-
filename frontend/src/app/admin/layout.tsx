@@ -54,7 +54,7 @@ export default async function AdminLayout({
                 {userRole === 'ADMIN_RH' ? 'Ressources Humaines' : 'Directeur Technique'}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-[#1a472a] flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-apc-green flex items-center justify-center text-white font-bold text-sm">
               AD
             </div>
           </div>

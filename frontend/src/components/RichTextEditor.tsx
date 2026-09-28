@@ -28,14 +28,14 @@ interface RichTextEditorProps {
 }
 
 const APC_COLORS = [
-  { name: "Vert APC", value: "#0f623c" },
-  { name: "Rouge", value: "#dc2626" },
+  { name: "Vert APC", value: "#059b5e" },
+  { name: "Bleu APC", value: "#2596be" },
   { name: "Noir", value: "#000000" },
   { name: "Gris foncé", value: "#374151" },
-  { name: "Bleu", value: "#2563eb" },
   { name: "Orange", value: "#ea580c" },
-  { name: "Vert clair", value: "#16a34a" },
-  { name: "Rouge clair", value: "#ef4444" },
+  { name: "Rouge", value: "#dc2626" },
+  { name: "Vert clair", value: "#66BB6A" },
+  { name: "Bleu clair", value: "#64B5F6" },
 ]
 
 export default function RichTextEditor({ 

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, ArrowLeft, Save, AlertCircle, CheckCircle2, Eye, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { domainService } from "@/lib/api/services"
 import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
@@ -28,7 +30,7 @@ export default function AdminServicesPage() {
     description: "",
     descriptionEn: "",
     iconName: "Heart",
-    colorHex: "#1a472a",
+    colorHex: "#059b5e",
     mainImage: ""
   })
 
@@ -59,7 +61,7 @@ export default function AdminServicesPage() {
       description: "",
       descriptionEn: "",
       iconName: "Heart",
-      colorHex: "#1a472a",
+      colorHex: "#059b5e",
       mainImage: ""
     })
     setErrors({})
@@ -76,7 +78,7 @@ export default function AdminServicesPage() {
       description: service.description || "",
       descriptionEn: service.descriptionEn || "", 
       iconName: service.iconName || "Heart",
-      colorHex: service.colorHex || "#1a472a",
+      colorHex: service.colorHex || "#059b5e",
       mainImage: service.mainImage || ""
     })
     setErrors({})
@@ -100,12 +102,16 @@ export default function AdminServicesPage() {
     setStatus(null)
 
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedDescriptionEn = sanitizeHTMLServer(formData.descriptionEn)
+      
       const payload: Partial<Service> = {
         name: formData.name,
         titleEn: formData.titleEn,
         slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        description: formData.description,
-        descriptionEn: formData.descriptionEn,
+        description: sanitizedDescription,
+        descriptionEn: sanitizedDescriptionEn,
         iconName: formData.iconName,
         colorHex: formData.colorHex,
         mainImage: formData.mainImage,
@@ -205,7 +211,7 @@ export default function AdminServicesPage() {
                   <td className="px-6 py-4">
                     <div 
                       className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
-                      style={{ backgroundColor: service.colorHex || '#1a472a' }}
+                      style={{ backgroundColor: service.colorHex || '#059b5e' }}
                     >
                       <IconComponent size={20} />
                     </div>
@@ -284,11 +290,11 @@ export default function AdminServicesPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Description détaillée (FR) *</label>
-                    <textarea 
+                    <RichTextEditor
                       value={formData.description}
-                      onChange={e => setFormData({ ...formData, description: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.description ? 'border-red-300 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all h-32`} 
+                      onChange={(value) => setFormData({ ...formData, description: value })}
                       placeholder="Décrivez le domaine d'intervention..."
+                      minHeight="120px"
                     />
                     {errors.description && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.description}</p>}
                   </div>
@@ -313,11 +319,11 @@ export default function AdminServicesPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Detailed Description (EN)</label>
-                    <textarea 
+                    <RichTextEditor
                       value={formData.descriptionEn}
-                      onChange={e => setFormData({ ...formData, descriptionEn: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 focus:border-apc-blue transition-all h-32" 
+                      onChange={(value) => setFormData({ ...formData, descriptionEn: value })}
                       placeholder="Describe the area of intervention..."
+                      minHeight="120px"
                     />
                   </div>
                 </div>
@@ -357,7 +363,7 @@ export default function AdminServicesPage() {
                       className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0" 
                     />
                     <div className="flex gap-2 flex-wrap">
-                      {["#10b981", "#3b82f6", "#f59e0b", "#f43f5e", "#1a472a", "#1e3a8a", "#6366f1"].map((color) => (
+                      {["#059b5e", "#2596be", "#F57C00", "#66BB6A"].map((color) => (
                         <button 
                           key={color} 
                           type="button"

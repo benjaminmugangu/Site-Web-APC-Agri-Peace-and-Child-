@@ -92,7 +92,7 @@ export default function AdminDashboard() {
         {userIsAdmin && (
           <div className="flex gap-3">
             <Link href="/admin/projets/editeur">
-              <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f]">
+              <Button className="gap-2 bg-apc-green hover:bg-[#047a4b]">
                 <Plus size={18} /> Nouveau Projet
               </Button>
             </Link>

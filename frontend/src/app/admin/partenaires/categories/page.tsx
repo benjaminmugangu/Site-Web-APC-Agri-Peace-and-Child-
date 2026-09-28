@@ -150,7 +150,7 @@ export default function AdminPartnerCategories() {
         </div>
         <Button
           onClick={openCreate}
-          className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white"
+          className="gap-2 bg-apc-green hover:bg-[#047a4b] text-white"
         >
           <Plus size={18} /> Nouveau Type
         </Button>
@@ -296,7 +296,7 @@ export default function AdminPartnerCategories() {
                 Annuler
               </Button>
               <Button
-                className="flex-1 bg-[#1a472a] hover:bg-[#2d6a4f] text-white gap-2"
+                className="flex-1 bg-[#059b5e] hover:bg-[#2d6a4f] text-white gap-2"
                 onClick={handleSave}
                 disabled={saving}
               >

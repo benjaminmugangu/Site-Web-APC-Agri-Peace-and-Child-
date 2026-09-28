@@ -225,7 +225,7 @@ export default function AdminProjects() {
           )}
           {canEdit && (
             <Link href="/admin/projets/editeur">
-              <Button className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white">
+              <Button className="gap-2 bg-apc-green hover:bg-[#047a4b] text-white">
                 <Plus size={18} /> Nouveau Projet
               </Button>
             </Link>

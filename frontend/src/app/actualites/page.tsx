@@ -161,7 +161,7 @@ export default async function ActualitesPage() {
           {testimonials && testimonials.length > 0 && (
             <div className="mt-20 mb-24">
               <div className="text-center max-w-2xl mx-auto space-y-4 mb-16 text-black">
-                <span className="text-xs font-bold text-[#1a472a] uppercase tracking-widest bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full">
+                <span className="text-xs font-bold text-apc-green uppercase tracking-widest bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full">
                   Impact & Témoignages
                 </span>
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -226,7 +226,7 @@ export default async function ActualitesPage() {
           )}
 
           {/* ── Newsletter CTA ── */}
-          <div className="bg-[#1a472a] rounded-[2.5rem] p-10 md:p-16 text-white text-center relative overflow-hidden shadow-2xl">
+          <div className="bg-apc-green rounded-[2.5rem] p-10 md:p-16 text-white text-center relative overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px]" />
             <div className="relative z-10">
               <h3 className="text-3xl md:text-4xl font-bold mb-4">

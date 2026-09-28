@@ -52,12 +52,13 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // APC Custom Colors (from Tech Specs)
+        // APC Custom Colors (Charte Graphique Officielle)
         apc: {
-          green: "#2E7D32",       // Vert principal
-          greenLight: "#66BB6A",  // Vert clair accent
-          blue: "#1565C0",        // Bleu confiance
-          alert: "#F57C00",       // Orange alerte / CTA
+          blue: "#2596be",        // Bleu principal (HEX: #2596be, HSL: 196, 67, 45)
+          green: "#059b5e",       // Vert principal (HEX: #059b5e, HSL: 156, 94, 31)
+          white: "#ffffff",       // Blanc (HEX: #ffffff, HSL: 0, 0, 100)
+          greenLight: "#66BB6A",  // Vert clair accent (gardé pour dégradés)
+          alert: "#F57C00",       // Orange alerte / CTA (gardé pour actions)
           bgLight: "#FAFAFA",     // Fond clair
         }
       },

@@ -153,10 +153,10 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#0d2616] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-apc-green flex items-center justify-center p-4 relative overflow-hidden">
       {/* Arrière-plan décoratif */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#1a472a_0%,transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#2d6a4f_0%,transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#047a4b_0%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#06965e_0%,transparent_50%)]" />
       <div className="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-apc-green/5 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-apc-greenLight/5 rounded-full blur-3xl" />
 

@@ -247,7 +247,7 @@ export default function AppelsDOffresPage() {
                 </button>
 
                 <div className="bg-white rounded-[3rem] border border-border/40 shadow-2xl overflow-hidden mb-12">
-                  <div className="bg-[#1a472a] p-12 text-white relative overflow-hidden">
+                  <div className="bg-apc-green p-12 text-white relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px]" />
                     <div className="relative z-10">
                       <h2 className="text-3xl font-black mb-4 uppercase tracking-tighter leading-none">{selectedTender.title}</h2>

@@ -28,7 +28,7 @@ function DonationBanner() {
   if (!isDonation) return null
 
   return (
-    <div className="bg-[#1a472a] text-white py-10">
+    <div className="bg-apc-green text-white py-10">
       <div className="container px-4">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8 bg-white/5 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />

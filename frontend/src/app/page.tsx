@@ -20,7 +20,7 @@ const fallbackPiliers = [
     slug: 'protection',
     description: "Assurer un environnement sûr et protecteur pour les enfants et les personnes vulnérables.",
     iconName: 'ShieldCheck',
-    colorHex: "#ef4444",
+    colorHex: "#2596be",
   },
   {
     id: 'fallback-agriculture',
@@ -28,7 +28,7 @@ const fallbackPiliers = [
     slug: 'agriculture',
     description: "Promouvoir des techniques durables pour garantir la sécurité alimentaire des ménages.",
     iconName: 'Sprout',
-    colorHex: "#22c55e",
+    colorHex: "#059b5e",
   },
   {
     id: 'fallback-dignite',
@@ -36,7 +36,7 @@ const fallbackPiliers = [
     slug: 'dignite',
     description: "Restaurer l'espoir et le respect de soi à travers l'autonomisation et l'accès aux soins.",
     iconName: 'Heart',
-    colorHex: "#3b82f6",
+    colorHex: "#2596be",
   },
   {
     id: 'fallback-paix',
@@ -44,7 +44,7 @@ const fallbackPiliers = [
     slug: 'paix',
     description: "Bâtir des ponts entre les communautés pour une coexistence pacifique et durable.",
     iconName: 'Handshake',
-    colorHex: "#8b5cf6",
+    colorHex: "#059b5e",
   }
 ];
 
@@ -94,8 +94,8 @@ export default async function Home() {
     ]
   };
 
-  const domainColors = ["#ef4444", "#22c55e", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"];
-  const domainLightColors = ["#fee2e2", "#dcfce7", "#dbeafe", "#ede9fe", "#fef3c7", "#cffafe"];
+  const domainColors = ["#2596be", "#059b5e", "#2596be", "#059b5e", "#2596be", "#059b5e"];
+  const domainLightColors = ["#E3F2FD", "#E8F5E9", "#E3F2FD", "#E8F5E9", "#E3F2FD", "#E8F5E9"];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -179,8 +179,8 @@ export default async function Home() {
       </section>
 
       {/* Impact Section */}
-      <section id="impact" className="py-20 relative overflow-hidden bg-[#1a472a]">
-        <div className="absolute inset-0 bg-[#0d2616] opacity-30 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:20px_20px]" />
+      <section id="impact" className="py-20 relative overflow-hidden bg-apc-green">
+        <div className="absolute inset-0 bg-black/20 opacity-30 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:20px_20px]" />
         <div className="container relative z-10 px-4">
           <StaggerContainer className="flex flex-wrap items-center justify-center gap-12 sm:gap-24 text-white">
             <StaggerItem className="text-center">

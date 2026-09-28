@@ -104,7 +104,7 @@ export default async function ProjetsPage() {
             </div>
           )}
 
-          <div className="mt-16 text-center py-16 bg-[#1a472a] rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+          <div className="mt-16 text-center py-16 bg-apc-green rounded-[2.5rem] shadow-2xl relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(#ffffff11_1px,transparent_1px)] [background-size:20px_20px]" />
             <div className="relative z-10 px-6">
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">

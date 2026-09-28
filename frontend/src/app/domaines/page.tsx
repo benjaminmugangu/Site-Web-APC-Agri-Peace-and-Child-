@@ -75,7 +75,7 @@ export default function DomainesPage() {
         domaines.map((d, i) => {
           const isEven = i % 2 === 0
           const Icon = iconMap[d.iconName || 'Globe'] || Globe
-          const color = d.colorHex || '#1a472a'
+          const color = d.colorHex || '#059b5e'
           
           return (
             <section

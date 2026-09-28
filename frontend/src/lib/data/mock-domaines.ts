@@ -11,9 +11,9 @@ export const mockDomaines = [
     id: "agriculture",
     icon: Sprout,
     title: "Agriculture & Résilience Économique",
-    color: "#2E7D32",
+    color: "#059b5e",
     lightColor: "#E8F5E9",
-    colorHex: "#1a472a",
+    colorHex: "#059b5e",
     borderClass: "border-apc-green/20",
     description:
       "Nous promouvons une agriculture durable et productive pour garantir la sécurité alimentaire et l'autonomie économique des communautés vulnérables, en particulier dans les zones affectées par les déplacements.",
@@ -36,9 +36,9 @@ export const mockDomaines = [
     id: "paix",
     icon: Handshake,
     title: "Droits Fondamentaux & Cohésion Sociale",
-    color: "#1565C0",
+    color: "#2596be",
     lightColor: "#E3F2FD",
-    colorHex: "#1e3a8a",
+    colorHex: "#2596be",
     borderClass: "border-apc-blue/20",
     description:
       "Nous œuvrons pour la résolution pacifique des conflits, le dialogue intercommunautaire et la promotion des droits humains dans les zones affectées par la violence et les déplacements forcés.",
@@ -61,10 +61,10 @@ export const mockDomaines = [
     id: "enfance",
     icon: Heart,
     title: "Protection de l'Enfance",
-    color: "#F57C00",
-    lightColor: "#FFF3E0",
-    colorHex: "#ef4444",
-    borderClass: "border-apc-alert/20",
+    color: "#2596be",
+    lightColor: "#E3F2FD",
+    colorHex: "#2596be",
+    borderClass: "border-apc-blue/20",
     description:
       "Nous protégeons les droits des enfants — notamment ceux séparés, non accompagnés ou victimes de violences — à travers un accompagnement psychosocial, juridique et éducatif adapté à chaque situation.",
     actions: [
@@ -86,10 +86,10 @@ export const mockDomaines = [
     id: "femmes",
     icon: Users,
     title: "Autonomisation des Femmes & Jeunes",
-    color: "#7B1FA2",
-    lightColor: "#F3E5F5",
-    colorHex: "#9333ea",
-    borderClass: "border-purple-200",
+    color: "#059b5e",
+    lightColor: "#E8F5E9",
+    colorHex: "#059b5e",
+    borderClass: "border-apc-green/20",
     description:
       "Nous renforçons les capacités des femmes et des jeunes pour leur permettre de jouer un rôle actif dans le développement économique et social de leurs communautés, et de vivre dans la dignité.",
     actions: [
@@ -111,10 +111,10 @@ export const mockDomaines = [
     id: "sante",
     icon: ShieldCheck,
     title: "Santé, Nutrition & Milieu Rural",
-    color: "#00838F",
-    lightColor: "#E0F7FA",
-    colorHex: "#0d9488",
-    borderClass: "border-teal-200",
+    color: "#2596be",
+    lightColor: "#E3F2FD",
+    colorHex: "#2596be",
+    borderClass: "border-apc-blue/20",
     description:
       "Nous améliorons l'accès aux services de santé de base et luttons activement contre la malnutrition, particulièrement chez les enfants de moins de 5 ans et les femmes enceintes dans les zones rurales et enclavées.",
     actions: [

@@ -17,6 +17,8 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { createProject, updateProject, getProject } from "@/lib/api/projects"
 import { listProjectCategories, type ProjectCategory } from "@/lib/api/project-categories"
 import { toast } from "sonner"
@@ -148,8 +150,14 @@ export default function AdminProjectEditor() {
     }
     setLoading(true)
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedContent = sanitizeHTMLServer(formData.content)
+      
       const payload = {
         ...formData,
+        description: sanitizedDescription,
+        content: sanitizedContent,
         status: asDraft ? "draft" as ProjectStatus : "published" as ProjectStatus,
         budget:        Number(formData.budget),
         beneficiaries: Number(formData.beneficiaries),
@@ -200,7 +208,7 @@ export default function AdminProjectEditor() {
           <Button
             onClick={() => handleSave(false)}
             disabled={loading}
-            className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] min-w-[160px] text-white"
+            className="gap-2 bg-apc-green hover:bg-[#047a4b] min-w-[160px] text-white"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
               <><Save size={18} /> {id ? "Mettre à jour" : "Publier le Projet"}</>
@@ -248,22 +256,20 @@ export default function AdminProjectEditor() {
           <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Description Courte *</label>
-              <textarea
-                rows={3}
+              <RichTextEditor
                 value={formData.description}
-                onChange={e => set("description", e.target.value)}
+                onChange={(value) => set("description", value)}
                 placeholder="Un court résumé du projet (affiché dans les listes et aperçus)..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all resize-none"
+                minHeight="100px"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Contenu Détaillé (HTML)</label>
-              <textarea
-                rows={14}
+              <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Contenu Détaillé (Éditeur Rich Text)</label>
+              <RichTextEditor
                 value={formData.content}
-                onChange={e => set("content", e.target.value)}
-                placeholder="<p>Rédigez le contenu complet du projet ici...</p>"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all"
+                onChange={(value) => set("content", value)}
+                placeholder="Rédigez le contenu complet du projet ici..."
+                minHeight="300px"
               />
             </div>
           </div>

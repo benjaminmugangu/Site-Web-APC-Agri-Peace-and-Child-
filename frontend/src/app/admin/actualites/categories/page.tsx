@@ -158,7 +158,7 @@ export default function AdminNewsCategories() {
           {canEdit && (
             <Button
               onClick={openCreate}
-              className="gap-2 bg-[#1a472a] hover:bg-[#2d6a4f] text-white"
+              className="gap-2 bg-apc-green hover:bg-[#047a4b] text-white"
             >
               <Plus size={18} /> Nouvelle Catégorie
             </Button>
@@ -311,7 +311,7 @@ export default function AdminNewsCategories() {
                 Annuler
               </Button>
               <Button
-                className="flex-1 bg-[#1a472a] hover:bg-[#2d6a4f] text-white gap-2"
+                className="flex-1 bg-[#059b5e] hover:bg-[#2d6a4f] text-white gap-2"
                 onClick={handleSave}
                 disabled={saving}
               >

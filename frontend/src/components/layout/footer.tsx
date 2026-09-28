@@ -36,7 +36,7 @@ export function Footer() {
   const footerLogo = settings?.logo?.logoFooter
 
   return (
-    <footer className="bg-[#1a472a] text-white pt-16 pb-8">
+    <footer className="bg-apc-green text-white pt-16 pb-8">
       <div className="container grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-1 space-y-4">
           {footerLogo ? (

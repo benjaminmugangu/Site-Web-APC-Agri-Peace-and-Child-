@@ -70,7 +70,7 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
   return (
     <aside 
       className={cn(
-        "h-screen bg-[#1a472a] text-white flex flex-col transition-all duration-300 relative",
+        "h-screen bg-apc-green text-white flex flex-col transition-all duration-300 relative",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
@@ -79,7 +79,7 @@ export function Sidebar({ userRole = "ADMIN" }: { userRole?: string }) {
         variant="ghost"
         size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-apc-greenLight text-white border-2 border-[#1a472a] hover:bg-white hover:text-[#1a472a] z-50"
+        className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-apc-greenLight text-white border-2 border-apc-green hover:bg-white hover:text-apc-green z-50"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </Button>
