@@ -1,5 +1,5 @@
 import { apiClient } from './api-client';
-import { type Tender, type TenderStatus, type ApiResponse } from "@/types";
+import { type Tender, type TenderStatus, type TenderSubmission, type TenderSubmissionStatus, type ApiResponse } from "@/types";
 
 export const tenderService = {
   async list(params?: any): Promise<Tender[]> {
@@ -39,8 +39,35 @@ export const tenderService = {
   }
 };
 
+export const tenderSubmissionService = {
+  async list(params?: any): Promise<TenderSubmission[]> {
+    const response = await apiClient.get<ApiResponse<TenderSubmission[]>>('/tenders/submissions', params);
+    return response.data || [];
+  },
+
+  async get(id: string): Promise<TenderSubmission | null> {
+    const response = await apiClient.get<ApiResponse<TenderSubmission>>(`/tenders/submissions/${id}`);
+    return response.data || null;
+  },
+
+  async updateStatus(id: string, status: TenderSubmissionStatus, reviewNotes?: string): Promise<TenderSubmission | null> {
+    const response = await apiClient.patch<ApiResponse<TenderSubmission>>(`/tenders/submissions/${id}`, { status, reviewNotes });
+    return response.data || null;
+  },
+
+  async delete(id: string): Promise<boolean> {
+    const response = await apiClient.delete<ApiResponse<any>>(`/tenders/submissions/${id}`);
+    return response.success;
+  }
+};
+
 export const listTenders = tenderService.list;
 export const getTender = tenderService.get;
 export const createTender = tenderService.create;
 export const updateTender = tenderService.update;
 export const deleteTender = tenderService.delete;
+
+export const listTenderSubmissions = tenderSubmissionService.list;
+export const getTenderSubmission = tenderSubmissionService.get;
+export const updateTenderSubmissionStatus = tenderSubmissionService.updateStatus;
+export const deleteTenderSubmission = tenderSubmissionService.delete;

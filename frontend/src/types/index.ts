@@ -140,6 +140,26 @@ export interface Tender {
   updatedAt: string
 }
 
+export type TenderSubmissionStatus = "pending" | "reviewing" | "accepted" | "rejected"
+
+export interface TenderSubmission {
+  id: string
+  tenderId: string
+  tender?: Tender
+  companyName: string
+  contactName: string
+  email: string
+  phone?: string
+  address?: string
+  technicalOfferUrl?: string
+  financialOfferUrl?: string
+  adminDocUrl?: string
+  status: TenderSubmissionStatus
+  reviewNotes?: string
+  createdAt: string
+  updatedAt: string
+}
+
 // --- SETTINGS & HOME ---
 export interface SiteSettings {
   id?: number;

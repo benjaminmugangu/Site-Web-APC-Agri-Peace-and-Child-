@@ -23,6 +23,7 @@ export default async function AdminLayout({
     "/admin/services": "Gestion des Services",
     "/admin/projets": "Gestion des Réalisations",
     "/admin/appels-d-offres": "Gestion des Appels d'Offres",
+    "/admin/appels-d-offres/soumissions": "Soumissions d'Appels d'Offres",
     "/admin/emplois": "Gestion des Offres d'Emploi",
     "/admin/candidatures": "Gestion des Candidatures",
     "/admin/equipe": "Gestion de l'Équipe",
