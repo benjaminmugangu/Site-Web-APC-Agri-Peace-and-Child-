@@ -15,6 +15,18 @@ const ALLOWED_TAGS = [
   'div'
 ]
 
+// Pour les contenus venant du RichTextEditor, autoriser plus de balises
+const RICH_TEXT_ALLOWED_TAGS = [
+  'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li',
+  'blockquote',
+  'a',
+  'span',
+  'div',
+  'font' // Pour compatibilité avec document.execCommand
+]
+
 // Attributs autorisés
 const ALLOWED_ATTRIBUTES = {
   'a': ['href', 'target', 'rel', 'title'],
@@ -101,8 +113,11 @@ function sanitizeAttributes(tagName: string, attributes: Record<string, string>)
 /**
  * Convertit une chaîne HTML en DOM, nettoie, et retourne le HTML nettoyé
  */
-export function sanitizeHTML(html: string): string {
+export function sanitizeHTML(html: string, allowRichText: boolean = false): string {
   if (!html) return ''
+  
+  // Choisir la liste de balises appropriée
+  const allowedTags = allowRichText ? RICH_TEXT_ALLOWED_TAGS : ALLOWED_TAGS
   
   // Créer un élément div temporaire
   const div = document.createElement('div')
@@ -112,7 +127,7 @@ export function sanitizeHTML(html: string): string {
   function sanitizeElement(element: Element) {
     // Vérifier si le tag est autorisé
     const tagName = element.tagName.toLowerCase()
-    if (!ALLOWED_TAGS.includes(tagName)) {
+    if (!allowedTags.includes(tagName)) {
       element.remove()
       return
     }

@@ -209,9 +209,13 @@ export default function AppelsDOffresPage() {
                         <h3 className="text-2xl font-black text-gray-900 mb-4 group-hover:text-apc-green transition-colors uppercase tracking-tight leading-none">
                           {tender.title}
                         </h3>
-                        <p className="text-gray-500 text-sm leading-relaxed mb-10 flex-1 line-clamp-3">
-                          {tender.description}
-                        </p>
+                        <div className="text-gray-500 text-sm leading-relaxed mb-10 flex-1">
+                          {tender.description && tender.description.includes('<') ? (
+                            <HTMLContent content={tender.description} />
+                          ) : (
+                            <p className="line-clamp-3">{tender.description}</p>
+                          )}
+                        </div>
                         
                         <div className="flex flex-wrap items-center gap-8 mb-10 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
                           <div className="flex items-center gap-3">
@@ -263,6 +267,11 @@ export default function AppelsDOffresPage() {
                     {selectedTender.content && selectedTender.content.includes('<') ? (
                       <HTMLContent
                         content={selectedTender.content}
+                        className="mb-12"
+                      />
+                    ) : selectedTender.description && selectedTender.description.includes('<') ? (
+                      <HTMLContent
+                        content={selectedTender.description}
                         className="mb-12"
                       />
                     ) : (

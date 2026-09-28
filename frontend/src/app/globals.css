@@ -97,4 +97,99 @@
     color: #9ca3af;
     pointer-events: none;
   }
+  
+  /* Styles pour le contenu HTML du RichTextEditor */
+  .prose strong {
+    font-weight: 700;
+    color: #111827;
+  }
+  
+  .prose em, .prose i {
+    font-style: italic;
+  }
+  
+  .prose u {
+    text-decoration: underline;
+  }
+  
+  .prose s, .prose strike {
+    text-decoration: line-through;
+  }
+  
+  .prose h1 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    line-height: 2.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #111827;
+  }
+  
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 2rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+  
+  .prose h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+  
+  .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .prose blockquote {
+    border-left: 4px solid #0f623c;
+    padding-left: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: #6b7280;
+    background-color: #f0fdf4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  
+  .prose a:hover {
+    color: #1d4ed8;
+  }
+  
+  .prose p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose div {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 }
