@@ -6,6 +6,8 @@ import {
   CheckCircle2, X, ToggleLeft, ToggleRight, Building2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import {
   listAllDepartments, createDepartment, updateDepartment,
   deleteDepartment, toggleDepartment, type Department
@@ -76,11 +78,19 @@ export default function AdminDepartementsPage() {
     setLoading(true)
     setFormError(null)
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      
+      const payload = {
+        ...formData,
+        description: sanitizedDescription
+      }
+      
       if (editing) {
-        await updateDepartment(editing.id, formData)
+        await updateDepartment(editing.id, payload)
         toast.success("Département mis à jour !")
       } else {
-        await createDepartment(formData)
+        await createDepartment(payload)
         toast.success("Département créé avec succès !")
       }
       setShowForm(false)
@@ -181,12 +191,11 @@ export default function AdminDepartementsPage() {
 
             <div className="md:col-span-2 space-y-2">
               <label className="text-xs font-bold text-gray-400 uppercase">Description (Optionnel)</label>
-              <textarea
+              <RichTextEditor
                 value={formData.description}
-                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, description: value })}
                 placeholder="Rôle et responsabilités principales de ce département..."
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm resize-none"
+                minHeight="80px"
               />
             </div>
 

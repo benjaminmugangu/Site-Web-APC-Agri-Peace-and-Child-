@@ -9,6 +9,8 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { listTeam, createTeamMember, updateTeamMember, deleteTeamMember, getTeamMember } from "@/lib/api/team"
 import { listAllDepartments, type Department } from "@/lib/api/departments"
 import { useRole } from "@/hooks/useRole"
@@ -146,9 +148,13 @@ export default function AdminEquipePage() {
     setLoading(true)
     setErrorMsg(null)
     
+    // Sanitizer le contenu HTML pour éviter XSS
+    const sanitizedBio = sanitizeHTMLServer(formData.bio)
+    
     // Ensure both photo and photoUrl are synced
     const payload: any = {
       ...formData,
+      bio: sanitizedBio,
       photoUrl: formData.photo
     }
 
@@ -526,11 +532,11 @@ export default function AdminEquipePage() {
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase">Courte Biographie (Optionnel)</label>
-                  <textarea 
+                  <RichTextEditor
                     value={formData.bio}
-                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none h-28 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
+                    onChange={(value) => setFormData({ ...formData, bio: value })}
                     placeholder="Parcours professionnel résumé de l'expert..."
+                    minHeight="100px"
                   />
                 </div>
               </div>

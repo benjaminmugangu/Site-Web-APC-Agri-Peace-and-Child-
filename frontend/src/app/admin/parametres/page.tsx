@@ -22,6 +22,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { settingsService, type SettingsUpdatePayload } from "@/lib/api/settings"
 import { type SiteSettings } from "@/types"
 import { toast } from "sonner"
@@ -128,9 +130,55 @@ export default function AdminSettingsPage() {
     setStatus(null)
     
     try {
+      // Sanitizer les champs HTML pour éviter XSS
+      const sanitizedSettings = {
+        ...settings,
+        institution: {
+          ...settings.institution,
+          vision: sanitizeHTMLServer(settings.institution.vision || ""),
+          mission: sanitizeHTMLServer(settings.institution.mission || "")
+        },
+        hero: {
+          ...settings.hero,
+          subtitle: sanitizeHTMLServer(settings.hero.subtitle || "")
+        },
+        supportSection: settings.supportSection ? {
+          ...settings.supportSection,
+          description: sanitizeHTMLServer(settings.supportSection.description || "")
+        } : settings.supportSection,
+        historySection: settings.historySection ? {
+          ...settings.historySection,
+          paragraphs: (settings.historySection.paragraphs || []).map(p => sanitizeHTMLServer(p))
+        } : settings.historySection,
+        engagementSection: settings.engagementSection ? {
+          ...settings.engagementSection,
+          engagementTypes: (settings.engagementSection.engagementTypes || []).map(t => ({
+            ...t,
+            description: sanitizeHTMLServer(t.description || "")
+          })),
+          reasons: (settings.engagementSection.reasons || []).map(r => ({
+            ...r,
+            description: sanitizeHTMLServer(r.description || "")
+          }))
+        } : settings.engagementSection,
+        donationMessage: sanitizeHTMLServer(settings.donationMessage || ""),
+        transparencyMessage: settings.transparencyMessage ? {
+          ...settings.transparencyMessage,
+          description: sanitizeHTMLServer(settings.transparencyMessage.description || "")
+        } : settings.transparencyMessage,
+        contact: {
+          ...settings.contact,
+          address: sanitizeHTMLServer(settings.contact.address || "")
+        },
+        seo: {
+          ...settings.seo,
+          metaDescription: sanitizeHTMLServer(settings.seo.metaDescription || "")
+        }
+      }
+
       const payload = originalSettings
-        ? buildSettingsPatch(settings, originalSettings)
-        : settings
+        ? buildSettingsPatch(sanitizedSettings, originalSettings)
+        : sanitizedSettings
 
       if (originalSettings && Object.keys(payload).length === 0) {
         setStatus({ type: 'success', message: "Aucune modification à enregistrer." })
@@ -295,23 +343,21 @@ export default function AdminSettingsPage() {
             <div className="space-y-6 pt-2">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Notre Vision</label>
-                <textarea 
-                  rows={3}
+                <RichTextEditor
                   value={settings.institution.vision || ""}
-                  onChange={e => setSettings({...settings, institution: {...settings.institution, vision: e.target.value}})}
+                  onChange={(value) => setSettings({...settings, institution: {...settings.institution, vision: value}})}
                   placeholder="Ex: Un Congo solidaire, pacifié..."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm" 
+                  minHeight="80px"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Notre Mission</label>
-                <textarea 
-                  rows={3}
+                <RichTextEditor
                   value={settings.institution.mission || ""}
-                  onChange={e => setSettings({...settings, institution: {...settings.institution, mission: e.target.value}})}
+                  onChange={(value) => setSettings({...settings, institution: {...settings.institution, mission: value}})}
                   placeholder="Ex: Promouvoir le développement agricole..."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm" 
+                  minHeight="80px"
                 />
               </div>
             </div>
@@ -348,11 +394,10 @@ export default function AdminSettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Texte de Description / Sous-titre</label>
-                  <textarea 
-                    rows={4}
+                  <RichTextEditor
                     value={settings.hero.subtitle || ""}
-                    onChange={e => setSettings({...settings, hero: {...settings.hero, subtitle: e.target.value}})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm" 
+                    onChange={(value) => setSettings({...settings, hero: {...settings.hero, subtitle: value}})}
+                    minHeight="100px"
                   />
                 </div>
               </div>
@@ -384,11 +429,10 @@ export default function AdminSettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sous-titre / Description</label>
-                    <textarea 
-                      rows={3}
+                    <RichTextEditor
                       value={settings.supportSection?.description || ""}
-                      onChange={e => setSettings({...settings, supportSection: {...settings.supportSection!, description: e.target.value}})}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                      onChange={(value) => setSettings({...settings, supportSection: {...settings.supportSection!, description: value}})}
+                      minHeight="80px"
                     />
                   </div>
                   <div className="space-y-2">
@@ -454,15 +498,15 @@ export default function AdminSettingsPage() {
                     <div className="space-y-2">
                       {(settings.historySection?.paragraphs || []).map((paragraph, index) => (
                         <div key={index} className="flex gap-2 items-start">
-                          <textarea 
-                            rows={3}
+                          <RichTextEditor
                             value={paragraph}
-                            onChange={(e) => {
+                            onChange={(value) => {
                               const newParagraphs = [...settings.historySection!.paragraphs];
-                              newParagraphs[index] = e.target.value;
+                              newParagraphs[index] = value;
                               setSettings({...settings, historySection: {...settings.historySection!, paragraphs: newParagraphs}});
                             }}
-                            className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm"
+                            minHeight="80px"
+                            className="flex-1"
                           />
                           <Button 
                             variant="outline" size="icon" className="text-red-500 border-red-100 hover:bg-red-50 mt-1"
@@ -520,14 +564,15 @@ export default function AdminSettingsPage() {
                           }}
                           className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-sm font-bold"
                         />
-                        <textarea 
-                          rows={2} placeholder="Description courte..." value={type.description}
-                          onChange={(e) => {
+                        <RichTextEditor
+                          value={type.description}
+                          onChange={(value) => {
                             const newTypes = [...settings.engagementSection!.engagementTypes];
-                            newTypes[index].description = e.target.value;
+                            newTypes[index].description = value;
                             setSettings({...settings, engagementSection: {...settings.engagementSection!, engagementTypes: newTypes}});
                           }}
-                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-xs"
+                          placeholder="Description courte..."
+                          minHeight="60px"
                         />
                       </div>
                     ))}
@@ -563,14 +608,15 @@ export default function AdminSettingsPage() {
                           }}
                           className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-sm font-bold"
                         />
-                        <textarea 
-                          rows={2} placeholder="Description..." value={reason.description}
-                          onChange={(e) => {
+                        <RichTextEditor
+                          value={reason.description}
+                          onChange={(value) => {
                             const newReasons = [...settings.engagementSection!.reasons];
-                            newReasons[index].description = e.target.value;
+                            newReasons[index].description = value;
                             setSettings({...settings, engagementSection: {...settings.engagementSection!, reasons: newReasons}});
                           }}
-                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-100 rounded text-xs"
+                          placeholder="Description..."
+                          minHeight="60px"
                         />
                       </div>
                     ))}
@@ -592,12 +638,11 @@ export default function AdminSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Message Principal de Don</label>
-                  <textarea 
-                    rows={4}
+                  <RichTextEditor
                     value={settings.donationMessage || ""}
-                    onChange={e => setSettings({...settings, donationMessage: e.target.value})}
+                    onChange={(value) => setSettings({...settings, donationMessage: value})}
                     placeholder="Texte remerciant et incitant au don..."
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm" 
+                    minHeight="100px"
                   />
                 </div>
                 <div className="space-y-4">
@@ -609,12 +654,11 @@ export default function AdminSettingsPage() {
                     placeholder="Titre (ex: Notre engagement de transparence)"
                     className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold" 
                   />
-                  <textarea 
-                    rows={2}
+                  <RichTextEditor
                     value={settings.transparencyMessage?.description || ""}
-                    onChange={e => setSettings({...settings, transparencyMessage: {...settings.transparencyMessage!, description: e.target.value}})}
+                    onChange={(value) => setSettings({...settings, transparencyMessage: {...settings.transparencyMessage!, description: value}})}
                     placeholder="Description de la transparence..."
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm" 
+                    minHeight="60px"
                   />
                 </div>
               </div>
@@ -698,11 +742,10 @@ export default function AdminSettingsPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Adresse Physique Officielle</label>
-              <textarea 
-                rows={2}
+              <RichTextEditor
                 value={settings.contact.address || ""}
-                onChange={e => setSettings({...settings, contact: {...settings.contact, address: e.target.value}})}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm font-medium" 
+                onChange={(value) => setSettings({...settings, contact: {...settings.contact, address: value}})}
+                minHeight="60px"
               />
             </div>
 
@@ -925,12 +968,11 @@ export default function AdminSettingsPage() {
 
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Meta Description</label>
-                    <textarea 
-                      rows={3}
+                    <RichTextEditor
                       value={settings.seo.metaDescription || ""}
-                      onChange={e => setSettings({...settings, seo: {...settings.seo, metaDescription: e.target.value}})}
+                      onChange={(value) => setSettings({...settings, seo: {...settings.seo, metaDescription: value}})}
                       placeholder="Ex: Découvrez l'ONG APC..."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm" 
+                      minHeight="80px"
                     />
                   </div>
 

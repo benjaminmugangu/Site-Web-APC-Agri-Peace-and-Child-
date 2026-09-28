@@ -8,6 +8,8 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { 
   listAllTestimonials, 
   createTestimonial, 
@@ -132,8 +134,12 @@ export default function AdminTestimonialPage() {
     setLoading(true)
     setErrorMsg(null)
     
+    // Sanitizer le contenu HTML pour éviter XSS
+    const sanitizedContent = sanitizeHTMLServer(formData.content)
+    
     const payload: any = {
       ...formData,
+      content: sanitizedContent,
       order: Number(formData.order) || 0
     }
 
@@ -458,12 +464,11 @@ export default function AdminTestimonialPage() {
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase">Témoignage (Texte) *</label>
-                  <textarea 
-                    required
+                  <RichTextEditor
                     value={formData.content}
-                    onChange={e => setFormData({ ...formData, content: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none h-32 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
+                    onChange={(value) => setFormData({ ...formData, content: value })}
                     placeholder="Saisissez ici le témoignage textuel du bénéficiaire..."
+                    minHeight="120px"
                   />
                 </div>
               </div>

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Loader2, Tag, ToggleLeft, ToggleRight, X, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { partnerCategoriesApi } from "@/lib/api/partner-categories"
 import type { PartnerCategory } from "@/types"
 
@@ -84,11 +86,14 @@ export default function AdminPartnerCategories() {
     }
     setSaving(true)
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDesc = sanitizeHTMLServer(formDesc)
+      
       if (editTarget) {
-        await partnerCategoriesApi.update(editTarget.id, { name: formName, slug: formSlug, description: formDesc })
+        await partnerCategoriesApi.update(editTarget.id, { name: formName, slug: formSlug, description: sanitizedDesc })
         showToast(`Catégorie "${formName}" mise à jour`)
       } else {
-        await partnerCategoriesApi.create({ name: formName, slug: formSlug, description: formDesc })
+        await partnerCategoriesApi.create({ name: formName, slug: formSlug, description: sanitizedDesc })
         showToast(`Catégorie "${formName}" créée avec succès !`)
       }
       setShowForm(false)
@@ -277,12 +282,11 @@ export default function AdminPartnerCategories() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Description <span className="font-normal text-gray-400">(optionnel)</span></label>
-                <textarea
-                  rows={2}
+                <RichTextEditor
                   value={formDesc}
-                  onChange={e => setFormDesc(e.target.value)}
+                  onChange={(value) => setFormDesc(value)}
                   placeholder="Brève description de ce type de partenaire..."
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all resize-none text-black"
+                  minHeight="80px"
                 />
               </div>
             </div>

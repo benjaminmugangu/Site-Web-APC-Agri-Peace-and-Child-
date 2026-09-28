@@ -19,6 +19,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 
 import { listCareers, listAdminCareers, createCareer, updateCareer, deleteCareer, getCareer } from "@/lib/api/careers"
 import { listAllCareerTypes } from "@/lib/api/career-types"
@@ -105,7 +107,15 @@ export default function AdminEmploisPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const payload: any = { ...formData }
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedContent = sanitizeHTMLServer(formData.content)
+      
+      const payload: any = { 
+        ...formData,
+        description: sanitizedDescription,
+        content: sanitizedContent
+      }
       // Clean empty strings to avoid DTO validation errors
       if (payload.content === "") payload.content = null;
       if (payload.description === "") payload.description = null;
@@ -281,20 +291,20 @@ export default function AdminEmploisPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description Courte</label>
-                  <textarea 
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 h-24 text-sm" 
+                    onChange={(value) => setFormData({...formData, description: value})}
                     placeholder="Résumé de l'offre..."
+                    minHeight="80px"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Contenu Détaillé (Markdown)</label>
-                  <textarea 
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Contenu Détaillé</label>
+                  <RichTextEditor
                     value={formData.content}
-                    onChange={e => setFormData({...formData, content: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none h-48 font-mono text-sm" 
+                    onChange={(value) => setFormData({...formData, content: value})}
                     placeholder="Détaillez les missions, profils et avantages..."
+                    minHeight="150px"
                   />
                 </div>
               </div>
