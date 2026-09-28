@@ -19,6 +19,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 
 import { listTenders, createTender, updateTender, deleteTender, getTender } from "@/lib/api/tenders"
 import { useRole } from "@/hooks/useRole"
@@ -127,8 +129,16 @@ export default function AdminAppelsOffresPage() {
     e.preventDefault()
     setLoading(true)
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedContent = sanitizeHTMLServer(formData.content)
+      
       // Mapping de sécurité : l'API n'accepte que open | closed | cancelled | archived
-      const payload = { ...formData, status: normalizeTenderStatus(formData.status) }
+      const payload = { 
+        ...formData, 
+        content: sanitizedContent,
+        status: normalizeTenderStatus(formData.status) 
+      }
+      
       if (editingAppel) {
         await updateTender(editingAppel.id, payload)
         toast.success("Appel d'offres mis à jour")
@@ -335,12 +345,12 @@ export default function AdminAppelsOffresPage() {
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Contenu Détaillé (Markdown)</label>
-                  <textarea 
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Contenu Détaillé (Éditeur Rich Text)</label>
+                  <RichTextEditor
                     value={formData.content}
-                    onChange={e => setFormData({...formData, content: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none h-48 font-mono text-sm" 
+                    onChange={(value) => setFormData({...formData, content: value})}
                     placeholder="Détails de l'appel d'offres..."
+                    minHeight="200px"
                   />
                 </div>
                 <div className="space-y-2">
