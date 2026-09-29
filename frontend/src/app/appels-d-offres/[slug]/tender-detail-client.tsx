@@ -133,20 +133,31 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
 
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
       
+      console.log('Envoi de la soumission vers:', `${baseURL}/tenders/submit`);
+      
       const response = await fetch(`${baseURL}/tenders/submit`, {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
+      console.log('Réponse du serveur:', data);
       
-      if (!response.ok || !data.success) throw new Error("Erreur lors de la soumission");
+      if (!response.ok) {
+        const errorMessage = data.message || "Erreur lors de la soumission";
+        throw new Error(errorMessage);
+      }
+      
+      if (!data.success) {
+        throw new Error(data.message || "Erreur lors de la soumission");
+      }
       
       setSubmitted(true);
       toast.success("Offre soumise avec succès!");
     } catch (err) {
       console.error("Submission error:", err);
-      toast.error("Une erreur est survenue lors de l'envoi de votre offre. Veuillez réessayer.");
+      const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de l'envoi de votre offre. Veuillez réessayer.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
