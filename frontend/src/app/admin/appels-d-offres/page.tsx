@@ -27,7 +27,7 @@ import RichTextEditor from "@/components/RichTextEditor"
 import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import ImageUploader from "@/components/ui/ImageUploader"
 
-import { listTenders, createTender, updateTender, deleteTender, getTender, uploadTenderImage, generateTenderSlug } from "@/lib/api/tenders"
+import { listTenders, createTender, updateTender, deleteTender, getTender, generateTenderSlug } from "@/lib/api/tenders"
 import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -85,7 +85,6 @@ export default function AdminAppelsOffresPage() {
     metaKeywords: "",
     isFeatured: false
   })
-  const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>("")
   const [generatingSlug, setGeneratingSlug] = useState(false)
 
@@ -123,7 +122,6 @@ export default function AdminAppelsOffresPage() {
       metaKeywords: "",
       isFeatured: false
     })
-    setImageFile(null)
     setImagePreview("")
     setShowForm(true)
   }
@@ -213,28 +211,12 @@ export default function AdminAppelsOffresPage() {
   const handleCancel = () => {
     setShowForm(false)
     setEditingAppel(null)
-    setImageFile(null)
     setImagePreview("")
   }
 
-  const handleImageUpload = async (file: File) => {
-    if (!editingAppel) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-      return
-    }
-
-    try {
-      setLoading(true)
-      const result = await uploadTenderImage(editingAppel.id, file)
-      setFormData({ ...formData, imageUrl: result.url })
-      setImagePreview(result.url)
-      toast.success("Image uploadée avec succès")
-    } catch (error) {
-      toast.error("Erreur lors de l'upload de l'image")
-    } finally {
-      setLoading(false)
-    }
+  const handleImageUpload = async (url: string) => {
+    setFormData({ ...formData, imageUrl: url })
+    setImagePreview(url)
   }
 
   const handleGenerateSlug = async () => {
@@ -447,8 +429,6 @@ export default function AdminAppelsOffresPage() {
                   <ImageUploader
                     value={imagePreview}
                     onChange={handleImageUpload}
-                    accept="image/*"
-                    maxSize={5 * 1024 * 1024}
                     className="w-full"
                   />
                 </div>
