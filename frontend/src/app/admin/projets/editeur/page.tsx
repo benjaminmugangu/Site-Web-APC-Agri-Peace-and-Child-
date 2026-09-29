@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ImageUploader } from "@/components/ui/ImageUploader"
+import ImageUploader from "@/components/ui/ImageUploader"
 import RichTextEditor from "@/components/RichTextEditor"
 import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { createProject, updateProject, getProject } from "@/lib/api/projects"

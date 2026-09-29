@@ -21,7 +21,7 @@ import {
   Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ImageUploader } from "@/components/ui/ImageUploader"
+import ImageUploader from "@/components/ui/ImageUploader"
 import RichTextEditor from "@/components/RichTextEditor"
 import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { settingsService, type SettingsUpdatePayload } from "@/lib/api/settings"

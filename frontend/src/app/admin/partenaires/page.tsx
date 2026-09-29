@@ -18,7 +18,7 @@ import {
   AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ImageUploader } from "@/components/ui/ImageUploader"
+import ImageUploader from "@/components/ui/ImageUploader"
 import RichTextEditor from "@/components/RichTextEditor"
 import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { listPartners, createPartner, updatePartner, deletePartner, getPartner } from "@/lib/api/partners"

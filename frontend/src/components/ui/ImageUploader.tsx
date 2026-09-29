@@ -12,7 +12,7 @@ interface ImageUploaderProps {
   className?: string;
 }
 
-export function ImageUploader({ value, onChange, label = "Image", className = "" }: ImageUploaderProps) {
+export default function ImageUploader({ value, onChange, label = "Image", className = "" }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

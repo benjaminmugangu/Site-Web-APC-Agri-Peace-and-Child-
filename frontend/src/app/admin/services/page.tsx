@@ -9,7 +9,7 @@ import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { domainService } from "@/lib/api/services"
 import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
-import { ImageUploader } from "@/components/ui/ImageUploader"
+import ImageUploader from "@/components/ui/ImageUploader"
 import { useRole } from "@/hooks/useRole"
 
 export default function AdminServicesPage() {
