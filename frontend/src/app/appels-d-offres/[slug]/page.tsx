@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { headers } from "next/headers"
 import { getTenderBySlug } from "@/lib/api/tenders"
 import TenderDetailClient from "./tender-detail-client"
 
@@ -12,21 +13,33 @@ export async function generateMetadata({
   
   if (!tender) return { title: "Appel d'offres introuvable — APC" }
   
+  // Récupérer l'URL de base de la requête actuelle pour les URLs absolues
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+  const protocol = headersList.get('x-forwarded-proto') || 'http';
+  const baseUrl = `${protocol}://${host}`;
+  
+  // S'assurer que l'URL de l'image est absolue pour WhatsApp et les réseaux sociaux
+  const absoluteImageUrl = tender.imageUrl && !tender.imageUrl.startsWith('http') 
+    ? `${baseUrl}${tender.imageUrl}` 
+    : tender.imageUrl;
+  
   return {
     title: `${tender.title} — Appel d'offres APC`,
     description: tender.metaDescription || tender.description?.substring(0, 160),
     openGraph: {
       title: tender.title,
       description: tender.metaDescription || tender.description?.substring(0, 160),
-      images: tender.imageUrl ? [{ url: tender.imageUrl, width: 1200, height: 630 }] : [],
+      images: absoluteImageUrl ? [{ url: absoluteImageUrl, width: 1200, height: 630, alt: tender.title }] : [],
       type: "website",
       locale: "fr_FR",
+      siteName: "Agri-Peace and Child",
     },
     twitter: {
       card: "summary_large_image",
       title: tender.title,
       description: tender.metaDescription || tender.description?.substring(0, 160),
-      images: tender.imageUrl ? [tender.imageUrl] : [],
+      images: absoluteImageUrl ? [absoluteImageUrl] : [],
     },
   }
 }

@@ -131,7 +131,7 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
       if (form.offreFinanciere) formData.append("offreFinanciere", form.offreFinanciere);
       if (form.documentAdministratif) formData.append("documentAdministratif", form.documentAdministratif);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenders/submit`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tenders/submit`, {
         method: "POST",
         body: formData,
       });
@@ -176,17 +176,17 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
 
               <div className="bg-white rounded-[3rem] border border-border/40 shadow-2xl overflow-hidden mb-12">
                 {tender.imageUrl && (
-                  <div className="relative h-80 overflow-hidden">
+                  <div className="relative w-full overflow-hidden">
                     <img 
                       src={tender.imageUrl} 
                       alt={tender.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
                 )}
 
-                <div className={`bg-apc-green p-12 text-white relative overflow-hidden ${!tender.imageUrl ? 'rounded-t-[3rem]' : ''}`}>
+                <div className={`bg-apc-blue p-12 text-white relative overflow-hidden ${!tender.imageUrl ? 'rounded-t-[3rem]' : ''}`}>
                   <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px]" />
                   <div className="relative z-10">
                     <h2 className="text-3xl font-black mb-4 uppercase tracking-tighter leading-none">{tender.title}</h2>
