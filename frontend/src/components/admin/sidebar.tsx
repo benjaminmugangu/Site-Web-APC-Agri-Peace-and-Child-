@@ -16,7 +16,8 @@ import {
   FileText,
   MessageSquare,
   ShieldCheck,
-  Tag
+  Tag,
+  Building2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: MessageSquare, label: "Témoignages", href: "/admin/temoignages", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: FileText, label: "Appels d'Offres", href: "/admin/appels-d-offres", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: FileText, label: "Soumissions", href: "/admin/appels-d-offres/soumissions", roles: ['ADMIN', 'ADMIN_RH'], subItem: true },
+  { icon: Building2, label: "Fournisseurs", href: "/admin/fournisseurs", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Search, label: "Offres d'Emploi", href: "/admin/emplois", roles: ['ADMIN', 'ADMIN_RH'] },
   { icon: Tag, label: "Types de Contrats", href: "/admin/emplois/types", roles: ['ADMIN_RH'], subItem: true },
   { icon: FileText, label: "Candidatures", href: "/admin/candidatures", roles: ['ADMIN', 'ADMIN_RH'] },

@@ -36,6 +36,27 @@ export const tenderService = {
   async bulkSetStatus(ids: string[], status: TenderStatus): Promise<boolean> {
     const response = await apiClient.patch<ApiResponse<any>>('/tenders/bulk-status', { ids, status });
     return response.success;
+  },
+
+  async getBySlug(slug: string): Promise<Tender | null> {
+    const response = await apiClient.get<ApiResponse<Tender>>(`/tenders/slug/${slug}`);
+    return response.data || null;
+  },
+
+  async uploadImage(id: string, file: File): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.put<ApiResponse<{ url: string }>>(`/tenders/${id}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    if (!response.data) throw new Error('Erreur upload');
+    return response.data;
+  },
+
+  async generateSlug(id: string, slug?: string): Promise<Tender> {
+    const response = await apiClient.put<ApiResponse<Tender>>(`/tenders/${id}/slug`, { slug });
+    if (!response.data) throw new Error('Erreur slug');
+    return response.data;
   }
 };
 
@@ -63,9 +84,12 @@ export const tenderSubmissionService = {
 
 export const listTenders = tenderService.list;
 export const getTender = tenderService.get;
+export const getTenderBySlug = tenderService.getBySlug;
 export const createTender = tenderService.create;
 export const updateTender = tenderService.update;
 export const deleteTender = tenderService.delete;
+export const uploadTenderImage = tenderService.uploadImage;
+export const generateTenderSlug = tenderService.generateSlug;
 
 export const listTenderSubmissions = tenderSubmissionService.list;
 export const getTenderSubmission = tenderSubmissionService.get;

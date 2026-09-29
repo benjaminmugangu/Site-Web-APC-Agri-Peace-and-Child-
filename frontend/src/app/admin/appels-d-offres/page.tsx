@@ -15,14 +15,19 @@ import {
   AlertCircle,
   X,
   Eye,
-  Loader2
+  Loader2,
+  Image as ImageIcon,
+  Sparkles,
+  ExternalLink,
+  Star
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import RichTextEditor from "@/components/RichTextEditor"
 import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
+import ImageUploader from "@/components/ui/ImageUploader"
 
-import { listTenders, createTender, updateTender, deleteTender, getTender } from "@/lib/api/tenders"
+import { listTenders, createTender, updateTender, deleteTender, getTender, uploadTenderImage, generateTenderSlug } from "@/lib/api/tenders"
 import { useRole } from "@/hooks/useRole"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -73,8 +78,16 @@ export default function AdminAppelsOffresPage() {
     content: "",
     fileUrl: "",
     status: "open",
-    category: "Fournitures"
+    category: "Fournitures",
+    imageUrl: "",
+    slug: "",
+    metaDescription: "",
+    metaKeywords: "",
+    isFeatured: false
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>("")
+  const [generatingSlug, setGeneratingSlug] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -94,7 +107,23 @@ export default function AdminAppelsOffresPage() {
 
   const handleAdd = () => {
     setEditingAppel(null)
-    setFormData({ title: "", reference: `AAO-N°00${appels.length + 1}`, deadline: "", description: "", content: "", fileUrl: "", status: "open", category: "Fournitures" })
+    setFormData({ 
+      title: "", 
+      reference: `AAO-N°00${appels.length + 1}`, 
+      deadline: "", 
+      description: "", 
+      content: "", 
+      fileUrl: "", 
+      status: "open", 
+      category: "Fournitures",
+      imageUrl: "",
+      slug: "",
+      metaDescription: "",
+      metaKeywords: "",
+      isFeatured: false
+    })
+    setImageFile(null)
+    setImagePreview("")
     setShowForm(true)
   }
 
@@ -115,8 +144,14 @@ export default function AdminAppelsOffresPage() {
         content: appel.content || "",
         fileUrl: appel.fileUrl || "",
         status: normalizeTenderStatus(appel.status),
-        category: (appel as any).category || "Fournitures"
+        category: (appel as any).category || "Fournitures",
+        imageUrl: appel.imageUrl || "",
+        slug: appel.slug || "",
+        metaDescription: appel.metaDescription || "",
+        metaKeywords: appel.metaKeywords || "",
+        isFeatured: appel.isFeatured || false
       })
+      setImagePreview(appel.imageUrl || "")
       setShowForm(true)
     } catch (error) {
       toast.error("Erreur lors du chargement")
@@ -138,7 +173,12 @@ export default function AdminAppelsOffresPage() {
         ...formData, 
         content: sanitizedContent,
         description: sanitizedDescription,
-        status: normalizeTenderStatus(formData.status) 
+        status: normalizeTenderStatus(formData.status),
+        imageUrl: formData.imageUrl || undefined,
+        slug: formData.slug || undefined,
+        metaDescription: formData.metaDescription || undefined,
+        metaKeywords: formData.metaKeywords || undefined,
+        isFeatured: formData.isFeatured
       }
       
       if (editingAppel) {
@@ -172,6 +212,46 @@ export default function AdminAppelsOffresPage() {
   const handleCancel = () => {
     setShowForm(false)
     setEditingAppel(null)
+    setImageFile(null)
+    setImagePreview("")
+  }
+
+  const handleImageUpload = async (file: File) => {
+    if (!editingAppel) {
+      setImageFile(file)
+      setImagePreview(URL.createObjectURL(file))
+      return
+    }
+
+    try {
+      setLoading(true)
+      const result = await uploadTenderImage(editingAppel.id, file)
+      setFormData({ ...formData, imageUrl: result.url })
+      setImagePreview(result.url)
+      toast.success("Image uploadée avec succès")
+    } catch (error) {
+      toast.error("Erreur lors de l'upload de l'image")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGenerateSlug = async () => {
+    if (!editingAppel) {
+      toast.error("Veuillez d'abord créer l'appel d'offres")
+      return
+    }
+
+    try {
+      setGeneratingSlug(true)
+      const result = await generateTenderSlug(editingAppel.id, formData.slug || undefined)
+      setFormData({ ...formData, slug: result.slug })
+      toast.success("Slug généré avec succès")
+    } catch (error) {
+      toast.error("Erreur lors de la génération du slug")
+    } finally {
+      setGeneratingSlug(false)
+    }
   }
 
   if (fetching) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-apc-blue" size={48} /></div>
@@ -213,6 +293,7 @@ export default function AdminAppelsOffresPage() {
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-100">
                   <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Titre / Référence</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Slug</th>
                   <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
                   <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                 </tr>
@@ -220,13 +301,32 @@ export default function AdminAppelsOffresPage() {
               <tbody className="divide-y divide-gray-50">
                 {appels.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-center py-10 text-gray-400">Aucun appel d'offres publié</td>
+                    <td colSpan={4} className="text-center py-10 text-gray-400">Aucun appel d'offres publié</td>
                   </tr>
                 ) : appels.map((appel) => (
                   <tr key={appel.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-gray-900">{appel.title}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-bold text-gray-900">{appel.title}</div>
+                        {appel.isFeatured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
+                      </div>
                       <div className="text-[10px] text-gray-400 font-mono mt-1 uppercase">{appel.reference}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {appel.slug ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-600 font-mono">{appel.slug}</span>
+                          {appel.slug && (
+                            <Link href={`/appels-d-offres/${appel.slug}`} target="_blank">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-apc-green hover:text-apc-green/80">
+                                <ExternalLink size={12} />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Non défini</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
@@ -342,6 +442,90 @@ export default function AdminAppelsOffresPage() {
                     placeholder="Résumé de l'appel d'offres..."
                     minHeight="100px"
                   />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Image d'illustration</label>
+                  <ImageUploader
+                    value={imagePreview}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    maxSize={5 * 1024 * 1024}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Slug (URL unique)</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={formData.slug}
+                      onChange={e => setFormData({...formData, slug: e.target.value})}
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 text-sm font-mono"
+                      placeholder="fourniture-materiel-bureau-2024"
+                    />
+                    {editingAppel && (
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={handleGenerateSlug}
+                        disabled={generatingSlug}
+                        className="gap-2"
+                      >
+                        {generatingSlug ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles size={16} />
+                        )}
+                        Générer
+                      </Button>
+                    )}
+                  </div>
+                  {formData.slug && (
+                    <Link 
+                      href={`/appels-d-offres/${formData.slug}`} 
+                      target="_blank"
+                      className="text-xs text-apc-green hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink size={12} />
+                      Voir la page publique
+                    </Link>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Meta Description (SEO)</label>
+                  <textarea
+                    value={formData.metaDescription}
+                    onChange={e => setFormData({...formData, metaDescription: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 text-sm resize-none"
+                    placeholder="Description pour les moteurs de recherche (150-160 caractères)"
+                    rows={3}
+                    maxLength={160}
+                  />
+                  <div className="text-[10px] text-gray-400 text-right">
+                    {formData.metaDescription.length}/160
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Meta Keywords (SEO)</label>
+                  <input 
+                    type="text" 
+                    value={formData.metaKeywords}
+                    onChange={e => setFormData({...formData, metaKeywords: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-blue/20 text-sm"
+                    placeholder="mots, clés, séparés, par, virgules"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="isFeatured"
+                    checked={formData.isFeatured}
+                    onChange={e => setFormData({...formData, isFeatured: e.target.checked})}
+                    className="w-5 h-5 rounded border-gray-300 text-apc-green focus:ring-apc-green"
+                  />
+                  <label htmlFor="isFeatured" className="text-xs font-bold text-gray-700 uppercase tracking-widest cursor-pointer">
+                    Mettre en avant sur la page d'accueil
+                  </label>
                 </div>
               </div>
 

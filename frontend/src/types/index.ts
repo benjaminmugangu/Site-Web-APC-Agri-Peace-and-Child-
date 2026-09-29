@@ -136,6 +136,11 @@ export interface Tender {
   location: string
   organization: string
   documents?: { label: string; url: string }[]
+  imageUrl?: string
+  slug?: string
+  metaDescription?: string
+  metaKeywords?: string
+  isFeatured?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -156,6 +161,30 @@ export interface TenderSubmission {
   adminDocUrl?: string
   status: TenderSubmissionStatus
   reviewNotes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// --- SUPPLIERS (Fournisseurs) ---
+export type SupplierCategory = "construction" | "fournitures" | "services" | "transport" | "consulting" | "autre"
+
+export interface Supplier {
+  id: string
+  companyName: string
+  contactName: string
+  email: string
+  phone: string
+  address?: string
+  website?: string
+  category: SupplierCategory
+  specialties?: string
+  taxId?: string
+  registrationNumber?: string
+  status: string
+  notes?: string
+  tenderId?: string
+  tender?: Tender
+  manualEntry: boolean
   createdAt: string
   updatedAt: string
 }
