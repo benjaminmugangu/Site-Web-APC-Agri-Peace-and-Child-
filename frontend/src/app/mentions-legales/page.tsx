@@ -1,5 +1,6 @@
 import React from "react"
 import { PageHero } from "@/components/ui/page-hero"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { FileText } from "lucide-react"
 import { settingsService } from "@/lib/api/settings"
 
@@ -18,7 +19,7 @@ export default async function MentionsLegalesPage() {
         <div className="container max-w-3xl px-4">
           <div className="prose prose-apc prose-lg max-w-none text-black">
             {settings?.legalSection?.legalNotices ? (
-              <div dangerouslySetInnerHTML={{ __html: settings.legalSection.legalNotices }} />
+              <MarkdownContent content={settings.legalSection.legalNotices} />
             ) : (
               <>
                 <div className="flex items-center gap-3 mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">

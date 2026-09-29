@@ -107,9 +107,10 @@ export default function AdminAppelsOffresPage() {
 
   const handleAdd = () => {
     setEditingAppel(null)
+    const nextRef = `AAO-N°00${appels.length + 1}`
     setFormData({ 
       title: "", 
-      reference: `AAO-N°00${appels.length + 1}`, 
+      reference: nextRef, 
       deadline: "", 
       description: "", 
       content: "", 
@@ -316,13 +317,11 @@ export default function AdminAppelsOffresPage() {
                       {appel.slug ? (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-gray-600 font-mono">{appel.slug}</span>
-                          {appel.slug && (
-                            <Link href={`/appels-d-offres/${appel.slug}`} target="_blank">
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-apc-green hover:text-apc-green/80">
-                                <ExternalLink size={12} />
-                              </Button>
-                            </Link>
-                          )}
+                          <Link href={`/appels-d-offres/${appel.slug}`} target="_blank">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-apc-green hover:text-apc-green/80">
+                              <ExternalLink size={12} />
+                            </Button>
+                          </Link>
                         </div>
                       ) : (
                         <span className="text-xs text-gray-400 italic">Non défini</span>

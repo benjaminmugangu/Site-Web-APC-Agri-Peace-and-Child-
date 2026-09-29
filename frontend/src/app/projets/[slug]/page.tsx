@@ -4,6 +4,7 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { getProjectBySlug, listProjects } from "@/lib/api/projects"
 import {
   MapPin,
@@ -92,10 +93,9 @@ export default async function ProjetDetailPage({
                   Présentation du Projet
                 </h2>
                 
-                {/* We use dangerouslySetInnerHTML for HTML content from CMS/Backend */}
-                <div 
+                <MarkdownContent
+                  content={project.content || project.description}
                   className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: project.content || project.description }}
                 />
               </div>
 

@@ -19,6 +19,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { listPartners, createPartner, updatePartner, deletePartner, getPartner } from "@/lib/api/partners"
 import { toast } from "sonner"
 import { useRole } from "@/hooks/useRole"
@@ -107,8 +109,12 @@ export default function AdminPartenairesPage() {
     if (!formData.name.trim()) { toast.error("Le nom est requis"); return }
     setLoading(true)
     try {
+      // Sanitizer le contenu HTML pour éviter XSS
+      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      
       const payload = {
         ...formData,
+        description: sanitizedDescription,
         totalFunding: Number(formData.totalFunding) || 0,
         websiteUrl: formData.websiteUrl || undefined,
       }
@@ -367,12 +373,11 @@ export default function AdminPartenairesPage() {
               {/* Description */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Description du Partenariat</label>
-                <textarea
-                  rows={3}
+                <RichTextEditor
                   value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 text-sm resize-none"
+                  onChange={(value) => setFormData({ ...formData, description: value })}
                   placeholder="Rôle de ce partenaire dans les activités de l'APC..."
+                  minHeight="100px"
                 />
               </div>
 

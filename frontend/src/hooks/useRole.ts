@@ -5,7 +5,7 @@
  * domaines : 'tech' = ADMIN, 'rh' = ADMIN_RH
  */
 
-import { useMemo } from "react"
+import { useState, useEffect } from "react"
 
 type Domain = "tech" | "rh"
 
@@ -28,7 +28,17 @@ function parseRoleFromCookie(): string {
 }
 
 export function useRole() {
-  const role = useMemo(() => parseRoleFromCookie(), [])
+  const [role, setRole] = useState<string>(() => {
+    // Initialize with default value on server
+    if (typeof document === "undefined") return "ADMIN"
+    return parseRoleFromCookie()
+  })
+
+  useEffect(() => {
+    // Read from cookie on client side
+    setRole(parseRoleFromCookie())
+  }, [])
+
   const isAdmin   = role === "ADMIN"
   const isAdminRH = role === "ADMIN_RH"
 

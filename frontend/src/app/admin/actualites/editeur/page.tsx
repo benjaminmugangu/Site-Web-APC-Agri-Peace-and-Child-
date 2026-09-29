@@ -17,6 +17,8 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import RichTextEditor from "@/components/RichTextEditor"
+import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
 import { getArticle, createArticle, updateArticle } from "@/lib/api/articles"
 import { newsCategoriesApi } from "@/lib/api/news-categories"
 import type { NewsCategory } from "@/types"
@@ -168,11 +170,15 @@ export default function AdminArticleEditor() {
     }
 
     setSaving(true)
+    // Sanitizer le contenu HTML pour éviter XSS
+    const sanitizedExcerpt = sanitizeHTMLServer(excerpt)
+    const sanitizedContent = sanitizeHTMLServer(content)
+    
     const payload = {
       title,
       slug,
-      excerpt,
-      content,
+      excerpt: sanitizedExcerpt,
+      content: sanitizedContent,
       categoryId,
       author,
       readTime: Number(readTime),
@@ -319,31 +325,27 @@ export default function AdminArticleEditor() {
               <p className="text-[11px] text-gray-400">
                 Affiché dans les cartes d&apos;aperçu sur la page d&apos;accueil et des Actualités. Max 200 caractères. ({excerpt.length}/200)
               </p>
-              <textarea
-                rows={2}
-                maxLength={200}
+              <RichTextEditor
                 value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
+                onChange={setExcerpt}
                 placeholder="Résumé accrocheur et court de l'article..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green transition-all resize-none text-sm text-gray-700"
+                minHeight="80px"
               />
             </div>
 
             {/* Contenu Principal */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                Contenu de l&apos;Article (HTML supporté)
+                Contenu de l&apos;Article (Éditeur Rich Text)
               </label>
-              <textarea
-                required
-                rows={12}
+              <RichTextEditor
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Rédigez le contenu complet de l'article ici... Vous pouvez utiliser du HTML pour enrichir le contenu."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-apc-green/20 focus:border-apc-green font-sans text-sm text-gray-800 transition-all"
+                onChange={setContent}
+                placeholder="Rédigez le contenu complet de l'article ici..."
+                minHeight="300px"
               />
               <p className="text-[11px] text-gray-400 flex items-center gap-1">
-                <Info size={12} /> Séparez vos paragraphes proprement ou utilisez des balises HTML standard pour les titres, listes et gras.
+                <Info size={12} /> Utilisez la barre d'outils pour formater votre texte (gras, italique, couleurs, titres, listes, etc.)
               </p>
             </div>
 

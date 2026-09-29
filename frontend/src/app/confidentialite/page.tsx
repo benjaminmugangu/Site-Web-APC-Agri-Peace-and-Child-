@@ -1,5 +1,6 @@
 import React from "react"
 import { PageHero } from "@/components/ui/page-hero"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import { ShieldCheck } from "lucide-react"
 import { settingsService } from "@/lib/api/settings"
 
@@ -18,7 +19,7 @@ export default async function PrivacyPage() {
         <div className="container max-w-3xl px-4">
           <div className="prose prose-apc prose-lg max-w-none text-black">
             {settings?.legalSection?.privacyPolicy ? (
-              <div dangerouslySetInnerHTML={{ __html: settings.legalSection.privacyPolicy }} />
+              <MarkdownContent content={settings.legalSection.privacyPolicy} />
             ) : (
               <>
                 <div className="flex items-center gap-3 mb-8 p-4 bg-apc-blue/5 rounded-2xl border border-apc-blue/10">
