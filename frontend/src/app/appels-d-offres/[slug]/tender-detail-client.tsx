@@ -131,12 +131,16 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
       if (form.offreFinanciere) formData.append("offreFinanciere", form.offreFinanciere);
       if (form.documentAdministratif) formData.append("documentAdministratif", form.documentAdministratif);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tenders/submit`, {
-        method: "POST",
+      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      
+      const response = await fetch(`${baseURL}/tenders/submit`, {
+        method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Erreur lors de la soumission");
+      const data = await response.json();
+      
+      if (!response.ok || !data.success) throw new Error("Erreur lors de la soumission");
       
       setSubmitted(true);
       toast.success("Offre soumise avec succès!");
