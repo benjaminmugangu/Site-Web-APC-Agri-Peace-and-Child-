@@ -314,6 +314,7 @@ export default function AdminTenderSubmissionsPage() {
                       href={selectedSubmission.technicalOfferUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      download="offre_technique.pdf"
                       className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <FileText className="w-4 h-4 text-apc-blue" />
@@ -326,6 +327,7 @@ export default function AdminTenderSubmissionsPage() {
                       href={selectedSubmission.financialOfferUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      download="offre_financiere.pdf"
                       className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <FileText className="w-4 h-4 text-apc-blue" />
@@ -338,6 +340,7 @@ export default function AdminTenderSubmissionsPage() {
                       href={selectedSubmission.adminDocUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      download="document_administratif.pdf"
                       className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <FileText className="w-4 h-4 text-apc-blue" />
