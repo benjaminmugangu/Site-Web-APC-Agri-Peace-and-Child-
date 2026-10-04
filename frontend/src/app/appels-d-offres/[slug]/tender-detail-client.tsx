@@ -29,6 +29,7 @@ type FormState = {
   offreTechnique: File | null
   offreFinanciere: File | null
   documentAdministratif: File | null
+  documentUnique: File | null
 }
 
 const initialState: FormState = {
@@ -40,6 +41,7 @@ const initialState: FormState = {
   offreTechnique: null,
   offreFinanciere: null,
   documentAdministratif: null,
+  documentUnique: null,
 }
 
 function FileUploadField({
@@ -107,8 +109,14 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
     if (!form.nomEntreprise.trim()) newErrors.nomEntreprise = "Requis"
     if (!form.nomResponsable.trim()) newErrors.nomResponsable = "Requis"
     if (!form.email.trim()) newErrors.email = "Requis"
-    if (!form.offreTechnique) newErrors.offreTechnique = "Requis"
-    if (!form.offreFinanciere) newErrors.offreFinanciere = "Requis"
+
+    if (tender.submissionMode === 'single') {
+      if (!form.documentUnique) newErrors.documentUnique = "Requis"
+    } else {
+      if (!form.offreTechnique) newErrors.offreTechnique = "Requis"
+      if (!form.offreFinanciere) newErrors.offreFinanciere = "Requis"
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -127,9 +135,13 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
       formData.append("address", form.adresse);
       formData.append("tenderId", tender.id);
       
-      if (form.offreTechnique) formData.append("offreTechnique", form.offreTechnique);
-      if (form.offreFinanciere) formData.append("offreFinanciere", form.offreFinanciere);
-      if (form.documentAdministratif) formData.append("documentAdministratif", form.documentAdministratif);
+      if (tender.submissionMode === 'single') {
+        if (form.documentUnique) formData.append("offreTechnique", form.documentUnique);
+      } else {
+        if (form.offreTechnique) formData.append("offreTechnique", form.offreTechnique);
+        if (form.offreFinanciere) formData.append("offreFinanciere", form.offreFinanciere);
+        if (form.documentAdministratif) formData.append("documentAdministratif", form.documentAdministratif);
+      }
 
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
       
@@ -366,26 +378,37 @@ export default function TenderDetailClient({ tender }: TenderDetailClientProps) 
 
                     <div className="space-y-6">
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Documents requis</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FileUploadField
-                          id="offreTechnique"
-                          label="Offre Technique *"
-                          file={form.offreTechnique}
-                          onChange={(f) => handleSet("offreTechnique", f)}
-                        />
-                        <FileUploadField
-                          id="offreFinanciere"
-                          label="Offre Financière *"
-                          file={form.offreFinanciere}
-                          onChange={(f) => handleSet("offreFinanciere", f)}
-                        />
-                        <FileUploadField
-                          id="documentAdministratif"
-                          label="Document Administratif"
-                          file={form.documentAdministratif}
-                          onChange={(f) => handleSet("documentAdministratif", f)}
-                        />
-                      </div>
+                      {tender.submissionMode === 'single' ? (
+                        <div className="grid grid-cols-1 gap-6">
+                          <FileUploadField
+                            id="documentUnique"
+                            label="Dossier complet *"
+                            file={form.documentUnique}
+                            onChange={(f) => handleSet("documentUnique", f)}
+                          />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <FileUploadField
+                            id="offreTechnique"
+                            label="Offre Technique *"
+                            file={form.offreTechnique}
+                            onChange={(f) => handleSet("offreTechnique", f)}
+                          />
+                          <FileUploadField
+                            id="offreFinanciere"
+                            label="Offre Financière *"
+                            file={form.offreFinanciere}
+                            onChange={(f) => handleSet("offreFinanciere", f)}
+                          />
+                          <FileUploadField
+                            id="documentAdministratif"
+                            label="Document Administratif"
+                            file={form.documentAdministratif}
+                            onChange={(f) => handleSet("documentAdministratif", f)}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <Button 

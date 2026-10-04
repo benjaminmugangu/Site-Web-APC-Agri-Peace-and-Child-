@@ -141,6 +141,7 @@ export interface Tender {
   metaDescription?: string
   metaKeywords?: string
   isFeatured?: boolean
+  submissionMode?: 'standard' | 'single'
   createdAt: string
   updatedAt: string
 }

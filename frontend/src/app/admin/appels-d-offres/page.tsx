@@ -83,7 +83,8 @@ export default function AdminAppelsOffresPage() {
     slug: "",
     metaDescription: "",
     metaKeywords: "",
-    isFeatured: false
+    isFeatured: false,
+    submissionMode: "standard" as 'standard' | 'single'
   })
   const [imagePreview, setImagePreview] = useState<string>("")
   const [generatingSlug, setGeneratingSlug] = useState(false)
@@ -107,20 +108,21 @@ export default function AdminAppelsOffresPage() {
   const handleAdd = () => {
     setEditingAppel(null)
     const nextRef = `AAO-N°00${appels.length + 1}`
-    setFormData({ 
-      title: "", 
-      reference: nextRef, 
-      deadline: "", 
-      description: "", 
-      content: "", 
-      fileUrl: "", 
-      status: "open", 
+    setFormData({
+      title: "",
+      reference: nextRef,
+      deadline: "",
+      description: "",
+      content: "",
+      fileUrl: "",
+      status: "open",
       category: "Fournitures",
       imageUrl: "",
       slug: "",
       metaDescription: "",
       metaKeywords: "",
-      isFeatured: false
+      isFeatured: false,
+      submissionMode: "standard"
     })
     setImagePreview("")
     setShowForm(true)
@@ -148,7 +150,8 @@ export default function AdminAppelsOffresPage() {
         slug: appel.slug || "",
         metaDescription: appel.metaDescription || "",
         metaKeywords: appel.metaKeywords || "",
-        isFeatured: appel.isFeatured || false
+        isFeatured: appel.isFeatured || false,
+        submissionMode: appel.submissionMode || "standard"
       })
       setImagePreview(appel.imageUrl || "")
       setShowForm(true)
@@ -168,8 +171,8 @@ export default function AdminAppelsOffresPage() {
       const sanitizedDescription = sanitizeHTMLServer(formData.description)
       
       // Mapping de sécurité : l'API n'accepte que open | closed | cancelled | archived
-      const payload = { 
-        ...formData, 
+      const payload = {
+        ...formData,
         content: sanitizedContent,
         description: sanitizedDescription,
         status: normalizeTenderStatus(formData.status),
@@ -177,7 +180,8 @@ export default function AdminAppelsOffresPage() {
         slug: formData.slug || undefined,
         metaDescription: formData.metaDescription || undefined,
         metaKeywords: formData.metaKeywords || undefined,
-        isFeatured: formData.isFeatured
+        isFeatured: formData.isFeatured,
+        submissionMode: formData.submissionMode
       }
       
       if (editingAppel) {
@@ -505,6 +509,20 @@ export default function AdminAppelsOffresPage() {
                   <label htmlFor="isFeatured" className="text-xs font-bold text-gray-700 uppercase tracking-widest cursor-pointer">
                     Mettre en avant sur la page d'accueil
                   </label>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Mode de soumission *</label>
+                  <select
+                    value={formData.submissionMode}
+                    onChange={e => setFormData({...formData, submissionMode: e.target.value as 'standard' | 'single'})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none bg-white text-sm"
+                  >
+                    <option value="standard">3 documents (Technique, Financière, Administrative)</option>
+                    <option value="single">1 document (Dossier complet)</option>
+                  </select>
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Choisissez combien de documents les soumissionnaires doivent fournir.
+                  </p>
                 </div>
               </div>
 
