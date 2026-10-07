@@ -114,7 +114,7 @@ export default async function Home() {
 
         <div className="container relative z-10 text-center text-white px-4">
           <FadeIn>
-            <span className="inline-block py-1 px-3 rounded-full bg-apc-green/80 text-sm font-medium mb-6 border border-apc-greenLight/50 shadow-lg">
+            <span className="inline-block py-1 px-3 rounded-full bg-apc-blue/80 text-sm font-medium mb-6 border border-apc-blue/50 shadow-lg">
               Soutenir la RDC et l&apos;Afrique
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
