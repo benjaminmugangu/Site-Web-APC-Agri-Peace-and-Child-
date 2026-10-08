@@ -130,7 +130,7 @@ export default async function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/faire-un-don">
-                <Button size="lg" className="text-lg px-8 w-full sm:w-auto !bg-apc-blue hover:!bg-[#1a7a9a]">
+                <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
                   Faire un don maintenant
                 </Button>
               </Link>
