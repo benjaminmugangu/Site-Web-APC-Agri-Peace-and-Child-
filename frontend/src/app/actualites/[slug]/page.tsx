@@ -149,7 +149,7 @@ export default function ArticleDetailPage() {
               <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-border/40 shadow-sm">
                 {/* Excerpt as lead */}
                 <p className="text-xl text-gray-500 leading-relaxed border-l-4 border-apc-green pl-6 mb-12 italic font-medium">
-                  {article.excerpt}
+                  {stripHTMLTags(article.excerpt)}
                 </p>
 
                 {/* Content from CMS - conditional rendering like appels d'offres */}
