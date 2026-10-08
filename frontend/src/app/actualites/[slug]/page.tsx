@@ -1,9 +1,12 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { notFound } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import { MarkdownContent } from "@/components/ui/markdown-content"
 import HTMLContent from "@/components/ui/html-content"
 import { getArticleBySlug, listArticles } from "@/lib/api/articles"
 import {
@@ -13,21 +16,8 @@ import {
   ChevronRight,
   Globe,
   User,
+  Loader2,
 } from "lucide-react"
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string }
-}): Promise<Metadata> {
-  const article = await getArticleBySlug(params.slug).catch(() => null);
-  
-  if (!article) return { title: "Article introuvable — APC" }
-  return {
-    title: article.title,
-    description: article.excerpt,
-  }
-}
 
 function formatDate(dateStr: string) {
   if (!dateStr) return "";
@@ -52,22 +42,59 @@ const categoryColors: Record<string, string> = {
   "Partenariat": "bg-purple-100 text-purple-700 border-purple-200",
 }
 
-export default async function ArticleDetailPage({
-  params,
-}: {
-  params: { slug: string }
-}) {
-  const article = await getArticleBySlug(params.slug).catch(() => null);
-  
-  if (!article) notFound();
+export default function ArticleDetailPage() {
+  const router = useRouter()
+  const params = useParams()
+  const slug = params.slug as string
+  const [article, setArticle] = useState<any>(null)
+  const [others, setOthers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Fetch recent articles for sidebar
-  const recentRes = await listArticles({ perPage: 4, status: 'published' }).catch(() => ({ data: [] }));
-  const others = Array.isArray(recentRes?.data) 
-    ? recentRes.data.filter((a: any) => a.id !== article.id).slice(0, 3)
-    : [];
+  useEffect(() => {
+    async function fetchData() {
+      if (!slug) {
+        router.push('/actualites')
+        return
+      }
 
-  const categoryName = getCategoryName(article.category);
+      try {
+        const articleData = await getArticleBySlug(slug)
+        if (!articleData) {
+          router.push('/actualites')
+          return
+        }
+        setArticle(articleData)
+
+        const recentRes = await listArticles({ perPage: 4, status: 'published' })
+        const otherArticles = Array.isArray(recentRes?.data)
+          ? recentRes.data.filter((a: any) => a.id !== articleData.id).slice(0, 3)
+          : []
+        setOthers(otherArticles)
+      } catch (error) {
+        console.error('Failed to fetch article:', error)
+        router.push('/actualites')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [slug, router])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-apc-bgLight">
+        <Loader2 className="animate-spin text-apc-green" size={40} />
+      </div>
+    )
+  }
+
+  if (!article) {
+    return null
+  }
+
+  const categoryName = getCategoryName(article.category)
+  const content = article.content || article.description || ""
 
   return (
     <div className="flex flex-col">
@@ -124,12 +151,18 @@ export default async function ArticleDetailPage({
                   {article.excerpt}
                 </p>
 
-                {/* Content from CMS */}
-                <HTMLContent
-                  content={article.content}
-                  className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
-                  allowRichText={true}
-                />
+                {/* Content from CMS - conditional rendering like appels d'offres */}
+                {content && content.includes('<') ? (
+                  <HTMLContent
+                    content={content}
+                    className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
+                  />
+                ) : (
+                  <MarkdownContent
+                    content={content}
+                    className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
+                  />
+                )}
 
                 {/* Tags */}
                 {article.tags && article.tags.length > 0 && (
