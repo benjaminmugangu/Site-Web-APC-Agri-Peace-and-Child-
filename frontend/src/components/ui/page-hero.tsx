@@ -67,7 +67,7 @@ export function PageHero({ title, subtitle, breadcrumbs, tag }: PageHeroProps) {
 
         {/* Tag */}
         {tag && (
-          <span className="inline-block py-1 px-3 rounded-full bg-apc-blue/80 text-sm font-medium mb-6 border border-apc-blue/50 shadow-lg">
+          <span className="inline-block py-1 px-3 rounded-full bg-apc-blue/80 text-sm font-medium mb-6 border border-apc-blue/50 shadow-lg text-white">
             {tag}
           </span>
         )}
