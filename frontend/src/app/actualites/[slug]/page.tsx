@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { MarkdownContent } from "@/components/ui/markdown-content"
 import HTMLContent from "@/components/ui/html-content"
 import { getArticleBySlug, listArticles } from "@/lib/api/articles"
+import { stripHTMLTags } from "@/lib/htmlSanitizer"
 import {
   Calendar,
   Clock,
@@ -100,7 +101,7 @@ export default function ArticleDetailPage() {
     <div className="flex flex-col">
       <PageHero
         title={article.title}
-        subtitle={article.excerpt}
+        subtitle={stripHTMLTags(article.excerpt)}
         breadcrumbs={[
           { label: "Actualités", href: "/actualites" },
           { label: categoryName, href: "/actualites" },

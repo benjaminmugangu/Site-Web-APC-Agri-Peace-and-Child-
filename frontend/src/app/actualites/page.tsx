@@ -5,6 +5,7 @@ import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { listArticles } from "@/lib/api/articles"
 import { listTestimonials } from "@/lib/api/testimonials"
+import { stripHTMLTags } from "@/lib/htmlSanitizer"
 import { Calendar, Clock, ChevronRight, ArrowRight, Quote, MapPin } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -88,7 +89,7 @@ export default async function ActualitesPage() {
                       {featured.title}
                     </h2>
                     <p className="text-white/80 text-base md:text-lg leading-relaxed line-clamp-2 mb-6 max-w-2xl">
-                      {featured.excerpt}
+                      {stripHTMLTags(featured.excerpt)}
                     </p>
 
                     <div className="flex items-center gap-2 text-apc-greenLight font-bold text-sm tracking-wide">
@@ -137,7 +138,7 @@ export default async function ActualitesPage() {
                             {article.title}
                           </h3>
                           <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2">
-                            {article.excerpt}
+                            {stripHTMLTags(article.excerpt)}
                           </p>
 
                           <div className="flex items-center justify-between pt-5 border-t border-gray-50 mt-auto">
