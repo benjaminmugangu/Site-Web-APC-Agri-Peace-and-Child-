@@ -130,12 +130,12 @@ export default async function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/faire-un-don">
-                <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
+                <Button size="lg" className="text-lg px-8 w-full sm:w-auto !bg-apc-blue hover:!bg-[#1a7a9a]">
                   Faire un don maintenant
                 </Button>
               </Link>
               <Link href="/projets">
-                <Button size="lg" variant="white" className="text-lg px-8 gap-2 w-full sm:w-auto">
+                <Button size="lg" className="text-lg px-8 gap-2 w-full sm:w-auto !bg-apc-blue !text-white hover:!bg-[#1a7a9a]">
                   Découvrir nos projets <ChevronRight className="w-4 h-4" />
                 </Button>
               </Link>
