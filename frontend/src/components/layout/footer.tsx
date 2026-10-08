@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Facebook, Twitter, Instagram, Linkedin, Youtube, Mail, Phone, MapPin, Heart } from "lucide-react"
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react"
+import { FaFacebookF, FaXTwitter, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa6"
+import { Mail, Phone, MapPin, Heart } from "lucide-react"
 import { apc } from "@/lib/data"
 import { settingsService } from "@/lib/api/settings"
 import { type SiteSettings } from "@/types"
@@ -59,28 +61,28 @@ export function Footer() {
           </p>
           <div className="flex flex-wrap gap-3">
             {facebook && (
-              <a href={facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:-translate-y-1" aria-label="Facebook">
-                <Facebook className="h-5 w-5" />
+              <a href={facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all hover:-translate-y-1" aria-label="Facebook">
+                <FaFacebookF className="h-5 w-5" />
               </a>
             )}
             {twitter && (
-              <a href={twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:-translate-y-1" aria-label="Twitter">
-                <Twitter className="h-5 w-5" />
+              <a href={twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-black hover:bg-black hover:text-white transition-all hover:-translate-y-1" aria-label="Twitter">
+                <FaXTwitter className="h-5 w-5" />
               </a>
             )}
             {instagram && (
-              <a href={instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:-translate-y-1" aria-label="Instagram">
-                <Instagram className="h-5 w-5" />
+              <a href={instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#E1306C] hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] hover:text-white transition-all hover:-translate-y-1" aria-label="Instagram">
+                <FaInstagram className="h-5 w-5" />
               </a>
             )}
             {linkedin && (
-              <a href={linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:-translate-y-1" aria-label="LinkedIn">
-                <Linkedin className="h-5 w-5" />
+              <a href={linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-all hover:-translate-y-1" aria-label="LinkedIn">
+                <FaLinkedinIn className="h-5 w-5" />
               </a>
             )}
             {youtube && (
-              <a href={youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:-translate-y-1" aria-label="YouTube">
-                <Youtube className="h-5 w-5" />
+              <a href={youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[#FF0000] hover:bg-[#FF0000] hover:text-white transition-all hover:-translate-y-1" aria-label="YouTube">
+                <FaYoutube className="h-5 w-5" />
               </a>
             )}
           </div>
