@@ -36,7 +36,7 @@ const fallbackPiliers = [
     slug: 'dignite',
     description: "Restaurer l'espoir et le respect de soi à travers l'autonomisation et l'accès aux soins.",
     iconName: 'Heart',
-    colorHex: "#2596be",
+    colorHex: "#EF4444",
   },
   {
     id: 'fallback-paix',
@@ -94,8 +94,8 @@ export default async function Home() {
     ]
   };
 
-  const domainColors = ["#2596be", "#059b5e", "#2596be", "#059b5e", "#2596be", "#059b5e"];
-  const domainLightColors = ["#E3F2FD", "#E8F5E9", "#E3F2FD", "#E8F5E9", "#E3F2FD", "#E8F5E9"];
+  const domainColors = ["#2596be", "#059b5e", "#EF4444", "#059b5e", "#2596be", "#059b5e"];
+  const domainLightColors = ["#E3F2FD", "#E8F5E9", "#FEE2E2", "#E8F5E9", "#E3F2FD", "#E8F5E9"];
 
   return (
     <div className="flex flex-col min-h-screen">
