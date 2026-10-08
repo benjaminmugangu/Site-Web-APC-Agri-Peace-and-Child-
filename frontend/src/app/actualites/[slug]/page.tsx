@@ -4,7 +4,7 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { MarkdownContent } from "@/components/ui/markdown-content"
+import HTMLContent from "@/components/ui/html-content"
 import { getArticleBySlug, listArticles } from "@/lib/api/articles"
 import {
   Calendar,
@@ -125,9 +125,10 @@ export default async function ArticleDetailPage({
                 </p>
 
                 {/* Content from CMS */}
-                <MarkdownContent
+                <HTMLContent
                   content={article.content}
                   className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed space-y-6"
+                  allowRichText={true}
                 />
 
                 {/* Tags */}

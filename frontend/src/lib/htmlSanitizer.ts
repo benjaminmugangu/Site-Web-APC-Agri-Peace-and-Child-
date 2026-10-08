@@ -4,6 +4,8 @@
  * Préserve les styles de couleur et la mise en forme de base
  */
 
+import DOMPurify from 'isomorphic-dompurify'
+
 // Balises HTML autorisées
 const ALLOWED_TAGS = [
   'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
@@ -115,55 +117,20 @@ function sanitizeAttributes(tagName: string, attributes: Record<string, string>)
  */
 export function sanitizeHTML(html: string, allowRichText: boolean = false): string {
   if (!html) return ''
-  
+
   // Choisir la liste de balises appropriée
   const allowedTags = allowRichText ? RICH_TEXT_ALLOWED_TAGS : ALLOWED_TAGS
-  
-  // Créer un élément div temporaire
-  const div = document.createElement('div')
-  div.innerHTML = html
-  
-  // Nettoyer récursivement les éléments
-  function sanitizeElement(element: Element) {
-    // Vérifier si le tag est autorisé
-    const tagName = element.tagName.toLowerCase()
-    if (!allowedTags.includes(tagName)) {
-      element.remove()
-      return
-    }
-    
-    // Nettoyer les attributs
-    const allowed = ALLOWED_ATTRIBUTES[tagName as keyof typeof ALLOWED_ATTRIBUTES] || []
-    const attributes = Array.from(element.attributes)
-    
-    for (const attr of attributes) {
-      if (!allowed.includes(attr.name)) {
-        element.removeAttribute(attr.name)
-      } else if (attr.name === 'style') {
-        element.setAttribute('style', sanitizeStyle(attr.value))
-      } else if (attr.name === 'href') {
-        element.setAttribute('href', attr.value.replace(/^javascript:/i, ''))
-      }
-    }
-    
-    // Nettoyer les enfants
-    const children = Array.from(element.childNodes)
-    for (const child of children) {
-      if (child.nodeType === Node.ELEMENT_NODE) {
-        sanitizeElement(child as Element)
-      } else if (child.nodeType === Node.TEXT_NODE) {
-        // Garder le texte tel quel
-      } else {
-        // Supprimer commentaires, scripts, etc.
-        child.remove()
-      }
-    }
+
+  // Utiliser DOMPurify pour la sécurisation XSS
+  const config = {
+    ALLOWED_TAGS: allowedTags,
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'title', 'style', 'class'],
+    ALLOWED_STYLE: ALLOWED_STYLES,
+    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
   }
-  
-  // Nettoyer tous les éléments
-  Array.from(div.children).forEach(sanitizeElement)
-  
-  return div.innerHTML
+
+  return DOMPurify.sanitize(html, config)
 }
 
 /**
