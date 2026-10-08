@@ -5,7 +5,7 @@ import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import { listArticles } from "@/lib/api/articles"
 import { listTestimonials } from "@/lib/api/testimonials"
-import { stripHTMLTags } from "@/lib/htmlSanitizer"
+import { stripHTMLTags } from "@/lib/stripHTML"
 import { Calendar, Clock, ChevronRight, ArrowRight, Quote, MapPin } from "lucide-react"
 
 export const metadata: Metadata = {

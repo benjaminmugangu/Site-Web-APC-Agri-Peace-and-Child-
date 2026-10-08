@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { MarkdownContent } from "@/components/ui/markdown-content"
 import HTMLContent from "@/components/ui/html-content"
 import { getArticleBySlug, listArticles } from "@/lib/api/articles"
-import { stripHTMLTags } from "@/lib/htmlSanitizer"
+import { stripHTMLTags } from "@/lib/stripHTML"
 import {
   Calendar,
   Clock,

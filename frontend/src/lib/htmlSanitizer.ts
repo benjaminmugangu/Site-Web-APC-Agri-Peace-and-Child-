@@ -6,18 +6,6 @@
 
 import DOMPurify from 'isomorphic-dompurify'
 
-/**
- * Supprime toutes les balises HTML d'une chaîne de caractères
- * Version serveur-sécurisée (n'utilise pas DOMPurify)
- * Utile pour afficher des extraits en texte brut dans les Server Components
- * @param html - La chaîne HTML à nettoyer
- * @returns La chaîne sans balises HTML
- */
-export function stripHTMLTags(html: string): string {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, '')
-}
-
 // Balises HTML autorisées
 const ALLOWED_TAGS = [
   'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
