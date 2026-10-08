@@ -43,7 +43,9 @@ export function Footer() {
         <div className="col-span-1 md:col-span-1 space-y-4">
           {footerLogo ? (
             <div className="flex items-center gap-3 mb-4">
-              <img src={footerLogo} alt={name} className="h-14 w-auto object-contain filter drop-shadow-md" />
+              <div className="h-14 w-14 rounded-xl bg-white flex items-center justify-center p-2">
+                <img src={footerLogo} alt={name} className="h-full w-auto object-contain" />
+              </div>
               <div className="flex flex-col leading-tight">
                 <span className="font-bold text-lg text-white tracking-tight">
                   {name}
@@ -106,7 +108,7 @@ export function Footer() {
           <ul className="space-y-3 text-sm text-apc-bgLight/80">
             <li>
               <Link href="/faire-un-don" className="flex items-center gap-2 text-white font-semibold hover:text-apc-greenLight transition-colors">
-                <Heart className="w-4 h-4 text-apc-greenLight" fill="currentColor" /> Faire un don
+                <Heart className="w-4 h-4 text-red-700" fill="currentColor" /> Faire un don
               </Link>
             </li>
             <li><Link href="/nous-rejoindre" className="hover:text-white transition-colors">Devenir Bénévole</Link></li>
@@ -119,7 +121,7 @@ export function Footer() {
           <h4 className="font-bold mb-6 text-white text-lg">Contact Direct</h4>
           <ul className="space-y-4 text-sm text-apc-bgLight/80">
             <li className="flex gap-3">
-              <MapPin className="h-5 w-5 text-apc-greenLight shrink-0" />
+              <MapPin className="h-5 w-5 text-red-600 shrink-0" />
               <span className="leading-relaxed">{address}</span>
             </li>
             <li className="flex gap-3 items-center">
@@ -127,7 +129,7 @@ export function Footer() {
               <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">{phone}</a>
             </li>
             <li className="flex gap-3 items-center">
-              <Mail className="h-5 w-5 text-apc-greenLight shrink-0" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail" className="h-5 w-5 shrink-0" />
               <a href={`mailto:${email}`} className="hover:text-white transition-colors break-all">{email}</a>
             </li>
           </ul>
