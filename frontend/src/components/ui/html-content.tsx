@@ -1,5 +1,7 @@
+"use client"
+
 import React from "react"
-import { sanitizeHTMLServer } from "@/lib/htmlSanitizer"
+import { sanitizeHTML } from "@/lib/htmlSanitizer"
 
 interface HTMLContentProps {
   content: string
@@ -8,15 +10,14 @@ interface HTMLContentProps {
 }
 
 /**
- * Composant serveur pour afficher du contenu HTML produit par le RichTextEditor
- * avec sécurité XSS via le sanitizer serveur (DOMPurify).
- * Utilisé dans les pages Next.js App Router (server components).
+ * Composant pour afficher du contenu HTML produit par le RichTextEditor
+ * avec sécurité XSS via le sanitizer.
  */
 export default function HTMLContent({ content, className = "", allowRichText = true }: HTMLContentProps) {
-  const sanitizedContent = sanitizeHTMLServer(content, allowRichText)
+  const sanitizedContent = sanitizeHTML(content, allowRichText)
 
   return (
-    <div
+    <div 
       className={`prose ${className}`}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
