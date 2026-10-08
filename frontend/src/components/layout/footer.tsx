@@ -93,13 +93,13 @@ export function Footer() {
         <div>
           <h4 className="font-bold mb-6 text-white text-lg">Liens Rapides</h4>
           <ul className="space-y-3 text-sm text-apc-bgLight/80">
-            <li><Link href="/" className="hover:text-white transition-colors">Accueil</Link></li>
-            <li><Link href="/a-propos" className="hover:text-white transition-colors">À Propos</Link></li>
-            <li><Link href="/domaines" className="hover:text-white transition-colors">Domaines d&apos;Action</Link></li>
-            <li><Link href="/projets" className="hover:text-white transition-colors">Nos Projets</Link></li>
-            <li><Link href="/actualites" className="hover:text-white transition-colors">Actualités</Link></li>
-            <li><Link href="/appels-d-offres" className="hover:text-white transition-colors">Appels d&apos;Offres</Link></li>
-            <li><Link href="/nous-rejoindre" className="hover:text-white transition-colors">Nous Rejoindre</Link></li>
+            <li><Link href="/" className="hover:text-white hover:translate-x-1 transition-all inline-block">Accueil</Link></li>
+            <li><Link href="/a-propos" className="hover:text-white hover:translate-x-1 transition-all inline-block">À Propos</Link></li>
+            <li><Link href="/domaines" className="hover:text-white hover:translate-x-1 transition-all inline-block">Domaines d&apos;Action</Link></li>
+            <li><Link href="/projets" className="hover:text-white hover:translate-x-1 transition-all inline-block">Nos Projets</Link></li>
+            <li><Link href="/actualites" className="hover:text-white hover:translate-x-1 transition-all inline-block">Actualités</Link></li>
+            <li><Link href="/appels-d-offres" className="hover:text-white hover:translate-x-1 transition-all inline-block">Appels d&apos;Offres</Link></li>
+            <li><Link href="/nous-rejoindre" className="hover:text-white hover:translate-x-1 transition-all inline-block">Nous Rejoindre</Link></li>
           </ul>
         </div>
 
@@ -107,13 +107,13 @@ export function Footer() {
           <h4 className="font-bold mb-6 text-white text-lg">Impact & Engagement</h4>
           <ul className="space-y-3 text-sm text-apc-bgLight/80">
             <li>
-              <Link href="/faire-un-don" className="flex items-center gap-2 text-white font-semibold hover:text-apc-greenLight transition-colors">
-                <Heart className="w-4 h-4 text-red-700" fill="currentColor" /> Faire un don
+              <Link href="/faire-un-don" className="flex items-center gap-2 text-white font-semibold hover:text-apc-greenLight hover:-translate-y-1 transition-all">
+                <Heart className="w-4 h-4 text-red-700 hover:scale-110 transition-transform" fill="currentColor" /> Faire un don
               </Link>
             </li>
-            <li><Link href="/nous-rejoindre" className="hover:text-white transition-colors">Devenir Bénévole</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Partenariats</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Contactez-nous</Link></li>
+            <li><Link href="/nous-rejoindre" className="hover:text-white hover:translate-x-1 transition-all inline-block">Devenir Bénévole</Link></li>
+            <li><Link href="/contact" className="hover:text-white hover:translate-x-1 transition-all inline-block">Partenariats</Link></li>
+            <li><Link href="/contact" className="hover:text-white hover:translate-x-1 transition-all inline-block">Contactez-nous</Link></li>
           </ul>
         </div>
 
@@ -121,16 +121,16 @@ export function Footer() {
           <h4 className="font-bold mb-6 text-white text-lg">Contact Direct</h4>
           <ul className="space-y-4 text-sm text-apc-bgLight/80">
             <li className="flex gap-3">
-              <MapPin className="h-5 w-5 text-red-600 shrink-0" />
-              <span className="leading-relaxed">{address}</span>
+              <MapPin className="h-5 w-5 text-red-600 shrink-0 hover:scale-110 transition-transform" />
+              <span className="leading-relaxed hover:text-white transition-colors">{address}</span>
             </li>
             <li className="flex gap-3 items-center">
-              <Phone className="h-5 w-5 text-apc-greenLight shrink-0" />
-              <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">{phone}</a>
+              <Phone className="h-5 w-5 text-apc-greenLight shrink-0 hover:scale-110 transition-transform" />
+              <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-white hover:translate-x-1 transition-all">{phone}</a>
             </li>
             <li className="flex gap-3 items-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail" className="h-5 w-5 shrink-0" />
-              <a href={`mailto:${email}`} className="hover:text-white transition-colors break-all">{email}</a>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail" className="h-5 w-5 shrink-0 hover:scale-110 transition-transform" />
+              <a href={`mailto:${email}`} className="hover:text-white hover:translate-x-1 transition-all break-all">{email}</a>
             </li>
           </ul>
         </div>
@@ -139,8 +139,8 @@ export function Footer() {
       <div className="container mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-apc-bgLight/60">
         <p>&copy; 2026 {name} ({acronym}). Tous droits réservés.</p>
         <div className="flex gap-6">
-          <Link href="/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
-          <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions Légales</Link>
+          <Link href="/confidentialite" className="hover:text-white hover:translate-x-1 transition-all inline-block">Confidentialité</Link>
+          <Link href="/mentions-legales" className="hover:text-white hover:translate-x-1 transition-all inline-block">Mentions Légales</Link>
         </div>
       </div>
     </footer>
