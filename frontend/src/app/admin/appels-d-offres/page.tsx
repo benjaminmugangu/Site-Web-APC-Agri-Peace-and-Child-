@@ -167,8 +167,8 @@ export default function AdminAppelsOffresPage() {
     setLoading(true)
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedContent = sanitizeHTMLServer(formData.content)
-      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedContent = sanitizeHTMLServer(formData.content, true)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description, true)
       
       // Mapping de sécurité : l'API n'accepte que open | closed | cancelled | archived
       const payload = {

@@ -92,7 +92,7 @@ export default function AdminProjectCategories() {
     setSaving(true)
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedDesc = sanitizeHTMLServer(formDesc)
+      const sanitizedDesc = sanitizeHTMLServer(formDesc, true)
       
       if (editTarget) {
         await updateProjectCategory(editTarget.id, { name: formName, slug: formSlug, description: sanitizedDesc })

@@ -171,8 +171,8 @@ export default function AdminArticleEditor() {
 
     setSaving(true)
     // Sanitizer le contenu HTML pour éviter XSS
-    const sanitizedExcerpt = sanitizeHTMLServer(excerpt)
-    const sanitizedContent = sanitizeHTMLServer(content)
+    const sanitizedExcerpt = sanitizeHTMLServer(excerpt, true)
+    const sanitizedContent = sanitizeHTMLServer(content, true)
     
     const payload = {
       title,

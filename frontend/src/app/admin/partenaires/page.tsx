@@ -110,7 +110,7 @@ export default function AdminPartenairesPage() {
     setLoading(true)
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description, true)
       
       const payload = {
         ...formData,

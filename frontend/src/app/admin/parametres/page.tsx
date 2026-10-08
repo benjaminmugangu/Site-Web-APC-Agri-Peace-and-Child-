@@ -135,44 +135,44 @@ export default function AdminSettingsPage() {
         ...settings,
         institution: {
           ...settings.institution,
-          vision: sanitizeHTMLServer(settings.institution.vision || ""),
-          mission: sanitizeHTMLServer(settings.institution.mission || "")
+          vision: sanitizeHTMLServer(settings.institution.vision || "", true),
+          mission: sanitizeHTMLServer(settings.institution.mission || "", true)
         },
         hero: {
           ...settings.hero,
-          subtitle: sanitizeHTMLServer(settings.hero.subtitle || "")
+          subtitle: sanitizeHTMLServer(settings.hero.subtitle || "", true)
         },
         supportSection: settings.supportSection ? {
           ...settings.supportSection,
-          description: sanitizeHTMLServer(settings.supportSection.description || "")
+          description: sanitizeHTMLServer(settings.supportSection.description || "", true)
         } : settings.supportSection,
         historySection: settings.historySection ? {
           ...settings.historySection,
-          paragraphs: (settings.historySection.paragraphs || []).map(p => sanitizeHTMLServer(p))
+          paragraphs: (settings.historySection.paragraphs || []).map(p => sanitizeHTMLServer(p, true))
         } : settings.historySection,
         engagementSection: settings.engagementSection ? {
           ...settings.engagementSection,
           engagementTypes: (settings.engagementSection.engagementTypes || []).map(t => ({
             ...t,
-            description: sanitizeHTMLServer(t.description || "")
+            description: sanitizeHTMLServer(t.description || "", true)
           })),
           reasons: (settings.engagementSection.reasons || []).map(r => ({
             ...r,
-            description: sanitizeHTMLServer(r.description || "")
+            description: sanitizeHTMLServer(r.description || "", true)
           }))
         } : settings.engagementSection,
-        donationMessage: sanitizeHTMLServer(settings.donationMessage || ""),
+        donationMessage: sanitizeHTMLServer(settings.donationMessage || "", true),
         transparencyMessage: settings.transparencyMessage ? {
           ...settings.transparencyMessage,
-          description: sanitizeHTMLServer(settings.transparencyMessage.description || "")
+          description: sanitizeHTMLServer(settings.transparencyMessage.description || "", true)
         } : settings.transparencyMessage,
         contact: {
           ...settings.contact,
-          address: sanitizeHTMLServer(settings.contact.address || "")
+          address: sanitizeHTMLServer(settings.contact.address || "", true)
         },
         seo: {
           ...settings.seo,
-          metaDescription: sanitizeHTMLServer(settings.seo.metaDescription || "")
+          metaDescription: sanitizeHTMLServer(settings.seo.metaDescription || "", true)
         }
       }
 

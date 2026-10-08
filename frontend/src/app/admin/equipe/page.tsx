@@ -147,9 +147,9 @@ export default function AdminEquipePage() {
     e.preventDefault()
     setLoading(true)
     setErrorMsg(null)
-    
+
     // Sanitizer le contenu HTML pour éviter XSS
-    const sanitizedBio = sanitizeHTMLServer(formData.bio)
+    const sanitizedBio = sanitizeHTMLServer(formData.bio, true)
     
     // Ensure both photo and photoUrl are synced
     const payload: any = {

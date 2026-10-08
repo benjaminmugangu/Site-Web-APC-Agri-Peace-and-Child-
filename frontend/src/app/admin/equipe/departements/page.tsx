@@ -79,7 +79,7 @@ export default function AdminDepartementsPage() {
     setFormError(null)
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedDescription = sanitizeHTMLServer(formData.description)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description, true)
       
       const payload = {
         ...formData,

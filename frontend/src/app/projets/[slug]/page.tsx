@@ -4,7 +4,7 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
-import { MarkdownContent } from "@/components/ui/markdown-content"
+import HTMLContent from "@/components/ui/html-content"
 import { getProjectBySlug, listProjects } from "@/lib/api/projects"
 import {
   MapPin,
@@ -93,9 +93,10 @@ export default async function ProjetDetailPage({
                   Présentation du Projet
                 </h2>
                 
-                <MarkdownContent
+                <HTMLContent
                   content={project.content || project.description}
                   className="prose prose-lg prose-apc max-w-none text-gray-600 leading-relaxed"
+                  allowRichText={true}
                 />
               </div>
 

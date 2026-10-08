@@ -103,8 +103,8 @@ export default function AdminServicesPage() {
 
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedDescription = sanitizeHTMLServer(formData.description)
-      const sanitizedDescriptionEn = sanitizeHTMLServer(formData.descriptionEn)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description, true)
+      const sanitizedDescriptionEn = sanitizeHTMLServer(formData.descriptionEn, true)
       
       const payload: Partial<Service> = {
         name: formData.name,

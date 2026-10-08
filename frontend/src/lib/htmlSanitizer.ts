@@ -134,37 +134,23 @@ export function sanitizeHTML(html: string, allowRichText: boolean = false): stri
 }
 
 /**
- * Version côté serveur (Node.js) utilisant DOMPurify si disponible
- * Fallback vers une regex simplifiée
+ * Version côté serveur (Node.js) utilisant DOMPurify
+ * Identique à la version côté client pour cohérence
  */
-export function sanitizeHTMLServer(html: string): string {
+export function sanitizeHTMLServer(html: string, allowRichText: boolean = false): string {
   if (!html) return ''
-  
-  // Supprimer les scripts et events dangereux
-  let cleaned = html
-    cleaned = cleaned.replace(/<script[^>]*>.*?<\/script>/gis, '')
-  cleaned = cleaned.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-  cleaned = cleaned.replace(/on\w+\s*=\s*[^\s>]+/gi, '')
-  cleaned = cleaned.replace(/javascript:/gi, '')
-  cleaned = cleaned.replace(/<iframe[^>]*>.*?<\/iframe>/gis, '')
-  
-  // Autoriser uniquement les balises et styles de couleur
-  const allowedTagsPattern = new RegExp(
-    `<(?:${ALLOWED_TAGS.join('|')})(?:\\s+[^>]*style=["'][^"']*["'][^>]*)?>`,
-    'gi'
-  )
-  
-  // Garder le contenu des balises autorisées
-  const tagMatches = cleaned.match(allowedTagsPattern) || []
-  const tagsContent = tagMatches.map(match => {
-    const tagMatch = match.match(/<(\w+)/)
-    if (!tagMatch) return ''
-    const tag = tagMatch[1]
-    const content = match.replace(/<[^>]+>([^<]*)<\/[^>]+>/, '$1')
-    return match.replace(content, '') // Garder la balise avec style
-  })
-  
-  // Reconstruire avec les balises autorisées
-  // Note: C'est une simplification - pour une production réelle, utiliser DOMPurify
-  return tagsContent.join('') || cleaned
+
+  // Choisir la liste de balises appropriée
+  const allowedTags = allowRichText ? RICH_TEXT_ALLOWED_TAGS : ALLOWED_TAGS
+
+  // Utiliser DOMPurify pour la sécurisation XSS
+  const config = {
+    ALLOWED_TAGS: allowedTags,
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'title', 'style', 'class'],
+    ALLOWED_STYLE: ALLOWED_STYLES,
+    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
+  }
+
+  return DOMPurify.sanitize(html, config)
 }

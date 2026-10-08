@@ -133,9 +133,9 @@ export default function AdminTestimonialPage() {
     e.preventDefault()
     setLoading(true)
     setErrorMsg(null)
-    
+
     // Sanitizer le contenu HTML pour éviter XSS
-    const sanitizedContent = sanitizeHTMLServer(formData.content)
+    const sanitizedContent = sanitizeHTMLServer(formData.content, true)
     
     const payload: any = {
       ...formData,

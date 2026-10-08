@@ -108,8 +108,8 @@ export default function AdminEmploisPage() {
     setLoading(true)
     try {
       // Sanitizer le contenu HTML pour éviter XSS
-      const sanitizedDescription = sanitizeHTMLServer(formData.description)
-      const sanitizedContent = sanitizeHTMLServer(formData.content)
+      const sanitizedDescription = sanitizeHTMLServer(formData.description, true)
+      const sanitizedContent = sanitizeHTMLServer(formData.content, true)
       
       const payload: any = { 
         ...formData,
