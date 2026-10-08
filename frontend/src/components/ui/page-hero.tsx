@@ -16,11 +16,11 @@ interface PageHeroProps {
 
 export function PageHero({ title, subtitle, breadcrumbs, tag }: PageHeroProps) {
   return (
-    <section className="relative bg-apc-blue py-20 md:py-28 overflow-hidden">
+    <section className="relative bg-apc-green py-20 md:py-28 overflow-hidden">
       {/* Decorative blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-apc-blue/40 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-apc-blue/10 blur-3xl" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-apc-green/40 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-apc-greenLight/10 blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-white/3 blur-3xl rounded-full" />
         {/* Grid pattern */}
         <div
@@ -86,9 +86,9 @@ export function PageHero({ title, subtitle, breadcrumbs, tag }: PageHeroProps) {
 
         {/* Decorative accent bar */}
         <div className="mt-8 flex items-center gap-2">
-          <div className="h-1 w-16 bg-apc-blue/50 rounded-full" />
-          <div className="h-1 w-8 bg-apc-blue/30 rounded-full" />
-          <div className="h-1 w-4 bg-apc-blue/20 rounded-full" />
+          <div className="h-1 w-16 bg-apc-greenLight rounded-full" />
+          <div className="h-1 w-8 bg-apc-greenLight/50 rounded-full" />
+          <div className="h-1 w-4 bg-apc-greenLight/25 rounded-full" />
         </div>
       </div>
     </section>
