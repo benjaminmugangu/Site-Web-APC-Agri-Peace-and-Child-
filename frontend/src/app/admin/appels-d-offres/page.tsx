@@ -92,7 +92,7 @@ export default function AdminAppelsOffresPage() {
   async function load() {
     setFetching(true)
     try {
-      const result = await listTenders()
+      const result = await listTenders({ adminMode: true })
       setAppels(result || [])
     } catch (error) {
       toast.error("Erreur chargement appels d'offres")
