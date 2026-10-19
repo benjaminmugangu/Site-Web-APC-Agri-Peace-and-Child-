@@ -236,7 +236,11 @@ export default async function Home() {
                   </div>
                   <div className="p-6">
                     <h3 className="font-bold text-gray-900 mb-2 group-hover:text-apc-green transition-colors line-clamp-1">{project.title}</h3>
-                    <p className="text-gray-500 text-sm line-clamp-2 mb-4">{project.description}</p>
+                    {project.description && project.description.includes('<') ? (
+                      <HTMLContent content={project.description} className="text-gray-500 text-sm line-clamp-2 mb-4" />
+                    ) : (
+                      <p className="text-gray-500 text-sm line-clamp-2 mb-4">{project.description}</p>
+                    )}
                     <div className="flex items-center justify-between text-xs text-gray-400">
                       <span>{project.location}</span>
                       <span>{project.beneficiaries} bénéficiaires</span>
