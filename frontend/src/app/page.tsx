@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import HTMLContent from "@/components/ui/html-content";
+import { CountUp } from "@/components/ui/count-up";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
 import { settingsService } from "@/lib/api/settings";
 import { listProjects } from "@/lib/api/projects";
@@ -189,18 +190,18 @@ export default async function Home() {
         <div className="container relative z-10 px-4">
           <StaggerContainer className="flex flex-wrap items-center justify-center gap-12 sm:gap-24 text-white">
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.beneficiaries}</div>
-              <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Bénéficiaires</div>
+              <CountUp value={stats.beneficiaries} className="text-5xl md:text-7xl font-bold text-white mb-2" />
+              <div className="text-sm font-medium uppercase tracking-wider text-white/80">Bénéficiaires</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.projects}</div>
-              <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Projets Réalisés</div>
+              <div className="text-5xl md:text-7xl font-bold text-white mb-2">{stats.projects}</div>
+              <div className="text-sm font-medium uppercase tracking-wider text-white/80">Projets Réalisés</div>
             </StaggerItem>
             <StaggerItem className="hidden sm:block w-px h-24 bg-white/20" />
             <StaggerItem className="text-center">
-              <div className="text-5xl md:text-7xl font-bold text-apc-greenLight mb-2">{stats.provinces}</div>
-              <div className="text-sm font-medium uppercase tracking-wider text-apc-bgLight/80">Provinces RDC</div>
+              <div className="text-5xl md:text-7xl font-bold text-white mb-2">{stats.provinces}</div>
+              <div className="text-sm font-medium uppercase tracking-wider text-white/80">Provinces RDC</div>
             </StaggerItem>
           </StaggerContainer>
         </div>
