@@ -1,6 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
+import HTMLContent from "@/components/ui/html-content"
 
 export interface BreadcrumbItem {
   label: string
@@ -79,9 +80,13 @@ export function PageHero({ title, subtitle, breadcrumbs, tag }: PageHeroProps) {
 
         {/* Subtitle */}
         {subtitle && (
-          <p className="text-lg md:text-xl text-white/70 max-w-2xl leading-relaxed">
-            {subtitle}
-          </p>
+          <div className="text-lg md:text-xl text-white/70 max-w-2xl leading-relaxed">
+            {subtitle.includes('<') ? (
+              <HTMLContent content={subtitle} className="prose prose-invert" />
+            ) : (
+              <p>{subtitle}</p>
+            )}
+          </div>
         )}
 
         {/* Decorative accent bar */}
