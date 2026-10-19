@@ -8,12 +8,13 @@ interface CountUpProps {
   className?: string
 }
 
-export function CountUp({ value, duration = 2, className = "" }: CountUpProps) {
+export function CountUp({ value, duration = 3, className = "" }: CountUpProps) {
   const [displayValue, setDisplayValue] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const ref = useRef<HTMLSpanElement>(null)
 
-  // Parser la valeur (ex: "15 000+" -> 15000)
+  // Parser la valeur et détecter le suffixe (ex: "15 000+" -> 15000, suffixe: "+")
+  const hasSuffix = typeof value === 'string' && value.includes('+')
   const numericValue = typeof value === 'string'
     ? parseInt(value.replace(/[^0-9]/g, '')) || 0
     : value
@@ -59,7 +60,7 @@ export function CountUp({ value, duration = 2, className = "" }: CountUpProps) {
 
   return (
     <span ref={ref} className={className}>
-      {displayValue.toLocaleString('fr-FR')}
+      {displayValue.toLocaleString('fr-FR')}{hasSuffix && '+'}
     </span>
   )
 }
