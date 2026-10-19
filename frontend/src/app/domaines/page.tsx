@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import HTMLContent from "@/components/ui/html-content"
 import {
   Sprout,
   Handshake,
@@ -143,9 +144,13 @@ export default function DomainesPage() {
                     <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">
                       {d.name}
                     </h2>
-                    <p className="text-muted-foreground leading-relaxed mb-7">
-                      {d.description}
-                    </p>
+                    {d.description && d.description.includes('<') ? (
+                      <HTMLContent content={d.description} className="text-muted-foreground leading-relaxed mb-7" />
+                    ) : (
+                      <p className="text-muted-foreground leading-relaxed mb-7">
+                        {d.description}
+                      </p>
+                    )}
 
                     {/* Actions */}
                     {d.actions && d.actions.length > 0 && (
