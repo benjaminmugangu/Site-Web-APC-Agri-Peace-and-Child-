@@ -90,34 +90,6 @@ function sanitizeStyle(styleString: string): string {
 }
 
 /**
- * Nettoie les attributs d'un élément
- */
-function sanitizeAttributes(tagName: string, attributes: Record<string, string>): Record<string, string> {
-  const allowed = ALLOWED_ATTRIBUTES[tagName as keyof typeof ALLOWED_ATTRIBUTES] || []
-  const clean: Record<string, string> = {}
-  
-  for (const [key, value] of Object.entries(attributes)) {
-    // Supprimer tous les attributs data-* (attributs techniques de l'éditeur)
-    if (key.startsWith('data-')) {
-      continue
-    }
-    
-    if (allowed.includes(key)) {
-      if (key === 'style') {
-        clean[key] = sanitizeStyle(value)
-      } else if (key === 'href') {
-        // Nettoyer les URLs pour éviter javascript:
-        clean[key] = value.replace(/^javascript:/i, '')
-      } else {
-        clean[key] = value
-      }
-    }
-  }
-  
-  return clean
-}
-
-/**
  * Convertit une chaîne HTML en DOM, nettoie, et retourne le HTML nettoyé
  */
 export function sanitizeHTML(html: string, allowRichText: boolean = false): string {
@@ -135,7 +107,10 @@ export function sanitizeHTML(html: string, allowRichText: boolean = false): stri
     FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
   }
 
-  return DOMPurify.sanitize(html, config)
+  const sanitized = DOMPurify.sanitize(html, config)
+  
+  // Supprimer tous les attributs data-* (attributs techniques de l'éditeur)
+  return sanitized.replace(/\s+data-[^=]*="[^"]*"/g, '').replace(/\s+data-[^=]*='[^']*'/g, '')
 }
 
 /**
@@ -157,5 +132,8 @@ export function sanitizeHTMLServer(html: string, allowRichText: boolean = false)
     FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
   }
 
-  return DOMPurify.sanitize(html, config)
+  const sanitized = DOMPurify.sanitize(html, config)
+  
+  // Supprimer tous les attributs data-* (attributs techniques de l'éditeur)
+  return sanitized.replace(/\s+data-[^=]*="[^"]*"/g, '').replace(/\s+data-[^=]*='[^']*'/g, '')
 }
