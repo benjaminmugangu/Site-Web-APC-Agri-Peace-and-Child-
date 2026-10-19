@@ -1,7 +1,6 @@
 "use client"
 
-import { useMotionValue, useTransform, useSpring, motion, useInView } from "framer-motion"
-import { useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface CountUpProps {
   value: number | string
@@ -10,27 +9,57 @@ interface CountUpProps {
 }
 
 export function CountUp({ value, duration = 2, className = "" }: CountUpProps) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const [displayValue, setDisplayValue] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
 
   // Parser la valeur (ex: "15 000+" -> 15000)
   const numericValue = typeof value === 'string'
     ? parseInt(value.replace(/[^0-9]/g, '')) || 0
     : value
 
-  const motionValue = useMotionValue(0)
-  const spring = useSpring(motionValue, { duration })
-  const displayValue = useTransform(spring, (latest) => Math.round(latest).toLocaleString('fr-FR'))
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
-    if (isInView) {
-      motionValue.set(numericValue)
+    if (!isVisible) return
+
+    let startTime: number | null = null
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime
+      const progress = Math.min((currentTime - startTime) / (duration * 1000), 1)
+
+      setDisplayValue(Math.floor(progress * numericValue))
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      }
     }
-  }, [motionValue, numericValue, isInView])
+
+    requestAnimationFrame(animate)
+  }, [isVisible, numericValue, duration])
 
   return (
-    <motion.span ref={ref} className={className}>
-      {displayValue}
-    </motion.span>
+    <span ref={ref} className={className}>
+      {displayValue.toLocaleString('fr-FR')}
+    </span>
   )
 }
