@@ -97,6 +97,11 @@ function sanitizeAttributes(tagName: string, attributes: Record<string, string>)
   const clean: Record<string, string> = {}
   
   for (const [key, value] of Object.entries(attributes)) {
+    // Supprimer tous les attributs data-* (attributs techniques de l'éditeur)
+    if (key.startsWith('data-')) {
+      continue
+    }
+    
     if (allowed.includes(key)) {
       if (key === 'style') {
         clean[key] = sanitizeStyle(value)
