@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
+import HTMLContent from "@/components/ui/html-content"
 import { listProjects } from "@/lib/api/projects"
 import { MapPin, Users, ChevronRight } from "lucide-react"
 
@@ -68,9 +69,13 @@ export default async function ProjetsPage() {
                     <h2 className="font-bold text-gray-900 text-xl leading-tight mb-3 group-hover:text-apc-green transition-colors line-clamp-2">
                       {project.title}
                     </h2>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
-                      {project.description}
-                    </p>
+                    {project.description && project.description.includes('<') ? (
+                      <HTMLContent content={project.description} className="text-gray-500 text-sm leading-relaxed mb-6 flex-1 line-clamp-3" />
+                    ) : (
+                      <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
+                        {project.description}
+                      </p>
+                    )}
 
                     <div className="flex items-center gap-4 text-xs font-medium text-gray-400 mb-6">
                       <span className="flex items-center gap-1.5">
