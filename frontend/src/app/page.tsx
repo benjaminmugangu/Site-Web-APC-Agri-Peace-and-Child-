@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
+import HTMLContent from "@/components/ui/html-content";
 import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
 import { settingsService } from "@/lib/api/settings";
 import { listProjects } from "@/lib/api/projects";
@@ -166,7 +167,11 @@ export default async function Home() {
                       <Icon className="h-7 w-7" style={{ color }} strokeWidth={2} />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-4">{domaine.name}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{domaine.description}</p>
+                    {domaine.description && domaine.description.includes('<') ? (
+                      <HTMLContent content={domaine.description} className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1" />
+                    ) : (
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">{domaine.description}</p>
+                    )}
                     <Link href={`/domaines#${domaine.slug}`} className="font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color }}>
                       En savoir plus <ChevronRight className="w-4 h-4" />
                     </Link>
