@@ -7,11 +7,6 @@ import { PageHero } from "@/components/ui/page-hero"
 import { Button } from "@/components/ui/button"
 import HTMLContent from "@/components/ui/html-content"
 import {
-  Sprout,
-  Handshake,
-  Heart,
-  Users,
-  ShieldCheck,
   ChevronRight,
   Check,
   Loader2,
@@ -19,14 +14,7 @@ import {
 } from "lucide-react"
 import { domainService } from "@/lib/api/services"
 import { Service } from "@/types"
-
-const iconMap: Record<string, any> = {
-  Sprout,
-  Handshake,
-  Heart,
-  Users,
-  ShieldCheck,
-}
+import { getLucideIcon } from "@/lib/icons"
 
 export default function DomainesPage() {
   const [domaines, setDomaines] = useState<Service[]>([])
@@ -75,7 +63,7 @@ export default function DomainesPage() {
       ) : (
         domaines.map((d, i) => {
           const isEven = i % 2 === 0
-          const Icon = iconMap[d.iconName || 'Globe'] || Globe
+          const IconComponent = getLucideIcon(d.iconName, "Globe")
           const color = d.colorHex || '#059b5e'
           
           return (
@@ -128,7 +116,7 @@ export default function DomainesPage() {
                         className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md"
                         style={{ backgroundColor: `${color}1A` }}
                       >
-                        <Icon
+                        <IconComponent
                           className="w-7 h-7"
                           style={{ color: color }}
                         />

@@ -4,16 +4,14 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import HTMLContent from "@/components/ui/html-content";
 import { StatsSection } from "@/components/stats-section";
-import { Heart, Sprout, ShieldCheck, Handshake, ChevronRight, CheckCircle2 } from "lucide-react";
+import { ChevronRight, CheckCircle2 } from "lucide-react";
+import { getLucideIcon } from "@/lib/icons";
 import { settingsService } from "@/lib/api/settings";
 import { listProjects } from "@/lib/api/projects";
 import { listPartners } from "@/lib/api/partners";
 import { domainService } from "@/lib/api/services";
 
 export const dynamic = 'force-dynamic';
-
-// Mapping icon name → Lucide component (pour les domaines depuis l'API)
-const iconMap: Record<string, any> = { ShieldCheck, Sprout, Heart, Handshake };
 
 const fallbackPiliers = [
   {
@@ -160,7 +158,7 @@ export default async function Home() {
             {(domaines.length > 0 ? domaines : fallbackPiliers).slice(0, 4).map((domaine: any, i: number) => {
               const color = domaine.colorHex || domainColors[i % domainColors.length];
               const lightColor = domainLightColors[i % domainLightColors.length];
-              const Icon = iconMap[domaine.iconName] || ShieldCheck;
+              const Icon = getLucideIcon(domaine.iconName, "ShieldCheck");
               return (
                 <StaggerItem key={domaine.id}>
                   <div className="group rounded-3xl p-8 bg-apc-bgLight border border-border/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">

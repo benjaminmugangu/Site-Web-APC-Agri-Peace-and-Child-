@@ -10,6 +10,7 @@ import { domainService } from "@/lib/api/services"
 import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
 import ImageUploader from "@/components/ui/ImageUploader"
+import { IconSelector } from "@/components/ui/icon-selector"
 import { useRole } from "@/hooks/useRole"
 
 export default function AdminServicesPage() {
@@ -346,11 +347,9 @@ export default function AdminServicesPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400">Icône (Lucide React)</label>
-                  <input 
-                    type="text" 
+                  <IconSelector
                     value={formData.iconName}
-                    onChange={e => setFormData({ ...formData, iconName: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none font-mono text-sm" 
+                    onChange={(iconName) => setFormData({ ...formData, iconName })}
                   />
                 </div>
                 <div className="space-y-2">
