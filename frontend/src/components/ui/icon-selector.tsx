@@ -14,8 +14,8 @@ export function IconSelector({ value, onChange, className = "" }: IconSelectorPr
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredIcons = COMMON_ICONS.filter(iconName =>
-    iconName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredIcons = COMMON_ICONS.filter((icon) =>
+    icon.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const IconComponent = getLucideIcon(value, "Heart")
