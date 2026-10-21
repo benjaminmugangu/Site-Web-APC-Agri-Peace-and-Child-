@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import * as LucideIcons from "lucide-react"
-import { COMMON_ICONS } from "@/lib/icons"
+import { COMMON_ICONS, getLucideIcon } from "@/lib/icons"
 
 interface IconSelectorProps {
   value: string
@@ -14,11 +14,11 @@ export function IconSelector({ value, onChange, className = "" }: IconSelectorPr
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredIcons = COMMON_ICONS.filter(icon =>
-    icon.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredIcons = COMMON_ICONS.filter(iconName =>
+    iconName.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const IconComponent = (LucideIcons as any)[value] || (LucideIcons as any)["Heart"]
+  const IconComponent = getLucideIcon(value, "Heart")
 
   return (
     <div className={`relative ${className}`}>
@@ -52,7 +52,7 @@ export function IconSelector({ value, onChange, className = "" }: IconSelectorPr
           {/* Grille d'icônes */}
           <div className="p-3 grid grid-cols-6 gap-2 max-h-60 overflow-y-auto">
             {filteredIcons.map((iconName) => {
-              const Icon = (LucideIcons as any)[iconName]
+              const Icon = getLucideIcon(iconName, "Heart")
               return (
                 <button
                   key={iconName}

@@ -11,6 +11,7 @@ import { type Service } from "@/types"
 import * as LucideIcons from "lucide-react"
 import ImageUploader from "@/components/ui/ImageUploader"
 import { IconSelector } from "@/components/ui/icon-selector"
+import { getLucideIcon } from "@/lib/icons"
 import { useRole } from "@/hooks/useRole"
 
 export default function AdminServicesPage() {
@@ -205,8 +206,7 @@ export default function AdminServicesPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {services.map((service) => {
-                // @ts-ignore
-                const IconComponent = LucideIcons[service.iconName || 'Heart'] || LucideIcons.Heart;
+                const IconComponent = getLucideIcon(service.iconName, "Heart");
                 return (
                 <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
