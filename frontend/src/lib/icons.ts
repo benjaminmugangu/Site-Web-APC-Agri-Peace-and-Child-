@@ -1,13 +1,25 @@
 import * as LucideIcons from "lucide-react"
+import { Heart } from "lucide-react"
 
 /**
  * Charge dynamiquement une icône Lucide React par son nom
  * @param iconName - Nom de l'icône (ex: "Heart", "ShieldCheck")
  * @param fallbackIcon - Icône par défaut si non trouvée
- * @returns Le composant icône ou l'icône de fallback
+ * @returns Le composant icône ou l'icône de fallback (jamais undefined)
  */
 export function getLucideIcon(iconName: string, fallbackIcon = "Heart") {
+  // Si iconName est vide ou invalide, utiliser le fallback
+  if (!iconName || typeof iconName !== 'string') {
+    return Heart
+  }
+
   const IconComponent = (LucideIcons as any)[iconName] || (LucideIcons as any)[fallbackIcon]
+
+  // Si toujours undefined, retourner le fallback importé directement
+  if (!IconComponent) {
+    return Heart
+  }
+
   return IconComponent
 }
 
